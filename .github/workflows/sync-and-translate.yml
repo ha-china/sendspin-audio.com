@@ -1,9 +1,6 @@
 name: Sync upstream and translate
 
 on:
-  schedule:
-    # Every day at 03:30 UTC, after the contributors site's run.
-    - cron: "30 3 * * *"
   workflow_dispatch:
 
 permissions:
