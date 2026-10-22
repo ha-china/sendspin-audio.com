@@ -131,4 +131,17 @@ const INDEX_PAIRS = [
     console.log("chinese chrome applied to src/index.html");
   }
 }
+// Re-adds the 51.la analytics snippet of the Chinese mirror, which the
+// upstream base.html does not carry (idempotent: skips when present).
+{
+  const path = root + "src/_includes/base.html";
+  let text = readFileSync(path, "utf8");
+  const snippet =
+    '    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js?id=3MhQABjxy4RZQ6Ig&ck=3MhQABjxy4RZQ6Ig"></script>\n';
+  if (!text.includes("sdk.51.la") && text.includes("</head>")) {
+    text = text.replace("</head>", `${snippet}  </head>`);
+    writeFileSync(path, text);
+    console.log("51.la analytics re-applied");
+  }
+}
 console.log("ensure-chinese done");

@@ -15,7 +15,7 @@ import { fileURLToPath } from "node:url";
 const PREFIX = process.env.SITE_BASE_PATH || "/sendspin";
 const site = fileURLToPath(new URL("../dist/", import.meta.url));
 
-const ATTR = /(href|src|poster|action)=("(?:\/[^"\/][^"]*")|'(?:\/[^'\/][^']*'))/g;
+const ATTR = /(href|src|poster|action|srcset|imagesrcset)=("(?:\/[^"\/][^"]*")|'(?:\/[^'\/][^']*'))/g;
 const CSS_URL = /url\(\s*("(?:\/[^"\/][^"]*)"|'(?:\/[^'\/][^']*)'|(?:\/[^)"'][^)]*'))\s*\)/g;
 // JS string literals that start with a root path, in fetches and links:
 // fetch("/x"), location.assign('/x'), "/images/..." concatenations.
@@ -24,6 +24,22 @@ const JS_PATH = /(?<![\w$.\/])(["'])\/(?!\/)[\w@][\w\-./@]*\1/g;
 function prefix(value) {
   // value keeps its quotes: '"/style.css"' -> '"/sendspin/style.css"'.
   return `${value[0]}${PREFIX}${value.slice(1)}`;
+}
+
+// srcset values hold comma-separated candidates, each "url descriptor":
+// prefix every candidate whose url is root-relative.
+function prefixSrcset(quoted) {
+  const quote = quoted[0];
+  const body = quoted.slice(1, -1);
+  const rewritten = body
+    .split(",")
+    .map((candidate) => {
+      const trimmed = candidate.trim();
+      if (!trimmed.startsWith("/") || trimmed.startsWith(`${PREFIX}/`)) return candidate;
+      return candidate.replace(trimmed, `${PREFIX}${trimmed}`);
+    })
+    .join(",");
+  return `${quote}${rewritten}${quote}`;
 }
 
 let files = 0;
@@ -44,7 +60,12 @@ function walk(dir) {
     } else {
       text = text
         .replace(/(href|src|poster|action)=("|')\/("|')/g, (m, attr, q) => `${attr}=${q}${PREFIX}/${q}`)
-        .replace(ATTR, (m, attr, q) => (q.slice(1).startsWith(PREFIX) ? m : `${attr}=${prefix(q)}`))
+        .replace(ATTR, (m, attr, q) => {
+          if (attr === "srcset" || attr === "imagesrcset") {
+            return q.slice(1).startsWith(PREFIX) ? m : `${attr}=${prefixSrcset(q)}`;
+          }
+          return q.slice(1).startsWith(PREFIX) ? m : `${attr}=${prefix(q)}`;
+        })
         .replace(CSS_URL, (m, q) => (q.slice(1).startsWith(PREFIX) ? m : `url(${prefix(q)})`));
     }
     if (text !== before) {
