@@ -58,12 +58,12 @@ jobs:
             LAST=""
           fi
           if [ -z "$LAST" ]; then
-            FILES=$(git ls-files -c 'src/**/*.md' | grep -v '^src/index.md$' || true)
+            FILES=$(git ls-files -c 'src/**/*.md' 'src/*.md' | grep -v '^src/index\.md$' || true)
           elif [ "$LAST" = "$UP" ]; then
             echo "No upstream changes since last sync"
             FILES=""
           else
-            FILES=$(git diff --name-only --diff-filter=ACMRT "$LAST" "$UP" -- 'src/**/*.md' || true)
+            FILES=$(git diff --name-only --diff-filter=ACMRT "$LAST" "$UP" -- 'src/**/*.md' 'src/*.md' || true)
           fi
           { echo 'files<<EOF'; echo "$FILES"; echo EOF; } >> "$GITHUB_OUTPUT"
           echo "Last sync sha: ${LAST:-<none, full translation>}"
