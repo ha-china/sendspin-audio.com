@@ -148,8 +148,8 @@ if (!root) {
 
     try {
       await navigator.share({
-        title: "Sendspin live demo",
-        text: "Open the Sendspin live demo in your browser.",
+        title: "Sendspin 在线演示",
+        text: "在浏览器中打开 Sendspin 在线演示。",
         url: shareUrl,
       });
     } catch (err) {
@@ -157,7 +157,7 @@ if (!root) {
         return;
       }
 
-      console.warn("Failed to share the live demo URL:", err);
+      console.warn("分享演示链接失败：", err);
     }
   }
 
@@ -169,7 +169,7 @@ if (!root) {
     try {
       navigator.vibrate(pattern);
     } catch (err) {
-      console.warn("Failed to trigger vibration:", err);
+      console.warn("触发震动失败：", err);
     }
   }
 
@@ -538,10 +538,10 @@ if (!root) {
 
   function getListenToggleLabel() {
     if (state.isStarting) {
-      return "Connecting...";
+      return "连接中…";
     }
 
-    return state.isListening ? "Stop listening" : "Start listening";
+    return state.isListening ? "停止收听" : "开始收听";
   }
 
   function renderUiState() {
@@ -601,7 +601,7 @@ if (!root) {
     try {
       activePlayer.disconnect(reason);
     } catch (err) {
-      console.warn("Failed to disconnect player:", err);
+      console.warn("断开播放器失败：", err);
     }
   }
 
@@ -635,7 +635,7 @@ if (!root) {
           nextPlayer.disconnect("user_request");
         } catch (disconnectErr) {
           console.warn(
-            "Failed to clean up after connection error:",
+            "连接错误后清理失败：",
             disconnectErr,
           );
         }
@@ -701,7 +701,7 @@ if (!root) {
       activePlayer.setMuted(false);
       updateSyncStatus();
     } catch (err) {
-      console.error("Connection failed:", err);
+      console.error("连接失败：", err);
       disconnect();
     } finally {
       state.isStarting = false;

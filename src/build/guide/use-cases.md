@@ -1,129 +1,129 @@
 ---
-title: Worked use cases
+title: 典型使用案例
 nav_title: Use cases
-description: What Sendspin looks like inside common products; speakers, streamers, displays, controllers, lights, set-top boxes, input bridges, apps and software players.
+description: Sendspin 在常见产品中的形态：音箱、流媒体播放器、显示屏、控制器、灯具、机顶盒、输入桥接器、应用和软件播放器。
 order: 13
 ---
 
-Each case names the roles involved, how the device connects, which pairing method fits, and the things that usually go wrong. Find the one closest to your product and read it before the step-by-step chapters.
+每个案例都会说明其中涉及的角色、设备的连接方式、适合的配对方法，以及通常容易出问题的地方。请找到与你的产品最接近的案例，并在阅读分步章节之前先把它读完。
 
 <div class="hub-cards">
   <div class="hub-card">
-    <h3>Smart speaker or amplifier</h3>
-    <p><strong>Roles:</strong> player, controller; source if it has a line input.</p>
+    <h3>智能音箱或功放</h3>
+    <p><strong>角色：</strong>播放器（player）、控制器（controller）；如有线路输入，还可作为音源（source）。</p>
     <ul>
-      <li>Server-initiated connection; the device advertises itself and any server in the home can use it.</li>
-      <li>Pairing: a dynamic code spoken through the speaker if it has no display, otherwise shown on the display.</li>
-      <li>Decide whether unpaired access is on by default. For a plain speaker it usually is: the user expects to pick it in the app and hear music.</li>
-      <li>Set the output delay for anything after the port, such as an external amplifier, and let the user adjust it.</li>
-      <li>Start with <a href="/build/guide/esphome/">ESPHome</a> for ESP32 designs, <a href="https://github.com/Sendspin/sendspin-cpp">sendspin-cpp</a> for anything else.</li>
+      <li>由服务器（server）发起连接；设备自行广播自己，家中的任何服务器都可以使用它。</li>
+      <li>配对：没有显示屏时，通过音箱播报动态码；否则在显示屏上显示动态码。</li>
+      <li>决定未配对访问（unpaired access）是否默认开启。对于普通音箱来说通常是开启的：用户期望能在应用中选中它并听到音乐。</li>
+      <li>为端口之后的任何设备（例如外部功放）设置输出延迟，并让用户可以自行调整。</li>
+      <li>ESP32 设计可从 <a href="/build/guide/esphome/">ESPHome</a> 入手，其他情况则使用 <a href="https://github.com/Sendspin/sendspin-cpp">sendspin-cpp</a>。</li>
     </ul>
   </div>
   <div class="hub-card">
-    <h3>Streamer, output only</h3>
-    <p><strong>Roles:</strong> player, plus controller when there is a remote or an app.</p>
+    <h3>流媒体播放器（仅输出）</h3>
+    <p><strong>角色：</strong>播放器；如果有遥控器或应用，还兼作控制器。</p>
     <ul>
-      <li>A network streamer or a DIY board: no speaker of its own, feeding a DAC, an amplifier or an optical input.</li>
-      <li>The DAC, DSP and amplifier behind the port add delay the device cannot see. Measure it once and ship it as the default output delay; expose it in settings.</li>
-      <li>Pairing: a dynamic code shown in your app if you have one, otherwise a static code printed on the device, entered while a button press opens the pairing window. Most users will use guest mode.</li>
-      <li>Report hardware volume knobs as read-only when they cannot be set remotely.</li>
-      <li>Sendspin can run next to AirPlay and Cast on the same box. While another protocol is playing, leave the Sendspin group but stay available, so the user can take the device back with Sendspin at any time. Report it unavailable only if it will not yield.</li>
+      <li>网络流媒体播放器或 DIY 板子：自身不带音箱，向 DAC、功放或光纤输入供音。</li>
+      <li>端口之后的 DAC、DSP 和功放会带来设备无法感知的延迟。测量一次，把它作为默认输出延迟出厂设置；并在设置中开放调整。</li>
+      <li>配对：如果你有自己的应用，则在应用中显示动态码；否则使用印在设备上的静态码，在按下按键打开配对窗口的同时输入。大多数用户会使用访客模式（guest mode）。</li>
+      <li>当硬件音量旋钮无法远程设置时，将其报告为只读。</li>
+      <li>Sendspin 可以与 AirPlay 和 Cast 共存在同一台设备上运行。当其他协议正在播放时，退出 Sendspin 组（group）但保持可用，这样用户随时可以用 Sendspin 把设备拿回来。只有当它不会让出时，才将其报告为不可用。</li>
     </ul>
   </div>
   <div class="hub-card">
-    <h3>Wall tablet or display</h3>
-    <p><strong>Roles:</strong> metadata, artwork, controller; color for theming; player if it has a speaker.</p>
+    <h3>壁挂平板或显示屏</h3>
+    <p><strong>角色：</strong>元数据、封面图（artwork）、控制器；用于主题配色的颜色（color）；带音箱时还可作为播放器。</p>
     <ul>
-      <li>Ask for artwork in exactly the pixel size you render; the server scales for you. Use a second channel for a blurred background.</li>
-      <li>Scheduled metadata lets you show "up next" before the track changes.</li>
-      <li>Pairing: show a dynamic code or a QR code on the display.</li>
-      <li>A controller acts on the group the display is in. Give the user a way to switch groups.</li>
-      <li>Start with <a href="https://github.com/Sendspin/sendspin-js">sendspin-js</a> for web-based panels, sendspin-cpp for embedded displays.</li>
+      <li>按你实际渲染的像素尺寸请求封面图；服务器会替你完成缩放。用第二个通道获取模糊背景。</li>
+      <li>定时元数据让你能在曲目切换之前就显示“接下来播放”。</li>
+      <li>配对：在显示屏上显示动态码或二维码。</li>
+      <li>控制器作用于显示屏所在的组。要为用户提供切换组的方式。</li>
+      <li>基于 Web 的面板可从 <a href="https://github.com/Sendspin/sendspin-js">sendspin-js</a> 入手，嵌入式显示屏则使用 sendspin-cpp。</li>
     </ul>
   </div>
   <div class="hub-card">
-    <h3>Dedicated controller</h3>
-    <p><strong>Roles:</strong> controller only.</p>
+    <h3>专用控制器</h3>
+    <p><strong>角色：</strong>仅作控制器。</p>
     <ul>
-      <li>A knob, a button panel, a remote or a voice satellite that controls the room it is in without playing anything itself.</li>
-      <li>It receives the group's state, so a ring of LEDs can show volume and play state.</li>
-      <li>Pairing is rarely worth the friction here; unpaired access with operator approval is the usual choice.</li>
-      <li>Play with nothing queued resumes what the group last played, so a single button is enough.</li>
+      <li>旋钮、按键面板、遥控器或语音卫星，控制所在房间，但自身不播放任何内容。</li>
+      <li>它会接收所在组的状态，因此一圈 LED 可以显示音量和播放状态。</li>
+      <li>在这类设备上，配对带来的麻烦通常得不偿失；经操作者（operator）批准的未配对访问才是常见选择。</li>
+      <li>在队列为空时播放，会恢复该组上次播放的内容，因此单个按钮就足够了。</li>
     </ul>
   </div>
   <div class="hub-card">
-    <h3>Lighting and visualizers</h3>
-    <p><strong>Roles:</strong> visualizer, color, or both.</p>
+    <h3>灯光与可视化设备</h3>
+    <p><strong>角色：</strong>可视化（visualizer）、颜色，或两者兼有。</p>
     <ul>
-      <li>Visualizer frames are timestamped like audio. Run the time filter and render each frame at its time, not on arrival.</li>
-      <li>Ask only for the data types you use, at the rate you can render. Beat events may be absent on servers without beat detection; peaks are always there.</li>
-      <li>Colors come with contrast guarantees, so the same palette drives both the lamp and any text overlay.</li>
+      <li>可视化帧与音频一样带有时间戳。运行时间滤波器，并在每帧对应的时间点渲染，而不是在到达时立即渲染。</li>
+      <li>只请求你用得到的数据类型，并且以你能渲染的频率请求。不具备节拍检测能力的服务器可能没有节拍事件；峰值（peaks）则始终可用。</li>
+      <li>颜色自带对比度保证，因此同一套调色板既可以驱动灯具，也可以驱动任何文字叠加层。</li>
     </ul>
   </div>
   <div class="hub-card">
-    <h3>Set-top box or TV</h3>
-    <p><strong>Roles:</strong> player, source, optionally an embedded server.</p>
+    <h3>机顶盒或电视</h3>
+    <p><strong>角色：</strong>播放器、音源，可选内嵌服务器。</p>
     <ul>
-      <li>As a player it joins the speakers for music. As a source it feeds TV audio into the system so the room's speakers play the film.</li>
-      <li>Never pass the TV audio to the local speakers directly while sending it to the system: the local output would run ahead of the network. A device that is source and player plays only what the server sends back.</li>
-      <li>When the user switches to a game console or another input, leave the Sendspin group but stay available if Sendspin may interrupt, or report the player unavailable if it must not. Either way the server parks it and never pulls it back on its own.</li>
-      <li>An embedded server lets the box drive the room on its own, without a music server in the house. See the app case for how client and server mode coexist.</li>
+      <li>作为播放器，它与音箱一起播放音乐。作为音源，它把电视音频送入系统，让房间的音箱来播放电影。</li>
+      <li>在把电视音频发送给系统的同时，千万不要把它直接输出到本地音箱：本地输出会超前于网络。身兼音源和播放器的设备只播放服务器回传的内容。</li>
+      <li>当用户切换到游戏主机或其他输入时，如果允许 Sendspin 被打断，则退出 Sendspin 组但保持可用；如果不允许被打断，则将播放器报告为不可用。无论哪种情况，服务器都会将其搁置一旁，绝不会自行把它拉回来。</li>
+      <li>内嵌服务器让这台设备在没有家庭音乐服务器的情况下也能独立驱动整个房间。客户端与服务器模式如何共存，参见应用案例。</li>
     </ul>
   </div>
   <div class="hub-card">
-    <h3>Turntable, AUX or Bluetooth bridge</h3>
-    <p><strong>Roles:</strong> source.</p>
+    <h3>黑胶唱机、AUX 或蓝牙桥接器</h3>
+    <p><strong>角色：</strong>音源。</p>
     <ul>
-      <li>The device captures, timestamps and sends audio. The server resamples and mixes.</li>
-      <li>Report line sense when you can detect signal; the server can start the room when the needle drops and stop it when the record ends.</li>
-      <li>Timestamp from the time filter including drift, not offset alone, or the stream wanders over an evening.</li>
-      <li>After a network stall, drop the backlog and resume from live capture instead of bursting old audio.</li>
-      <li>A source always requires explicit operator approval on the server, and devices with a microphone should ship with unpaired access off.</li>
+      <li>设备负责采集音频、加上时间戳并发送。服务器负责重采样和混音。</li>
+      <li>能检测到信号时就报告线路感应（line sense）；这样服务器可以在唱针落下时启动房间，在唱片结束时停止。</li>
+      <li>使用来自时间滤波器的时间戳并包含漂移，而不只是偏移量，否则音频流会在一晚上逐渐跑偏。</li>
+      <li>网络卡顿之后，丢弃积压的数据，从实时采集处恢复播放，而不是把旧音频一次性突发发送出来。</li>
+      <li>音源始终需要在服务器上获得操作者的明确批准，而带麦克风的设备出厂时应默认关闭未配对访问。</li>
     </ul>
   </div>
   <div class="hub-card">
-    <h3>Desktop or mobile app</h3>
-    <p><strong>Roles:</strong> player and controller as a client; a full server when the app plays.</p>
+    <h3>桌面或移动应用</h3>
+    <p><strong>角色：</strong>作为客户端时是播放器和控制器；当应用自己播放时，则是完整的服务器。</p>
     <ul>
-      <li>Idle, the app is a client: it shows up as a target for Music Assistant or any other server in the home.</li>
-      <li>When the user starts playback in the app, it becomes a server and sends to the other speakers. Say goodbye to the server you were a client of with reason <code>another_server</code>, and advertise <code>_sendspin-server._tcp</code> as well so client-initiated devices find you.</li>
-      <li>Clients listen on 8928 and servers on 8927 by convention, so both can run on one machine.</li>
+      <li>空闲时，应用是一个客户端：它会显示为 Music Assistant 或家中任何其他服务器的目标设备。</li>
+      <li>当用户在应用中开始播放时，应用会变成服务器并向其他音箱发送音频。用原因 <code>another_server</code> 向你之前作为客户端所连接的服务器告别，并同时广播 <code>_sendspin-server._tcp</code>，让以客户端方式发起连接的设备也能找到你。</li>
+      <li>按照惯例，客户端监听 8928 端口，服务器监听 8927 端口，因此两者可以运行在同一台机器上。</li>
     </ul>
   </div>
   <div class="hub-card">
-    <h3>Software player or music server</h3>
-    <p><strong>Roles:</strong> server, client, or both.</p>
+    <h3>软件播放器或音乐服务器</h3>
+    <p><strong>角色：</strong>服务器、客户端，或两者兼有。</p>
     <ul>
-      <li>A software music player, a Linux audio box, a home-automation hub: add the server side to send its output to Sendspin devices, add the client side to be a target for other servers, or do both.</li>
-      <li>Reuse <a href="https://github.com/Sendspin/aiosendspin">aiosendspin</a> if you are in Python; it is the server inside Music Assistant.</li>
-      <li>Your server identity key must survive backups and migrations, or every device will treat the restored server as a stranger.</li>
-      <li>The <a href="/build/guide/server/ux/">server UX chapter</a> covers discovery, approval and pairing.</li>
+      <li>软件音乐播放器、Linux 音频盒子、家庭自动化中枢：添加服务器端以把它的输出发送到 Sendspin 设备，添加客户端侧以作为其他服务器的目标设备，或者两者都做。</li>
+      <li>如果你使用 Python，可复用 <a href="https://github.com/Sendspin/aiosendspin">aiosendspin</a>；它就是 Music Assistant 内部的服务器。</li>
+      <li>你的服务器身份密钥必须在备份和迁移之后保持不变，否则每台设备都会把恢复出来的服务器当作陌生人。</li>
+      <li><a href="/build/guide/server/ux/">服务器 UX 章节</a>涵盖了发现、批准和配对。</li>
     </ul>
   </div>
   <div class="hub-card">
-    <h3>Several servers in one home</h3>
-    <p><strong>Roles:</strong> any; this is about coexistence.</p>
+    <h3>一个家中有多台服务器</h3>
+    <p><strong>角色：</strong>任意；这里讲的是共存问题。</p>
     <ul>
-      <li>Music Assistant, a phone app and a set-top box can all be servers at once. Server-initiated connections make this work without configuration.</li>
-      <li>A client holds one playback connection. A server that starts playing takes it; the one that loses it gets <code>another_server</code>, keeps showing the device as available, and does not reconnect in a loop.</li>
-      <li>Each server pairs separately. A client stores at least five pairing records.</li>
-      <li>Show the hand-over as "playing from somewhere else" in your server UI.</li>
+      <li>Music Assistant、手机应用和机顶盒可以同时作为服务器。服务器发起的连接让这一切无需配置即可实现。</li>
+      <li>一个客户端只持有一条播放连接。开始播放的服务器会接管这条连接；失去连接的服务器会收到 <code>another_server</code>，继续把设备显示为可用，并且不会陷入循环重连。</li>
+      <li>每台服务器分别进行配对。客户端至少要存储五条配对记录。</li>
+      <li>在你的服务器界面中，把这种交接显示为“正在从别处播放”。</li>
     </ul>
   </div>
 </div>
 
-## Picking a connection mode
+## 选择连接模式
 
-Use server-initiated connections unless you have a reason not to. The client advertises itself, servers find it, and the multi-server rules above are defined. Client-initiated connections exist for scripts, test tools and software that already has a server picker of its own; what happens with two servers is then up to you.
+除非你有不这样做的理由，否则应使用服务器发起的连接。客户端自行广播自己，服务器能够发现它，并且上文的 多服务器规则已经对此做出了定义。客户端发起的连接是为脚本、测试工具以及自带服务器选择器的软件而存在的；当出现两台服务器时会发生什么，就由你自己决定了。
 
-## Picking a pairing method
+## 选择配对方法
 
-| Your device has | Offer |
+| 你的设备具备 | 应提供 |
 |---|---|
-| A display | Dynamic pairing code, as digits and as a QR code |
-| A speaker but no display | Dynamic pairing code, spoken |
-| An app of its own | Dynamic pairing code shown in the app, which acts as the device's display |
-| None of these | Static pairing code printed on the device, entered while a button, a pinhole or a power-cycle pattern opens the pairing window |
-| A platform that already knows the device | The platform hands the device's pairing PSK to the server, the way Home Assistant does for ESPHome devices |
+| 有显示屏 | 动态配对码，同时以数字和二维码两种形式呈现 |
+| 有音箱但没有显示屏 | 动态配对码，通过语音播报 |
+| 有专属应用 | 在应用中显示的动态配对码，应用充当设备的显示屏 |
+| 以上都不具备 | 印在设备上的静态配对码，在通过按键、针孔或特定断电重启方式打开配对窗口时输入 |
+| 所在平台已经认识该设备 | 由平台把设备的配对 PSK 交给服务器，就像 Home Assistant 对 ESPHome 设备所做的那样 |
 
-Offer one code-based method, not both, so the user never has to choose between them. Every client also implements the pairing PSK method for automated hand-offs between systems. A speaker with guest mode on plays for any server the operator approves, so many users will never need to pair. The [client pairing chapter](/build/guide/client/pairing/) has the details.
+只提供一种基于码的方式，而不是两种都提供，这样用户就不必在两者之间做选择。每个客户端也会实现配对 PSK 方法，用于系统之间的自动交接。开启了访客模式的音箱可以为操作者批准的任何服务器播放，因此许多用户根本无需配对。详情请参阅[客户端配对章节](/build/guide/client/pairing/)。

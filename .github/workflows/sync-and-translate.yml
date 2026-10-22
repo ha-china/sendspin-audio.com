@@ -1,0 +1,91 @@
+name: Sync upstream and translate
+
+on:
+  schedule:
+    # Every day at 03:30 UTC, after the contributors site's run.
+    - cron: "30 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-and-translate
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+      LLM_API_URL: ${{ secrets.LLM_API_URL }}
+      LLM_MODEL: ${{ secrets.LLM_MODEL }}
+    steps:
+      - name: Checkout Chinese branch
+        uses: actions/checkout@v4
+        with:
+          ref: Chinese
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/Sendspin/sendspin-audio.com.git
+          git fetch upstream main
+          git config user.name "translate-bot"
+          git config user.email "actions@users.noreply.github.com"
+
+      - name: Merge upstream
+        run: |
+          set -e
+          UP=$(git rev-parse upstream/main)
+          git merge upstream/main -X theirs --no-edit -m "Sync from upstream $UP"
+          echo "UPSTREAM_SHA=$UP" >> "$GITHUB_ENV"
+
+      # -X theirs takes the upstream side of the templates, which resets the
+      # Chinese labels of the navigation and the footer. The script is
+      # idempotent: it re-applies the labels of our Chinese branch.
+      - name: Re-apply Chinese chrome
+        run: node scripts/ensure-chinese.mjs
+
+      - name: List changed content files
+        id: files
+        run: |
+          UP=$(git rev-parse upstream/main)
+          if [ -f .github/translation/last-sync-sha.txt ]; then
+            LAST="$(cat .github/translation/last-sync-sha.txt)"
+          else
+            LAST=""
+          fi
+          if [ -z "$LAST" ]; then
+            FILES=$(git ls-files -c 'src/**/*.md' | grep -v '^src/index.md$' || true)
+          elif [ "$LAST" = "$UP" ]; then
+            echo "No upstream changes since last sync"
+            FILES=""
+          else
+            FILES=$(git diff --name-only --diff-filter=ACMRT "$LAST" "$UP" -- 'src/**/*.md' || true)
+          fi
+          { echo 'files<<EOF'; echo "$FILES"; echo EOF; } >> "$GITHUB_OUTPUT"
+          echo "Last sync sha: ${LAST:-<none, full translation>}"
+          echo "Files to translate:"; echo "$FILES"
+
+      - name: Translate
+        if: steps.files.outputs.files != ''
+        run: node scripts/translate-upstream.mjs
+        env:
+          FILE_LIST: ${{ steps.files.outputs.files }}
+
+      - name: Persist last-sync commit
+        run: |
+          mkdir -p .github/translation
+          echo "$UPSTREAM_SHA" > .github/translation/last-sync-sha.txt
+
+      - name: Commit and push
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to commit"
+          else
+            git commit -m "Translate content from upstream $UPSTREAM_SHA"
+            git push origin Chinese
+          fi

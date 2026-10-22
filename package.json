@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "test": "true"
+    "test": "true",
+    "build": "eleventy && node scripts/collect-subpath.mjs"
   },
   "devDependencies": {
     "@11ty/eleventy": "^2.0.1",
@@ -8,5 +9,6 @@
   },
   "dependencies": {
     "markdown-it-anchor": "^9.2.0"
-  }
+  },
+  "name": "sendspin-audio-zh"
 }

@@ -9,8 +9,8 @@ custom_main: true
 <main class="page-content guide">
   <div class="container guide__shell">
     <details class="guide__drawer" open>
-      <summary class="guide__drawer-summary">Guide contents</summary>
-      <nav class="guide__nav" aria-label="Implementation guide chapters">
+      <summary class="guide__drawer-summary">指南目录</summary>
+      <nav class="guide__nav" aria-label="实施指南章节">
         {% for s in collections.guideSections %}
         {% if s.name != blank %}<p class="eyebrow guide__nav-section">{{ s.name }}</p>{% endif %}
         <ul class="guide__nav-list">
@@ -28,12 +28,12 @@ custom_main: true
           {% endfor %}
         </ul>
         {% endfor %}
-        <p class="eyebrow guide__nav-section">More</p>
+        <p class="eyebrow guide__nav-section">更多</p>
         <ul class="guide__nav-list">
-          <li><a class="guide__nav-link" href="/build/sdks/">SDKs &amp; tools</a></li>
-          <li><a class="guide__nav-link" href="/build/spec/">Protocol specification</a></li>
-          <li><a class="guide__nav-link" href="/licensing/">Licensing &amp; trademarks</a></li>
-          <li><a class="guide__nav-link" href="/build/guide/all/">One page / PDF</a></li>
+          <li><a class="guide__nav-link" href="/build/sdks/">SDK 与工具</a></li>
+          <li><a class="guide__nav-link" href="/build/spec/">协议规范</a></li>
+          <li><a class="guide__nav-link" href="/licensing/">许可与商标</a></li>
+          <li><a class="guide__nav-link" href="/build/guide/all/">单页 / PDF</a></li>
         </ul>
       </nav>
     </details>
@@ -51,16 +51,16 @@ custom_main: true
     <article class="guide__article">
       <h1>{{ title }}</h1>
       {{ content }}
-      <nav class="guide__pager" aria-label="Previous and next chapter">
+      <nav class="guide__pager" aria-label="上一章与下一章导航">
         {% if prev %}
         <a class="guide__pager-link guide__pager-link--prev" href="{{ prev.url }}">
-          <span class="guide__pager-label">Previous</span>
+          <span class="guide__pager-label">上一章</span>
           <span class="guide__pager-title">{{ prev.data.nav_title | default: prev.data.title }}</span>
         </a>
         {% endif %}
         {% if next %}
         <a class="guide__pager-link guide__pager-link--next" href="{{ next.url }}">
-          <span class="guide__pager-label">Next</span>
+          <span class="guide__pager-label">下一章</span>
           <span class="guide__pager-title">{{ next.data.nav_title | default: next.data.title }}</span>
         </a>
         {% endif %}

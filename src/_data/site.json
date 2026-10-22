@@ -1,23 +1,23 @@
 {
   "footer": {
     "listen": [
-      { "href": "/#whole-room", "label": "The experience" },
-      { "href": "/#live-demo", "label": "Live demo" },
-      { "href": "/#start", "label": "Get started" },
+      { "href": "/#whole-room", "label": "体验" },
+      { "href": "/#live-demo", "label": "在线演示" },
+      { "href": "/#start", "label": "快速开始" },
       { "href": "https://www.home-assistant.io/voice-pe/", "label": "Voice PE" }
     ],
     "build": [
-      { "href": "/build/", "label": "Build with Sendspin" },
-      { "href": "/build/manufacturers/", "label": "For hardware makers" },
-      { "href": "/build/guide/", "label": "Implementation guide" },
-      { "href": "/build/sdks/", "label": "SDKs & libraries" },
-      { "href": "/build/spec/", "label": "Spec" },
+      { "href": "/build/", "label": "用 Sendspin 构建" },
+      { "href": "/build/manufacturers/", "label": "面向硬件厂商" },
+      { "href": "/build/guide/", "label": "实施指南" },
+      { "href": "/build/sdks/", "label": "SDK 与库" },
+      { "href": "/build/spec/", "label": "规范" },
       { "href": "https://www.github.com/Sendspin", "label": "GitHub" }
     ],
     "community": [
       { "href": "https://discord.gg/kaVm8hGpne", "label": "Discord" },
       { "href": "https://www.openhomefoundation.org", "label": "Open Home Foundation" },
-      { "href": "mailto:sendspin@openhomefoundation.org", "label": "Contact" }
+      { "href": "mailto:sendspin@openhomefoundation.org", "label": "联系我们" }
     ]
   }
 }

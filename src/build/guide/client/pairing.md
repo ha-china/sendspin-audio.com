@@ -1,99 +1,99 @@
 ---
-title: Pairing on the device
+title: 设备上的配对
 nav_title: Pairing
-description: How a client offers pairing; choosing the method for your hardware, speaking or showing the code, unpaired access defaults, pairing records, rounds and cooldowns, the pairing window, and the security controls to document for testing.
+description: 客户端如何提供配对；如何为你的硬件选择方法、播报或显示代码、未配对访问的默认设置、配对记录、轮次与冷却时间、配对窗口，以及需要记录下来供测试的安全控制措施。
 order: 21
 ---
 
-Pairing is the one-time step that turns an unpaired connection into one where both sides know exactly who the other is. It is optional for playback: a speaker can admit [unpaired access](#unpaired-access-is-your-default-to-choose), which users know as guest mode, and play music for any server the operator approves. It is required before a server will activate the source role on an unauthenticated device, and it is what lets a server trust your device after the setup phase. This chapter covers the client side; the [trust model](/build/guide/pairing-and-encryption/) explains why it is built this way, and the [server UX chapter](/build/guide/server/ux/) covers what the operator sees.
+配对是一次性的步骤，它把未配对的连接转变为双方都确切知道对方身份的连接。对播放而言，配对是可选的：音箱可以允许[未配对访问（unpaired access）](#unpaired-access-is-your-default-to-choose)——也就是用户熟知的访客模式（guest mode）——为操作者（operator）批准的任何服务器播放音乐。服务器要在未经身份验证的设备上激活音源（source）角色，必须先完成配对；也正是因为有了配对，服务器才能在设置阶段之后信任你的设备。本章介绍客户端一侧；[信任模型](/build/guide/pairing-and-encryption/)解释了这样设计的原因，[服务器 UX 章节](/build/guide/server/ux/)则介绍操作者会看到什么。
 
-From the user's point of view there are three ways a device joins a server: guest mode, a dynamic PIN the device shows, speaks or displays in your app, or a static PIN printed on the device. Keep automated pairing out of this menu.
+从用户的角度看，设备加入服务器的方式有三种：访客模式、设备显示或播报（或在你的应用中展示）的动态 PIN，以及印在设备上的静态 PIN。请勿将自动化配对列入这份清单。
 
-## Choose the code method for your hardware
+## 为你的硬件选择代码方法
 
-You offer exactly one code-based method, chosen by where the device can show or say a code.
+你只提供一种基于代码的方法，具体选择取决于设备能在何处显示或说出代码。
 
-| Your device has | Offer |
+| 你的设备具备 | 应提供 |
 |---|---|
-| A display | Dynamic pairing code, as digits and as a QR code |
-| A speaker but no display | Dynamic pairing code, spoken |
-| An app of its own | Dynamic pairing code, shown in the app; the app is the device's display |
-| None of these | Static pairing code printed on the device, behind a pairing window opened by a button, a pinhole or a power-cycle pattern |
+| 显示屏 | 动态配对代码，以数字和二维码两种形式呈现 |
+| 有扬声器但无显示屏 | 动态配对代码，以语音播报 |
+| 自带应用 | 动态配对代码，在应用中显示；应用充当设备的显示屏 |
+| 以上皆无 | 印在设备上的静态配对代码，需先通过按钮、针孔（pinhole）或断电重启模式（power-cycle pattern）开启配对窗口 |
 
-Never list both code methods. The server would have to ask the operator which one to use, and the operator has no way to know. A vendor app counts as a display: the device generates the code as usual and the app shows it, which also covers devices that gained Sendspin in a firmware update and have no code on their label.
+绝不要同时列出两种代码方法，否则服务器将不得不询问操作者该使用哪一种，而操作者无从知晓。厂商应用可以算作显示屏：设备照常生成代码，由应用展示出来；这也涵盖了通过固件更新获得 Sendspin、标签上并未印有代码的设备。
 
-Spec: [Methods](/build/spec/#methods), [pair-method descriptor](/build/spec/#client--server-clienthello-pair-method-descriptor).
+规范：[方法（Methods）](/build/spec/#methods)、[配对方法描述符（pair-method descriptor）](/build/spec/#client--server-clienthello-pair-method-descriptor)。
 
-## The pairing PSK is for automation
+## 配对 PSK 用于自动化场景
 
-Every client also implements the pairing PSK method for automated pairing between systems: Home Assistant handing an ESPHome device's secret to Music Assistant so the device shows up already paired, a vendor cloud or app provisioning a server it manages, one server enrolling devices on behalf of another. The device exposes the secret as a pairing token (text or QR, starting with `SP:`) to the system that is allowed to read it; the user never types it. Treat the token like a Wi-Fi password: available to the owner's own platform, never printed where a visitor can photograph it.
+每个客户端还实现了配对 PSK（pre-shared key，预共享密钥）方法，用于系统之间的自动配对：例如 Home Assistant 将 ESPHome 设备的密钥交给 Music Assistant，使设备直接以已配对状态出现；厂商的云服务或应用为其管理的服务器做预配置；一台服务器代表另一台服务器注册设备。设备把该密钥以配对令牌（pairing token，文本或二维码，以 `SP:` 开头）的形式暴露给获准读取它的系统；用户永远不需要手动输入。请像对待 Wi-Fi 密码一样对待该令牌：仅供所有者自己的平台使用，绝不能印在访客可以拍摄到的地方。
 
-Spec: [Pairing PSK Flow](/build/spec/#pairing-psk-flow), [Pairing Token](/build/spec/#pairing-token).
+规范：[PSK 配对流程（Pairing PSK Flow）](/build/spec/#pairing-psk-flow)、[配对令牌（Pairing Token）](/build/spec/#pairing-token)。
 
-## Showing and speaking the code
+## 显示和播报代码
 
-A dynamic code is six digits, presented as `123-456`. A static code is eight, presented as `1234-5678`. The hyphen is presentation only. A QR code carries the pairing token as plain text, with no URI scheme, so a scan and a paste give the server identical input.
+动态代码为六位数字，以 `123-456` 的形式呈现；静态代码为八位数字，以 `1234-5678` 的形式呈现。连字符仅用于展示。二维码以纯文本形式承载配对令牌，不包含 URI scheme，因此无论是扫码还是粘贴，提供给服务器的输入完全相同。
 
-A speaking device bundles its own digit audio. The project does not ship or host voice packs today, though it may host packs if there is demand. Pick the language from the `languages` hint in `server/hello` using RFC 4647 lookup, and fall back to your own default when nothing matches. Leave a short gap between digits and a longer one between the two groups of three. The code does not change between rounds, so speak it again at the start of every round; the operator may have missed it the first time.
+具备语音功能的设备自带数字音频。本项目目前既不提供也不托管语音包，但如果确有需求，将来可能会托管。请按照 RFC 4647 查找规则，从 `server/hello` 中的 `languages` 提示里选择语言；若没有任何匹配项，则回退到你自己的默认语言。数字之间保留较短的间隔，两组三位数字之间保留较长的间隔。代码在各轮之间保持不变，所以每轮开始时都要重新播报一遍；操作者可能第一次没有听到。
 
-Spec: [Pairing Code Presentation](/build/spec/#pairing-code-presentation), [Pairing Token](/build/spec/#pairing-token), [Dynamic Pairing Code Flow](/build/spec/#dynamic-pairing-code-flow).
+规范：[配对代码呈现（Pairing Code Presentation）](/build/spec/#pairing-code-presentation)、[配对令牌（Pairing Token）](/build/spec/#pairing-token)、[动态配对代码流程（Dynamic Pairing Code Flow）](/build/spec/#dynamic-pairing-code-flow)。
 
-## Unpaired access is your default to choose
+## 未配对访问的默认值由你决定
 
-Whether the device ships with unpaired access on is the manufacturer's call. Speakers usually ship with it on, because the user expects to pick the device in an app and hear music. Microphones and other privacy-sensitive inputs ship with it off. The source role always needs explicit server-side approval, regardless of your setting. Changing the setting is a local action on the device or in your app, never something a server can do. After the user enables it, send `client/goodbye` with reason `restart` on any existing unpaired connection so the next `client/hello` advertises the new value.
+设备出厂时是否默认开启未配对访问由制造商决定。音箱通常出厂即开启，因为用户期望能在应用里选中这台设备就开始播放音乐。麦克风和其他涉及隐私的输入设备则出厂即关闭。无论你如何设置，音源角色始终需要服务器端的明确批准。更改该设置是在设备上或你的应用中进行的本地操作，服务器永远无法代为执行。用户启用该功能后，请在现有的所有未配对连接上发送带 `restart` 原因的 `client/goodbye`，这样下一个 `client/hello` 就能通告新值。
 
-Spec: [Unpaired Access](/build/spec/#unpaired-access).
+规范：[未配对访问（Unpaired Access）](/build/spec/#unpaired-access)。
 
-## Pairing records
+## 配对记录
 
-Store at least five records, each a long-term PSK with the server's `server_id`. When the sixth pairing arrives, evict the least recently used record that is not backing an open connection. You do not need to notify the evicted server. Its next handshake references a PSK you no longer hold and falls back to the Sentinel key, so the server can offer to pair again.
+至少存储五条记录，每条记录包含一个长期 PSK 和该服务器的 `server_id`。当第六次配对到来时，逐出最近最少使用、且未支撑任何已打开连接的记录。你无需通知被逐出的服务器：它的下一次握手会引用一个你已不再持有的 PSK，并回退到 Sentinel 密钥，因此该服务器可以再次提议配对。
 
-Spec: [Pairing Records](/build/spec/#pairing-records), [Sentinel Fallback](/build/spec/#sentinel-fallback).
+规范：[配对记录（Pairing Records）](/build/spec/#pairing-records)、[Sentinel 回退（Sentinel Fallback）](/build/spec/#sentinel-fallback)。
 
-## Pairing runs alongside playback
+## 配对与播放并行运行
 
-A pairing `server/activate` does not touch your roles, streams or group. Suspend only the out-channel: mute the speaker while you speak the code, or take over the display while you show it. The stream keeps running and its timeline is untouched, so discard the audio scheduled during the attempt and resume in sync when it ends. Bound every attempt with a timeout of about two minutes from its first message and abort with `attempt_timeout` when it expires.
+用于配对的 `server/activate` 不会影响你的角色、流或分组。只需暂停出通道（out-channel）：播报代码时将扬声器静音，显示代码时接管显示屏。流仍在继续运行，其时间轴不受影响，因此应丢弃尝试期间已调度的音频，并在尝试结束后同步恢复播放。为每次尝试设定约两分钟的超时（从其第一条消息算起），超时后使用 `attempt_timeout` 中止。
 
-Spec: [Entering and leaving pairing](/build/spec/#entering-and-leaving-pairing).
+规范：[进入与退出配对（Entering and leaving pairing）](/build/spec/#entering-and-leaving-pairing)。
 
-## Rounds, cooldown and the operator action
+## 轮次、冷却与操作者操作
 
-In the dynamic flow an attempt runs rounds against the same code until the server's key confirmation verifies. After 20 consecutive failed rounds you must stop retrying and hold attempts back until a deliberate operator action on the device, which also resets the count. Add a cooldown before reaching that limit.
+在动态流程中，一次尝试会针对同一个代码反复进行轮次（round），直到服务器的密钥确认验证通过。连续 20 轮失败后，你必须停止重试并暂缓后续尝试，直到设备上发生一次刻意的操作者操作；该操作同时也会重置计数。在达到该上限之前就应加入冷却（cooldown）时间。
 
 <div class="callout callout--warn">
-<p class="callout__title">Add a cooldown from the start</p>
+<p class="callout__title">从一开始就加入冷却时间</p>
 
-A device may initially allow playback from any approved server, then gain a privacy-sensitive role, such as a microphone, in a firmware update. An attacker who brute-forced a code before the update would already hold a pairing record indistinguishable from a legitimate one. Do not rely only on the 20-round limit if an attacker can trigger the action that resets it. Add a cooldown that grows after repeated failures, even when pairing is optional for the features you ship today.
+设备最初可能允许来自任何已批准服务器的播放，之后在固件更新中又获得了涉及隐私的角色，例如麦克风。在更新之前就暴力破解过代码的攻击者，此时已持有一份与合法记录无从区分的配对记录。如果攻击者能够触发重置计数的那个操作，就不要只依赖 20 轮的上限。请加入一个随反复失败而递增的冷却时间，即便对于你今天发布的功能而言配对是可选的。
 
 </div>
 
-The operator action must be deliberate for that product. A power cycle counts on a hardwired, stationary device nobody unplugs by accident. It does not count on a device on a switched outlet or a portable, battery-powered one, because those get power-cycled all the time and a smart plug can do it remotely. Use a power-cycle pattern, a long press or the device UI instead. While an attempt is held back, say so in `client/pair-pending` with a short human message, in a language from the server's hint, so the server can tell the operator what to do.
+对于这类产品，操作者的操作必须是刻意的。对于硬接线、固定安装、不会有人意外拔掉电源的设备，断电重启可以算作有效操作。而对于接在带开关插座上的设备或便携式电池供电设备，断电重启则不算数，因为这类设备经常被断电重启，而且智能插座还能远程做到这一点。请改用断电重启模式、长按或设备 UI。当尝试被暂缓时，请通过 `client/pair-pending` 说明情况，附上一条简短的人性化消息，并使用服务器提示中的语言，以便服务器告知操作者该怎么做。
 
-Spec: [Rounds](/build/spec/#rounds), [`client/pair-pending`](/build/spec/#client--server-clientpair-pending).
+规范：[轮次（Rounds）](/build/spec/#rounds)、[`client/pair-pending`](/build/spec/#client--server-clientpair-pending)。
 
-## Static code and the pairing window
+## 静态代码与配对窗口
 
-A static code is a random eight-digit value per device, never a shared default, printed on a label. Every attempt waits for a pairing window, opened by a deliberate gesture: a button, a pinhole, a button combination or a power-cycle pattern. The window lasts about five minutes and closes early after five failed attempts or a completed pairing. Signal `client/pair-pending` while you wait for the gesture and `client/pair-init` once the window is open.
+静态代码是每台设备专属的随机八位数字，绝不使用共享的默认值，并印在标签上。每次尝试都要等待配对窗口开启，而窗口由一个刻意的动作开启：按下按钮、按下针孔、组合按键或断电重启模式。窗口持续约五分钟，并在五次失败尝试或一次完成的配对后提前关闭。等待该动作期间发送 `client/pair-pending`，窗口开启后发送 `client/pair-init`。
 
-Do not light a permanent "locked" LED when the window closes on failures. Make the lockout quiet and recoverable: the next gesture opens a new window.
+当窗口因失败而关闭时，不要点亮常亮的“锁定”LED。让锁定状态安静且可恢复：下一次动作即可开启新窗口。
 
-Spec: [Static Pairing Code Flow](/build/spec/#static-pairing-code-flow), [Pairing Window](/build/spec/#pairing-window).
+规范：[静态配对代码流程（Static Pairing Code Flow）](/build/spec/#static-pairing-code-flow)、[配对窗口（Pairing Window）](/build/spec/#pairing-window)。
 
-## When an attempt ends
+## 配对尝试结束时
 
-A server may abort at any point with `pair/abort` reason `user_cancelled` before it leaves pairing. Show the user why the attempt ended, whether they cancelled it on the server, the code was wrong or it timed out, and return the out-channel to normal use. A cancelled attempt does not count against the pairing window and counts toward the round limit only when the code was already being emitted.
+服务器在离开配对之前的任何时刻，都可能以 `user_cancelled` 原因通过 `pair/abort` 中止。向用户展示尝试结束的原因——是他们在服务器端取消了操作、代码有误还是超时——并将出通道恢复为正常使用。被取消的尝试不会消耗配对窗口，且仅当代码已经开始播报或显示时才计入轮次上限。
 
-Spec: [`pair/abort`](/build/spec/#client--server-pairabort).
+规范：[`pair/abort`](/build/spec/#client--server-pairabort)。
 
-## Security and regulatory notes
+## 安全与法规说明
 
-Unpaired and static-code sessions are exposed to a man in the middle during setup only. Once pairing completes, every later connection is authenticated by the long-term PSK and the Noise handshake. The round limit and the gesture gating give a test lab a specification section to point at for ETSI EN 303 645 provision 5.1-5 and EN 18031-1 AUM-6; cite [Rounds](/build/spec/#rounds) and [Pairing Window](/build/spec/#pairing-window) in your compliance file.
+未配对会话和静态代码会话仅在设置阶段暴露于中间人（man in the middle）攻击之下。配对完成后，之后的每个连接都由长期 PSK 和 Noise 握手完成身份验证。轮次上限和动作门控为测试实验室提供了可援引的规范章节，用于对应 ETSI EN 303 645 第 5.1-5 条以及 EN 18031-1 AUM-6；请在你的合规文件中引用[轮次（Rounds）](/build/spec/#rounds)和[配对窗口（Pairing Window）](/build/spec/#pairing-window)。
 
-Spec: [Unpaired Access](/build/spec/#unpaired-access), [Encryption](/build/spec/#encryption).
+规范：[未配对访问（Unpaired Access）](/build/spec/#unpaired-access)、[加密（Encryption）](/build/spec/#encryption)。
 
 <div class="callout callout--example">
-<p class="callout__title">sendspin-cpp does it like this</p>
+<p class="callout__title">sendspin-cpp 是这样做的</p>
 
-You declare `pairing_code_out_channels` and `pairing_code_formats`, and implement `on_display_pairing_code` and `on_clear_pairing_code` to drive your display or speaker. For the static flow you set `static_pairing_code` and `pairing_window_supported`, receive `on_open_pairing_window` when the server asks, and call `confirm_pairing_window` when the user makes the gesture. A factory-provisioned PSK goes in `pairing_psk`, and the library produces the `SP:` pairing token for the platform that pairs on the user's behalf. The round counter and cooldown state go through your persistence provider.
+你声明 `pairing_code_out_channels` 和 `pairing_code_formats`，并实现 `on_display_pairing_code` 和 `on_clear_pairing_code` 来驱动你的显示屏或扬声器。对于静态流程，你设置 `static_pairing_code` 和 `pairing_window_supported`，在服务器请求时接收 `on_open_pairing_window`，并在用户做出动作时调用 `confirm_pairing_window`。出厂预置的 PSK 填入 `pairing_psk`，库会为代用户执行配对的平台生成 `SP:` 配对令牌。轮次计数器和冷却状态则通过你的持久化提供程序（persistence provider）保存。
 
 </div>

@@ -1,50 +1,50 @@
 ---
-title: Roles and the products they make
-nav_title: Roles
-description: The seven Sendspin roles, which products use them, what each one needs from the hardware, and how they combine.
+title: 角色及其构成的产品
+nav_title: 角色
+description: Sendspin 的七种角色、哪些产品会用到它们、每种角色对硬件有什么要求，以及它们如何组合。
 order: 12
 ---
 
-A role is a capability a client offers. The client lists the roles it supports in its hello message, the server activates the ones it wants, and from then on each role has its own messages and, where needed, its own binary stream. Servers implement every role, so choose the roles your product needs.
+角色（role）是客户端（client）提供的一种能力。客户端在其 hello 消息中列出所支持的角色，服务器（server）激活它需要的角色，此后每种角色都有各自的消息，并在需要时拥有各自的二进制流。服务器会实现所有角色，因此只需选择你的产品所需的角色。
 
-## The seven roles
+## 七种角色
 
-| Role | What it does | What the device needs | Typical products |
+| 角色 | 功能 | 设备需求 | 典型产品 |
 |---|---|---|---|
-| `player` | Receives timestamped audio and plays it in sync. Owns its volume, mute and output delay. | An audio output, a decoder for FLAC or PCM (Opus optional), a clock, a few hundred kilobytes of buffer. | Speakers, amplifiers, streamers, soundbars, set-top boxes, desktop and mobile apps. |
-| `source` | Captures a local input and streams it to the server, which distributes it. | An audio input. The server does the resampling and mixing. | Turntable and AUX bridges, Bluetooth receivers, TVs and set-top boxes forwarding their audio, microphones. |
-| `controller` | Sends play, pause, next, volume, mute, repeat, shuffle, seek and switch for its group, and receives the group's state. | A way for the user to act: buttons, a knob, a touchscreen, a voice assistant. | Remotes, wall panels, knobs, any player with buttons on it. |
-| `metadata` | Receives title, artist, album, progress and the like, including updates scheduled for the next track. | Something to show text on. | Wall tablets, displays on speakers, car head units, companion apps. |
-| `artwork` | Receives images in exactly the size and format it asks for, on up to four channels. | A screen and a JPEG or PNG decoder. | Displays, speakers with a screen, e-ink frames. |
-| `visualizer` | Receives loudness, beat, spectrum and peak events timed to the audio. | Lights or a screen, and the time filter. | Light strips, LED matrices, lamps, visualizer screens. |
-| `color` | Receives a small palette derived from the artwork or the music, with guaranteed contrast. | Anything that can show a colour. | Ambient lighting, UI theming on displays. |
+| `player` | 接收带时间戳的音频并同步播放。拥有自己的音量、静音和输出延迟。 | 一个音频输出、一个 FLAC 或 PCM 解码器（Opus 可选）、一个时钟、几百 KB 的缓冲区。 | 扬声器、功放、流媒体播放器、条形音箱、机顶盒、桌面和移动应用。 |
+| `source` | 采集本地输入并将其流式传输到服务器，由服务器进行分发。 | 一个音频输入。重采样和混音由服务器完成。 | 黑胶唱片机和 AUX 桥接器、蓝牙接收器、转发自身音频的电视和机顶盒、麦克风。 |
+| `controller` | 为其所在分组（group）发送播放、暂停、下一曲、音量、静音、重复、随机播放、进度跳转和切换等指令，并接收该分组的状态。 | 一种供用户操作的方式：按钮、旋钮、触摸屏、语音助手。 | 遥控器、壁挂面板、旋钮、任何带按键的播放器。 |
+| `metadata` | 接收标题、艺术家、专辑、进度等信息，包括为下一首曲目安排的更新。 | 一种能显示文本的东西。 | 壁挂平板、扬声器上的显示屏、车载主机、配套应用。 |
+| `artwork` | 以其请求的精确尺寸和格式接收图片，最多支持四个通道。 | 一个屏幕和一个 JPEG 或 PNG 解码器。 | 显示屏、带屏幕的扬声器、电子墨水屏相框。 |
+| `visualizer` | 接收与音频同步的响度、节拍、频谱和峰值事件。 | 灯光或屏幕，以及时间滤波器（time filter）。 | 灯带、LED 点阵、灯具、可视化屏幕。 |
+| `color` | 接收从专辑封面或音乐中提取的小型调色板，并保证对比度。 | 任何能显示颜色的东西。 | 氛围灯、显示屏上的 UI 主题配色。 |
 
-Spec: [Role Versioning](/build/spec/#role-versioning), and one section per role from [Player messages](/build/spec/#player-messages) onwards.
+规范：[角色版本控制](/build/spec/#role-versioning)，以及从[播放器消息](/build/spec/#player-messages)开始的每个角色各自的章节。
 
-## How they combine
+## 角色如何组合
 
-Most products use more than one role.
+大多数产品会使用不止一种角色。
 
-- **Speaker or amplifier:** `player` plus `controller`, so the buttons on the device act on the group it is in. Add `source` if it has a line input.
-- **Streamer (output only):** `player` alone, or `player` plus `controller` when it has a remote or an app.
-- **Display:** `metadata` plus `artwork` plus `controller`. Add `color` to theme the interface after the album art, and `player` if the display has a speaker.
-- **Lighting:** `visualizer` for music-reactive effects, `color` for ambient colour, or both.
-- **Dedicated controller:** `controller` alone. A knob, a button panel or a voice satellite that only needs to control the room it is in.
-- **Input bridge:** `source` alone, for a turntable, a mixer or a Bluetooth receiver that feeds audio in.
+- **扬声器或功放：** `player` 加上 `controller`，这样设备上的按键就能作用于其所在的分组。如果有线路输入，再加上 `source`。
+- **流媒体播放器（仅输出）：** 仅使用 `player`，或者当它配有遥控器或应用时，使用 `player` 加上 `controller`。
+- **显示屏：** `metadata` 加上 `artwork` 加上 `controller`。再加上 `color`，可以让界面主题跟随专辑封面变化；如果显示屏带有扬声器，再加上 `player`。
+- **灯光：** `visualizer` 用于随音乐变化的效果，`color` 用于氛围色彩，或者两者兼用。
+- **专用控制器：** 仅使用 `controller`。例如一个旋钮、一个按键面板，或一个只需控制所在房间的语音卫星设备。
+- **输入桥接器：** 仅使用 `source`，适用于黑胶唱片机、调音台或向系统输入音频的蓝牙接收器。
 
 <div class="callout callout--note">
-<p class="callout__title">One client per audio output</p>
+<p class="callout__title">每个音频输出对应一个客户端</p>
 
-A device with several independent outputs, say a two-zone amplifier, should present itself as one client per output. Each client gets its own identity, group, volume and timing parameters. The two time filters run off the same host clock, so the device can also sum two streams onto one physical output.
+拥有多个独立输出的设备（例如双分区功放），应当为每个输出呈现为一个客户端。每个客户端都有自己的身份标识、分组、音量和时序参数。两个时间滤波器都由同一个主机时钟驱动，因此该设备也可以将两路流叠加到一个物理输出上。
 
 </div>
 
-## Things every role shares
+## 所有角色共有的内容
 
-Whatever roles you pick, the client needs the same foundation: a stable identity, the Noise handshake, the time filter, the hello and activate exchange, and the ability to report whether it is available. The [client chapter](/build/guide/client/) covers these shared components.
+无论选择哪些角色，客户端都需要相同的基础：稳定的身份标识、Noise 握手、时间滤波器、hello 与 activate 交互流程，以及报告自身是否可用的能力。[客户端章节](/build/guide/client/)介绍了这些共享组件。
 
-The server activates and deactivates roles over the life of a connection. A client keeps per-role state only while the role is active and starts clean when it is activated again.
+在连接的生命周期中，服务器会激活和停用角色。客户端仅在角色处于激活状态时保留该角色的状态，当角色再次被激活时会从干净的状态开始。
 
-## Roles that do not exist yet
+## 尚不存在的角色
 
-The specification deliberately leaves out things that are better done by the server or that are not ready. Announcements and chimes, lyrics, playlists and native source selection have all been discussed and may arrive as new roles. A new role never breaks existing clients, because clients only see the roles they asked for. If you need something now, prototype it as a `_vendorname_` role and bring the experience to the [spec repository](https://github.com/Sendspin/spec/issues); see [contributing](/build/guide/contributing/).
+规范有意省略了那些更适合由服务器完成、或者尚未准备就绪的功能。公告和提示音、歌词、播放列表以及原生音源选择都已被讨论过，可能会作为新角色到来。新角色绝不会破坏现有客户端，因为客户端只会看到自己请求的角色。如果你现在就需要某个功能，可以将其作为 `_vendorname_` 角色制作原型，并将你的实践经验反馈到[规范仓库](https://github.com/Sendspin/spec/issues)；参见[参与贡献](/build/guide/contributing/)。

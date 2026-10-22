@@ -5,14 +5,14 @@
 {%- if title -%}
 {{ title }} – Sendspin
 {%- else -%}
-Sendspin: Whole-home audio, without the lock-in.
+Sendspin：全屋音频，无需锁定。
 {%- endif -%}
 {%- endcapture %}
 {% comment %}
 <!-- prettier-unignore -->
 {% endcomment %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <link href="/style.css" rel="stylesheet" />
@@ -96,13 +96,13 @@ Sendspin: Whole-home audio, without the lock-in.
           {% include "brand.html" %}
           {% if page.url contains "/build/" %}
           <span class="nav__crumb-sep" aria-hidden="true">/</span>
-          <a class="nav__crumb" href="/build/">Build</a>
+          <a class="nav__crumb" href="/build/">构建</a>
           {% endif %}
         </div>
         <button
           class="nav__toggle"
           type="button"
-          aria-label="Toggle menu"
+          aria-label="切换菜单"
           aria-expanded="false"
           aria-controls="nav-menu"
         >
@@ -112,16 +112,16 @@ Sendspin: Whole-home audio, without the lock-in.
         </button>
         <div class="nav__links" id="nav-menu">
           {% if page.url == "/" %}
-          <a class="nav__link" href="#whole-room">The experience</a>
-          <a class="nav__link" href="#live-demo">Live demo</a>
+          <a class="nav__link" href="#whole-room">体验</a>
+          <a class="nav__link" href="#live-demo">在线演示</a>
           {% elsif page.url contains "/build/" %}
-          <a class="nav__link {% if page.url == '/build/manufacturers/' %}is-active{% endif %}" href="/build/manufacturers/">Why Sendspin</a>
-          <a class="nav__link {% if page.url contains '/build/guide/' %}is-active{% endif %}" href="/build/guide/">How to build</a>
+          <a class="nav__link {% if page.url == '/build/manufacturers/' %}is-active{% endif %}" href="/build/manufacturers/">为什么选择 Sendspin</a>
+          <a class="nav__link {% if page.url contains '/build/guide/' %}is-active{% endif %}" href="/build/guide/">如何构建</a>
           <a class="nav__link {% if page.url == '/build/sdks/' %}is-active{% endif %}" href="/build/sdks/">SDKs</a>
-          <a class="nav__link {% if page.url == '/build/spec/' %}is-active{% endif %}" href="/build/spec/">Spec</a>
+          <a class="nav__link {% if page.url == '/build/spec/' %}is-active{% endif %}" href="/build/spec/">规范</a>
           {% endif %}
           {% unless page.url contains "/build/" %}
-          <a class="nav__cta" href="/build/">Build with Sendspin</a>
+          <a class="nav__cta" href="/build/">用 Sendspin 构建</a>
           {% endunless %}
         </div>
       </div>
@@ -169,18 +169,18 @@ Sendspin: Whole-home audio, without the lock-in.
           <div class="site-footer__brand">
             {% include "brand.html" %}
             <p class="site-footer__tagline">
-              The open standard for music in every room — from the Open Home Foundation.
+              来自 Open Home Foundation 的跨房间音乐开放标准。
             </p>
             <p class="site-footer__tagline site-footer__tagline--analytics">
-              This website uses <a
+              本站使用 <a
                 href="https://www.openhomefoundation.org/blog/making-our-web-analytics-open-source-with-plausible/"
-                rel="noopener">privacy-first analytics</a> to help us improve the site. You can view all data in our <a
-                href="https://plausible.openhomefoundation.org/sendspin-audio.com" rel="noopener">public dashboard</a>.
+                rel="noopener">privacy-first analytics</a> 帮助我们改进网站。你可以在我们的 <a
+                href="https://plausible.openhomefoundation.org/sendspin-audio.com" rel="noopener">公开面板查看全部数据</a>.
             </p>
           </div>
 
           <div class="site-footer__col">
-            <h5>Listen</h5>
+            <h5>听音乐</h5>
             <ul>
               {% for item in site.footer.listen %}
               <li><a href="{{ item.href }}">{{ item.label }}</a></li>
@@ -189,7 +189,7 @@ Sendspin: Whole-home audio, without the lock-in.
           </div>
 
           <div class="site-footer__col">
-            <h5>Build</h5>
+            <h5>构建</h5>
             <ul>
               {% for item in site.footer.build %}
               <li><a href="{{ item.href }}">{{ item.label }}</a></li>
@@ -198,7 +198,7 @@ Sendspin: Whole-home audio, without the lock-in.
           </div>
 
           <div class="site-footer__col">
-            <h5>Community</h5>
+            <h5>社区</h5>
             <ul>
               {% for item in site.footer.community %}
               <li><a href="{{ item.href }}">{{ item.label }}</a></li>
@@ -207,8 +207,8 @@ Sendspin: Whole-home audio, without the lock-in.
           </div>
         </div>
         <div class="site-footer__legal">
-          <span>© Sendspin · Open Home Foundation. Sendspin is at Release Candidate 1; the spec is being finalized. <a href="/licensing/">Licensing &amp; trademarks</a></span>
-          <span>Made warm in Switzerland.</span>
+          <span>© Sendspin · Open Home Foundation. Sendspin 现为 Release Candidate 1，规范正在最终定稿。 <a href="/licensing/">许可与商标</a></span>
+          <span>产自温暖的瑞士。</span>
         </div>
       </div>
     </footer>
