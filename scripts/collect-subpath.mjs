@@ -8,7 +8,7 @@
 // _site/sendspin/, so the folder contents can be uploaded 1:1 to the
 // server's /sendspin/ directory. Idempotent: already-prefixed paths are
 // left alone.
-import { mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -55,11 +55,13 @@ function walk(dir) {
 }
 walk(site);
 
-// Collect into dist/sendspin/ so the folder uploads 1:1.
+// Collect into dist/sendspin/ so the folder uploads 1:1. Copy + delete, not
+// rename: directory renames are flaky on Windows.
 const base = PREFIX.replace(/^\//, "");
 mkdirSync(join(site, base), { recursive: true });
 for (const entry of readdirSync(site)) {
   if (entry === base) continue;
-  renameSync(join(site, entry), join(site, base, entry));
+  cpSync(join(site, entry), join(site, base, entry), { recursive: true });
+  rmSync(join(site, entry), { recursive: true });
 }
 console.log(`prefixed ${files} files, collected into dist/${base}/`);
