@@ -35,8 +35,16 @@ jobs:
       - name: Merge upstream
         run: |
           set -e
+          PRE=$(git rev-parse HEAD)
           UP=$(git rev-parse upstream/main)
           git merge upstream/main -X theirs --no-edit -m "Sync from upstream $UP"
+          # The GITHUB_TOKEN cannot push workflow files ("workflows"
+          # permission is not grantable), so keep our workflows exactly as
+          # they were before the merge and fold that into the merge commit.
+          if ! git diff --quiet "$PRE" HEAD -- .github/workflows; then
+            git checkout "$PRE" -- .github/workflows
+            git commit --amend --no-edit
+          fi
           echo "UPSTREAM_SHA=$UP" >> "$GITHUB_ENV"
 
       # -X theirs takes the upstream side of the templates, which resets the
