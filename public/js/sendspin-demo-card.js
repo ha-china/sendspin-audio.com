@@ -678,7 +678,7 @@ if (!root) {
     try {
       state.player?.disconnect(reason);
     } catch (err) {
-      console.warn("Failed to disconnect player:", err);
+      console.warn("断开播放器失败：", err);
     }
 
     state.isListening = false;

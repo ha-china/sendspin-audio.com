@@ -23,11 +23,11 @@ description: 官方 Sendspin SDK、库以及代码示例。
 | Python | [aiosendspin](https://github.com/Sendspin/aiosendspin) (client) | see repository | 1.0 | Test and reference client |
 | JavaScript | [sendspin-js](https://github.com/Sendspin/sendspin-js) | player; see repository | 1.0 | [Music Assistant](https://www.music-assistant.io) web UI, the [live demo](/#live-demo) on this site |
 
-**sendspin-cpp** is the library for devices. It runs on ESP32 through the ESP-IDF component registry (`sendspin/sendspin-cpp`) and on Linux, macOS and Windows hosts, decodes FLAC and PCM with Opus as an option, and has the Noise encryption built in. The repository's `integration-guide.md`, `internals.md` and `playback-sync.md` cover what the guide here does not. Apache 2.0.
+**sendspin-cpp** 是面向设备的库。它通过 ESP-IDF 组件注册表（`sendspin/sendspin-cpp`）在 ESP32 上运行，也支持 Linux、macOS 和 Windows 主机，可解码 FLAC 和 PCM（可选 Opus），并内置 Noise 加密。仓库中的 `integration-guide.md`、`internals.md` 和 `playback-sync.md` 涵盖了本指南未涉及的内容。Apache 2.0。
 
 **aiosendspin** 是异步 Python 库。其客户端部分已完整且符合规范，但最好将其视为参考和测试客户端：可以用它针对你的服务器编写脚本，或在规范让你拿不准时阅读它来解惑。PyPI 上的包名为 `aiosendspin`。Apache 2.0。
 
-**sendspin-js** is the TypeScript client for browsers, with `SendspinPlayer` for a complete player and the lower-level `SendspinCore` for your own user interface. It handles the browser's user-gesture requirement and coarse clocks. On npm as `@sendspin/sendspin-js`.
+**sendspin-js** 是面向浏览器的 TypeScript 客户端，其中 `SendspinPlayer` 提供完整播放器功能，而更底层的 `SendspinCore` 则用于构建你自己的用户界面。它处理了浏览器的用户手势要求和粗略时钟问题。npm 上的包名为 `@sendspin/sendspin-js`。
 
 ## 服务器实现
 
@@ -36,18 +36,18 @@ description: 官方 Sendspin SDK、库以及代码示例。
 | Python | [aiosendspin](https://github.com/Sendspin/aiosendspin) (server) | all | 1.0 | [Music Assistant](https://www.music-assistant.io) |
 | C++ | [sendspin-server-cpp](https://github.com/Sendspin/sendspin-server-cpp) | all | 1.0, early development | |
 
-**aiosendspin** is the server inside Music Assistant, which makes it the reference server: whatever it does is what clients in the field expect. If you are building a server in Python, build on it.
+**aiosendspin** 是 Music Assistant 内部的服务器，因此它也是参考服务器：它的行为就是实际客户端所期望的行为。如果你正在用 Python 构建服务器，请基于它进行开发。
 
-**sendspin-server-cpp** is the C++ server library, for a media player, a sound-server sink or a small daemon that streams to Sendspin players. It runs on Linux and macOS hosts and builds as an ESP-IDF component, streams PCM, FLAC or Opus resampled for each player, and has the Noise encryption and pairing built in. `examples/server_cli` is a complete host to start from. It is in early development with no release yet, and its API changes without deprecation, so pin a commit if you build on it. Apache 2.0.
+**sendspin-server-cpp** 是 C++ 服务器库，适用于媒体播放器、音响服务器接收器或向 Sendspin 播放器流式传输的小型守护进程。它支持 Linux 和 macOS 主机，也可作为 ESP-IDF 组件构建，可流式传输为每个播放器重新采样的 PCM、FLAC 或 Opus，并内置 Noise 加密和配对功能。`examples/server_cli` 是一个完整的起始主机。它仍处于早期开发阶段，尚未发布，其 API 会无弃用警告地变更，因此如果你基于它构建，请固定提交版本。Apache 2.0。
 
 ## 参考播放器和工具
 
-- **[sendspin-cpp-cli](https://github.com/Sendspin/sendspin-cpp-cli)**: the recommended CLI and reference player. Headless, for Linux, Raspberry Pi, Apple-silicon macOS and Windows, with a guided installer. Start it with `sendspin-cli -n living-room` and you have a known-good player to compare your own against.
-- **[sendspin-python-cli](https://github.com/Sendspin/sendspin-python-cli)**: a Python player (`pip install sendspin` or `uv tool install sendspin`) with an interactive terminal client, a daemon mode and a party mode.
-- **[time-filter](https://github.com/Sendspin/time-filter)**: the C++ reference implementation of the clock-synchronization Kalman filter the specification requires, including the known-good burst strategy. Use it as is or port it line by line.
-- **[conformance](https://github.com/Sendspin/conformance)**: the harness that runs every implementation against every other and publishes the [results matrix](https://sendspin.github.io/conformance/). Add an adapter for yours; the [testing chapter](/build/guide/testing/) explains how.
-- **[sync-test](https://github.com/Sendspin/sync-test)**: measures the synchronization accuracy between two clients with a USB sound card.
-- **[ma-pairing-e2e](https://github.com/Sendspin/ma-pairing-e2e)**: Playwright end-to-end tests of the Music Assistant pairing flow, which also record the walkthrough videos used in the guide.
+- **[sendspin-cpp-cli](https://github.com/Sendspin/sendspin-cpp-cli)**：推荐的 CLI 和参考播放器。无头运行，支持 Linux、Raspberry Pi、Apple 芯片 macOS 和 Windows，并提供引导式安装程序。使用 `sendspin-cli -n living-room` 启动它，你就拥有了一个已知良好的播放器，可用于与自己的实现进行对比。
+- **[sendspin-python-cli](https://github.com/Sendspin/sendspin-python-cli)**：一个 Python 播放器（`pip install sendspin` 或 `uv tool install sendspin`），带有交互式终端客户端、守护进程模式和派对模式。
+- **[time-filter](https://github.com/Sendspin/time-filter)**：规范要求的时钟同步卡尔曼滤波器的 C++ 参考实现，包括已知良好的突发策略。你可以直接使用它，或逐行移植。
+- **[conformance](https://github.com/Sendspin/conformance)**：用于将每个实现与其他所有实现进行对测的测试框架，并发布[结果矩阵](https://sendspin.github.io/conformance/)。为你的实现添加适配器；[测试章节](/build/guide/testing/)说明了具体方法。
+- **[sync-test](https://github.com/Sendspin/sync-test)**：通过 USB 声卡测量两个客户端之间的同步精度。
+- **[ma-pairing-e2e](https://github.com/Sendspin/ma-pairing-e2e)**：Music Assistant 配对流程的 Playwright 端到端测试，同时录制了指南中使用的演示视频。
 
 其他语言的其他移植版本位于 [GitHub 组织](https://github.com/Sendspin)，当它们达到 1.0 规范时会列在此处。
 

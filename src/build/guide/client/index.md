@@ -11,15 +11,15 @@ order: 20
 
 为您的平台选择一个 SDK：
 
-- **[sendspin-cpp](https://github.com/Sendspin/sendspin-cpp)** is the C++ library for devices. It runs on ESP32 through the ESP-IDF component registry (`sendspin/sendspin-cpp`) and on Linux, macOS and Windows hosts. You add the roles you need when you set up the client, and roles you never use can be left out of the build to save flash. You provide an `on_audio_write` callback, a network-ready provider and a persistence provider; the library hosts the WebSocket server and does Noise, decoding and time sync itself.
-- **[aiosendspin](https://github.com/Sendspin/aiosendspin)** is Python. It is the server inside Music Assistant; its client side is mainly a test and reference client.
-- **[sendspin-js](https://github.com/Sendspin/sendspin-js)** is TypeScript for browsers.
+- **[sendspin-cpp](https://github.com/Sendspin/sendspin-cpp)** 是面向设备的 C++ 库。它通过 ESP-IDF 组件注册表（`sendspin/sendspin-cpp`）在 ESP32 上运行，并支持 Linux、macOS 和 Windows 主机。您在设置客户端时添加所需的角色，从未使用的角色可以排除在构建之外以节省闪存。您需要提供一个 `on_audio_write` 回调、一个网络就绪的提供程序和一个持久化提供程序；该库托管 WebSocket 服务器，并自行完成 Noise、解码和时间同步。
+- **[aiosendspin](https://github.com/Sendspin/aiosendspin)** 是 Python 实现。它是 Music Assistant 内部的服务器；其客户端侧主要是测试和参考客户端。
+- **[sendspin-js](https://github.com/Sendspin/sendspin-js)** 是面向浏览器的 TypeScript 实现。
 
-Whatever you pick, install [sendspin-cpp-cli](https://github.com/Sendspin/sendspin-cpp-cli) on a Raspberry Pi, a Mac or a Windows PC first. Use it as a reference player to compare against yours. The [SDK page](/build/sdks/) lists everything. If you are on ESP32, read the [ESPHome chapter](/build/guide/esphome/) before writing any code.
+无论您选择什么，请先在 Raspberry Pi、Mac 或 Windows PC 上安装 [sendspin-cpp-cli](https://github.com/Sendspin/sendspin-cpp-cli)。将其用作参考播放器与您的实现进行对比。[SDK 页面](/build/sdks/)列出了所有内容。如果您使用 ESP32，请在编写任何代码之前阅读 [ESPHome 章节](/build/guide/esphome/)。
 
 ## 2. 组件
 
-<p><img src="/images/client-implementation-guide.jpg" alt="The components of a Sendspin client and the connection flow" /></p>
+<p><img src="/images/client-implementation-guide.jpg" alt="Sendspin 客户端的组件及连接流程" /></p>
 
 客户端由四个部分组成：mDNS 广播（`_sendspin._tcp` 以及 `path` TXT 记录）、一个供服务器连接的小型 WebSocket 服务器、Sendspin 核心（握手、消息、时间过滤器），以及您的输出端（sink）：音频输出，以及显示屏或灯光（如果有的话）。SDK 承担核心部分，在 sendspin-cpp 中还包括 WebSocket 服务器；广播和输出端则由您自己负责。
 
