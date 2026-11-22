@@ -1,4 +1,4 @@
-const DEMO_SERVER_URL = "https://sendspin-demo.openhomefoundation.org";
+const DEMO_SERVER_URL = "wss://sendspin-demo.openhomefoundation.org/sendspin";
 const MAX_VOLUME = 100;
 const UI_ACTIVATION_MS = 550;
 const SYNC_UPDATE_INTERVAL_MS = 250;
@@ -564,7 +564,7 @@ if (!root) {
   }
 
   function handlePlayerStateChange() {
-    if (!state.player) {
+    if (!state.isListening) {
       return;
     }
 
@@ -588,61 +588,19 @@ if (!root) {
     );
   }
 
-  function destroyPlayer(reason = "shutdown") {
-    stopSyncUpdates();
-
-    if (!state.player) {
-      return;
-    }
-
-    const activePlayer = state.player;
-    state.player = null;
-
-    try {
-      activePlayer.disconnect(reason);
-    } catch (err) {
-      console.warn("断开播放器失败：", err);
-    }
-  }
-
-  async function createPlayer() {
-    const { SendspinPlayer } = await sdkImport;
+  function createPlayer({ SendspinPlayer }) {
     return new SendspinPlayer({
-      baseUrl: serverUrl,
+      url: serverUrl,
       onStateChange: handlePlayerStateChange,
     });
   }
 
   async function connectPlayer() {
-    if (state.player?.isConnected) {
-      return state.player;
-    }
-
-    destroyPlayer("user_request");
-
-    const nextPlayer = await createPlayer();
-    state.player = nextPlayer;
-
-    try {
-      await nextPlayer.connect();
-      startSyncUpdates();
-      return nextPlayer;
-    } catch (err) {
-      if (state.player === nextPlayer) {
-        destroyPlayer("user_request");
-      } else {
-        try {
-          nextPlayer.disconnect("user_request");
-        } catch (disconnectErr) {
-          console.warn(
-            "连接错误后清理失败：",
-            disconnectErr,
-          );
-        }
-      }
-
-      throw err;
-    }
+    state.player ??= createPlayer(sdk ?? (await sdkImport));
+    await state.player.unlock();
+    await state.player.connect();
+    startSyncUpdates();
+    return state.player;
   }
 
   function updateSyncStatus() {
@@ -715,7 +673,13 @@ if (!root) {
   }
 
   function disconnect(reason = "shutdown") {
-    destroyPlayer(reason);
+    stopSyncUpdates();
+
+    try {
+      state.player?.disconnect(reason);
+    } catch (err) {
+      console.warn("Failed to disconnect player:", err);
+    }
 
     state.isListening = false;
     state.isStarting = false;
@@ -743,11 +707,16 @@ if (!root) {
   });
 
   window.addEventListener("pagehide", () => {
-    destroyPlayer("shutdown");
+    stopSyncUpdates();
+    state.player?.destroy("shutdown");
   });
 
   const sdkImport =
-    import("https://unpkg.com/@sendspin/sendspin-js@3.0.1/dist/index.js?module");
+    import("https://cdn.jsdelivr.net/npm/@sendspin/sendspin-js@6.0.0/+esm");
+  let sdk = null;
+  sdkImport.then((module) => {
+    sdk = module;
+  });
 
   renderUiState();
   resetSyncDisplay();

@@ -18,9 +18,9 @@ Sendspin 是 Apple AirPlay 和 Google Cast 的开放替代方案，提供额外�
     <span class="hub-card__go">阅读指南 {% include "icons/arrow.svg" %}</span>
   </a>
   <a class="hub-card" href="/build/sdks/">
-    <h3>SDK 与库</h3>
-    <p>适用于 C++ 和 Python 的官方 SDK，覆盖从微控制器到服务器的各类平台，另附一个参考 CLI 播放器。</p>
-    <span class="hub-card__go">浏览 SDK {% include "icons/arrow.svg" %}</span>
+    <h3>SDKs &amp; libraries</h3>
+    <p>Official SDKs for C++, JavaScript and Python, from microcontrollers to servers, plus a reference CLI player.</p>
+    <span class="hub-card__go">Browse the SDKs {% include "icons/arrow.svg" %}</span>
   </a>
   <a class="hub-card" href="/build/spec/">
     <h3>协议规范</h3>

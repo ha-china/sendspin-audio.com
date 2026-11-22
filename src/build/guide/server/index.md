@@ -9,7 +9,7 @@ order: 30
 
 ## 1. 选择你的基础
 
-如果你使用 Python，可以从 [aiosendspin](https://github.com/Sendspin/aiosendspin) 开始，这是运行在 Music Assistant 内部的 Apache 2.0 服务器。它负责握手、每个客户端的编码器、预发送（send-ahead）和配对。你需要实现队列、用户界面和分组策略。路线图上还有 C++ 服务器。对于其他任何语言，请基于[规范](/build/spec/)来实现，并从第一天起就运行[一致性测试套件](/build/guide/testing/)。无论你构建什么，都要在旁边保留一个 Music Assistant 实例，作为比较行为的参照。
+If you work in Python, start from [aiosendspin](https://github.com/Sendspin/aiosendspin), the Apache 2.0 server that runs inside Music Assistant. It handles the handshake, the per-client encoders, send-ahead and pairing. You implement the queue, user interface and group policy. In C++, [sendspin-server-cpp](https://github.com/Sendspin/sendspin-server-cpp) is in early development; pin a commit if you build on it. In any other language, implement from the [specification](/build/spec/) and run the [conformance suite](/build/guide/testing/) from the first day. Whatever you build, keep a Music Assistant instance next to it as the reference to compare behavior with.
 
 ## 2. 发现
 

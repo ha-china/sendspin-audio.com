@@ -5,8 +5,8 @@ description: 跨房间音乐开放标准。你的高保真音响、现成的音�
 stylesheets:
   - /homepage.css?v=20260916-3
 module_scripts:
-  - /js/sendspin-demo-card.js?v=20260830-2
-demo_server_url: https://sendspin-demo.openhomefoundation.org
+  - /js/sendspin-demo-card.js?v=20261112-1
+demo_server_url: wss://sendspin-demo.openhomefoundation.org/sendspin
 demo_share_url: https://www.sendspin-audio.com/#live-demo
 ---
 
@@ -382,7 +382,7 @@ demo_share_url: https://www.sendspin-audio.com/#live-demo
 <section class="ground-paper section-pad" id="start">
   <div class="container">
     <div class="start__head">
-      <h2 class="start__title">什么设备都能当音箱。</h2>
+      <h2 class="start__title" id="speakers">Anything can be a speaker.</h2>
       <p class="start__lede">
         Sendspin 是一个标准，任何厂商都能为它造音箱——你也可以。无论用哪个设备，播放的都是同一时刻的同一首歌。<strong>你需要两样东西：一只音箱，和一个音乐源。</strong>
       </p>
@@ -390,10 +390,10 @@ demo_share_url: https://www.sendspin-audio.com/#live-demo
 
     <div class="start__grid">
       <article class="path-card path-card--ready">
-        <div class="path-card__num">买现成的</div>
-        <h3 class="path-card__h">Voice Preview Edition</h3>
-        <div class="path-card__price">$59<small>/ 房间</small></div>
-        <p class="path-card__p"><a href="https://www.home-assistant.io/voice-pe/" target="_blank" rel="noreferrer">Home Assistant Voice PE</a> 出厂即支持 Sendspin。3.5mm 输出直接接进你已有的功放或有源音箱。</p>
+        <div class="path-card__num">Buy ready-made</div>
+        <h3 class="path-card__h">Connect AUX-2</h3>
+        <div class="path-card__price">$69<small>/ room</small></div>
+        <p class="path-card__p">The <a href="https://www.home-assistant.io/connect/aux-2/" target="_blank" rel="noreferrer">Home Assistant Connect AUX-2</a> ships with Sendspin out of the box. Its 3.5mm output (analog or optical) plugs into the receiver or powered speakers you already own.</p>
       </article>
 
       <article class="path-card path-card--stream">
@@ -404,10 +404,10 @@ demo_share_url: https://www.sendspin-audio.com/#live-demo
       </article>
 
       <article class="path-card path-card--receiver">
-        <div class="path-card__num">物尽其用</div>
-        <h3 class="path-card__h">Sendspin Daemon</h3>
-        <div class="path-card__price">免费<small>/ 房间</small></div>
-        <p class="path-card__p">把任何带音箱的 Linux 电脑变成 Sendspin 播放器。<a href="https://github.com/Sendspin/sendspin-cli" target="_blank" rel="noreferrer">Sendspin daemon</a> 作为系统服务后台运行，随时加入你的多房间音响。</p>
+        <div class="path-card__num">Reuse what you own</div>
+        <h3 class="path-card__h">Your computer</h3>
+        <div class="path-card__price">Free<small>/ room</small></div>
+        <p class="path-card__p">Turn your computer into the ultimate Sendspin player on <a href="https://github.com/Sendspin/sendspin-cpp-cli#readme" target="_blank" rel="noreferrer">Linux</a>, <a href="https://github.com/Sendspin/sendspin-windows#readme" target="_blank" rel="noreferrer">Windows</a> or <a href="https://github.com/Sendspin/sendspin-mac#readme" target="_blank" rel="noreferrer">Mac</a>.</p>
       </article>
 
       <article class="path-card path-card--diy">
@@ -487,9 +487,13 @@ demo_share_url: https://www.sendspin-audio.com/#live-demo
         <div class="partner-card__logo"><img src="/images/logo/ledfx.png" alt="LedFx logo" /></div>
         <div class="partner-card__name">LedFx</div>
       </a>
+      <a class="partner-card" href="https://www.home-assistant.io/connect/aux-2/" target="_blank" rel="noreferrer">
+        <div class="partner-card__logo"><img src="/images/logo/connect-aux-2.png" alt="Home Assistant Connect AUX-2" /></div>
+        <div class="partner-card__name">Home Assistant<br />Connect AUX-2</div>
+      </a>
       <a class="partner-card" href="https://www.home-assistant.io/voice-pe/" target="_blank" rel="noreferrer">
         <div class="partner-card__logo"><img src="/images/logo/voice-pe.png" alt="Home Assistant Voice PE logo" /></div>
-        <div class="partner-card__name">Home Assistant Voice PE</div>
+        <div class="partner-card__name">Home Assistant<br />Voice PE</div>
       </a>
       <div class="partner-card partner-card--coming">
         <div class="partner-card__logo">+</div>
@@ -535,10 +539,12 @@ demo_share_url: https://www.sendspin-audio.com/#live-demo
         <span class="build-card__eyebrow">面向软件开发者</span>
         <h3 class="build-card__h">给应用、服务端或驱动加上 Sendspin。</h3>
         <p class="build-card__p">
-          规范开放，附 C++ 与 Python 官方 SDK。参考客户端与服务端以 Apache 2.0 许可发布。
+          Open spec, plus official SDKs for C++, JavaScript and Python. The
+          reference client and server are Apache 2.0 licensed.
         </p>
         <div class="build-card__sdks">
           <span class="sdk-chip">C++</span>
+          <span class="sdk-chip">JavaScript</span>
           <span class="sdk-chip">Python</span>
         </div>
         <div class="build-card__ctas" style="margin-top: var(--sp-3);">

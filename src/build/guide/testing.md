@@ -12,12 +12,12 @@ order: 50
 
 让你的实现与一个参考实现同时播放音乐。使用以下对端来测试每一个角色。
 
-- **[sendspin-cpp-cli](https://github.com/Sendspin/sendspin-cpp-cli)** 是参考播放器。它可以在 Linux、Raspberry Pi 或 Apple 芯片 Mac 上以无头（headless）模式运行，带有引导式安装程序，并使用 `sendspin-cli -n living-room` 启动。在整个项目期间，让一个实例始终与你的设备并排运行；如果两者出现偏差，比较它们的时序来找出原因。
-- **[sendspin-python-cli](https://github.com/Sendspin/sendspin-python-cli)** 是第二个独立的播放器（`pip install sendspin` 或 `uv tool install sendspin`）。用两个播放器重现同一个故障有助于缩小原因范围。
-- **[Music Assistant](https://www.music-assistant.io)** 是参考服务器。如果你在构建客户端，请先针对它进行测试，并将其行为视为预期行为。
-- **ESPHome 设备**，例如 Home Assistant Voice Preview Edition，是实际环境中的参考客户端，也是服务器在大多数家庭中会遇到的对象。
-- **带有 [sendspin-js](https://github.com/Sendspin/sendspin-js) 的浏览器标签页**——它是 Music Assistant Web UI 以及本站[在线演示](/#live-demo)背后的客户端——时钟精度较低并且需要用户手势交互，这会触发原生播放器永远不会碰到的路径。
-- **[aiosendspin](https://github.com/Sendspin/aiosendspin) 中的客户端**是一个可通过脚本控制的测试客户端。如果你在构建服务器，可以用 Python 脚本驱动它循环进行连接、配对、加入组和断开连接，并让每条消息都可见。
+- **[sendspin-cpp-cli](https://github.com/Sendspin/sendspin-cpp-cli)** is the reference player. It runs headless on Linux, a Raspberry Pi, an Apple-silicon Mac or Windows, has a guided installer, and starts with `sendspin-cli -n living-room`. Keep one running next to your device for the whole project; if the two drift apart, compare their timing to find the cause.
+- **[sendspin-python-cli](https://github.com/Sendspin/sendspin-python-cli)** is a second, independent player (`pip install sendspin` or `uv tool install sendspin`). Reproducing a failure with both players helps narrow down the cause.
+- **[Music Assistant](https://www.music-assistant.io)** is the reference server. If you are building a client, test against it first and treat its behavior as the expected one.
+- **An ESPHome device**, such as the Home Assistant Voice Preview Edition, is a reference client in the field and what a server will meet in most homes.
+- **A browser tab with [sendspin-js](https://github.com/Sendspin/sendspin-js)**, the client behind the Music Assistant web UI and the [live demo](/#live-demo) on this site, has coarse clocks and a user-gesture requirement, which exercises paths a native player never hits.
+- **The client in [aiosendspin](https://github.com/Sendspin/aiosendspin)** is a scriptable test client. If you are building a server, drive it from a Python script to connect, pair, join groups and disconnect in loops, with every message visible.
 
 <div class="callout callout--tip">
 <p class="callout__title">提示</p>

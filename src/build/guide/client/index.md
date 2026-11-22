@@ -11,11 +11,11 @@ order: 20
 
 为您的平台选择一个 SDK：
 
-- **[sendspin-cpp](https://github.com/Sendspin/sendspin-cpp)** 是面向设备的 C++ 库。它通过 ESP-IDF 组件注册表（`sendspin/sendspin-cpp`）运行在 ESP32 上，也可运行在 Linux 和 macOS 主机上。您可以在设置客户端时添加所需的角色，而从不使用的角色可以在构建时排除，以节省闪存。您需要提供 `on_audio_write` 回调、一个网络就绪提供程序和一个持久化提供程序；该库会托管 WebSocket 服务器，并自行处理 Noise、解码和时间同步。
-- **[aiosendspin](https://github.com/Sendspin/aiosendspin)** 是 Python。它是 Music Assistant 内部的服务端；其客户端部分主要用作测试和参考客户端。
-- **[sendspin-js](https://github.com/Sendspin/sendspin-js)** 是面向浏览器的 TypeScript，目前正在更新以符合规范 1.0。
+- **[sendspin-cpp](https://github.com/Sendspin/sendspin-cpp)** is the C++ library for devices. It runs on ESP32 through the ESP-IDF component registry (`sendspin/sendspin-cpp`) and on Linux, macOS and Windows hosts. You add the roles you need when you set up the client, and roles you never use can be left out of the build to save flash. You provide an `on_audio_write` callback, a network-ready provider and a persistence provider; the library hosts the WebSocket server and does Noise, decoding and time sync itself.
+- **[aiosendspin](https://github.com/Sendspin/aiosendspin)** is Python. It is the server inside Music Assistant; its client side is mainly a test and reference client.
+- **[sendspin-js](https://github.com/Sendspin/sendspin-js)** is TypeScript for browsers.
 
-无论您选择哪一个，请先在 Raspberry Pi 或 Mac 上安装 [sendspin-cpp-cli](https://github.com/Sendspin/sendspin-cpp-cli)。将其用作参考播放器，与您自己的播放器进行比较。[SDK 页面](/build/sdks/)列出了所有内容。如果您使用的是 ESP32，请在编写任何代码之前先阅读 [ESPHome 章节](/build/guide/esphome/)。
+Whatever you pick, install [sendspin-cpp-cli](https://github.com/Sendspin/sendspin-cpp-cli) on a Raspberry Pi, a Mac or a Windows PC first. Use it as a reference player to compare against yours. The [SDK page](/build/sdks/) lists everything. If you are on ESP32, read the [ESPHome chapter](/build/guide/esphome/) before writing any code.
 
 ## 2. 组件
 
