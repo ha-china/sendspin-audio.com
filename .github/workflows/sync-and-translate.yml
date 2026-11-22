@@ -37,11 +37,32 @@ jobs:
           set -e
           PRE=$(git rev-parse HEAD)
           UP=$(git rev-parse upstream/main)
-          git merge upstream/main -X theirs --no-edit -m "Sync from upstream $UP"
+          if ! git merge upstream/main -X theirs --no-edit -m "Sync from upstream $UP"; then
+            echo "::warning::-X theirs only settles content conflicts; resolving the rest in favour of upstream"
+            # Typical leftovers are modify/delete pairs (upstream removed a
+            # file we had translated): follow upstream — take its version,
+            # or delete when it deleted.
+            git diff --name-only --diff-filter=U -z |
+              while IFS= read -r -d '' path; do
+                if git cat-file -e "upstream/main:$path" 2>/dev/null; then
+                  git checkout upstream/main -- "$path"
+                  git add -- "$path"
+                  echo "took upstream version: $path"
+                else
+                  git rm -q -f -- "$path"
+                  echo "deleted as upstream: $path"
+                fi
+              done
+            git commit --no-edit
+          fi
           # The GITHUB_TOKEN cannot push workflow files ("workflows"
           # permission is not grantable), so keep our workflows exactly as
           # they were before the merge and fold that into the merge commit.
           if ! git diff --quiet "$PRE" HEAD -- .github/workflows; then
+            # checkout alone cannot drop files upstream ADDED (they are not
+            # in $PRE); remove those first, then restore our set exactly.
+            git diff --name-only --diff-filter=ACMR -z "$PRE" HEAD -- .github/workflows |
+              while IFS= read -r -d '' f; do git rm -q -f -- "$f" || true; done
             git checkout "$PRE" -- .github/workflows
             git commit --amend --no-edit
           fi
