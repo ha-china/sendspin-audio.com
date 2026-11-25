@@ -115,3 +115,33 @@ jobs:
             git commit -m "Translate content from upstream $UPSTREAM_SHA"
             git push origin Chinese
           fi
+
+      # Build the site and publish the static output to a `build` branch that
+      # only ever holds the latest build (a single orphan commit), so the
+      # files can be downloaded from GitHub and uploaded to the server as-is.
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build site
+        run: npm run build
+      - name: Publish build branch
+        run: |
+          set -e
+          SITE="$RUNNER_TEMP/site"
+          mkdir -p "$SITE"
+          cp -a dist/sendspin/. "$SITE/"
+          git config user.name "translate-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout -q --orphan build
+          git reset -q
+          # Clear the working tree, then put the built site at the branch root.
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a "$SITE"/. .
+          git add -A -f
+          git commit -q -m "Site build of ${GITHUB_SHA::7}"
+          git push -q --force origin build
+          echo "Published to the build branch"
