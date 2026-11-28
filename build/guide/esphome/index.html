@@ -1,0 +1,511 @@
+
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <link href="/sendspin/style.css" rel="stylesheet" />
+    
+    
+    <link href="/sendspin/guide.css?v=20261002" rel="stylesheet" />
+    
+    
+    <title>使用 ESPHome 构建 – Sendspin</title>
+    <link rel="icon" href="/sendspin/images/sendspin-favicon.svg?v=20260916" type="image/svg+xml" />
+    <link rel="icon" href="/sendspin/images/sendspin-favicon.png?v=20260916" type="image/png" sizes="192x192" />
+    <meta name="description" content="使用 ESPHome 在 ESP32 上构建 Sendspin 固件；介绍 ESPHome 的 sendspin 组件包含哪些内容、通过 Home Assistant 进行引导设置如何省去配对步骤、一个示例配置，以及何时应直接改用 sendspin-cpp。" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="使用 ESPHome 构建 – Sendspin" />
+    <meta property="og:site_name" content="Sendspin" />
+    <meta
+      property="og:url"
+      content="https://www.sendspin-audio.com/build/guide/esphome/"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="使用 ESPHome 在 ESP32 上构建 Sendspin 固件；介绍 ESPHome 的 sendspin 组件包含哪些内容、通过 Home Assistant 进行引导设置如何省去配对步骤、一个示例配置，以及何时应直接改用 sendspin-cpp。" />
+    <meta
+      property="og:image"
+      content="https://www.sendspin-audio.com/images/social2.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Sendspin logo — Whole-home audio, without the lock-in." />
+    <meta name="twitter:image:alt" content="Sendspin logo — Whole-home audio, without the lock-in." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="使用 ESPHome 构建 – Sendspin" />
+    <meta name="twitter:description" content="使用 ESPHome 在 ESP32 上构建 Sendspin 固件；介绍 ESPHome 的 sendspin 组件包含哪些内容、通过 Home Assistant 进行引导设置如何省去配对步骤、一个示例配置，以及何时应直接改用 sendspin-cpp。" />
+    <meta
+      name="twitter:image"
+      content="https://www.sendspin-audio.com/images/social2.png"
+    />
+    <script async src="https://plausible.openhomefoundation.org/js/pa-obCWzmtDxu9-S0vPtBpJu.js"></script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js?id=3MhQABjxy4RZQ6Ig&ck=3MhQABjxy4RZQ6Ig"></script>
+    <script>
+      (function () {
+        // Fetched once per build by script/fetch-allowed-referrers.js. Visitors arriving
+        // from their own Home Assistant or ESPHome instance send that private URL as the
+        // referrer, so anything not on this list is replaced before Plausible sees it.
+        var allowedReferrers = [];
+
+        window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments) };
+        window.plausible.init = window.plausible.init || function (i) { window.plausible.o = i || {} };
+
+        window.plausible.init({
+          transformRequest: function (payload) {
+            var ref = payload.r;
+            if (!ref) return payload;
+
+            var host = "";
+            try {
+              host = new URL(ref).hostname.replace(/\.$/, "");
+            } catch (e) {
+              // Unparseable referrer: falls through and gets replaced.
+            }
+
+            for (var i = 0; i < allowedReferrers.length; i++) {
+              var d = allowedReferrers[i];
+              if (host === d || (host.length > d.length && host.slice(-(d.length + 1)) === "." + d)) {
+                return payload;
+              }
+            }
+
+            // One aggregate bucket so we can see how much we filter without learning
+            // anything about individual visitors. .invalid is reserved by RFC 2606 and
+            // can never collide with a real domain.
+            payload.r = "https://unlisted.invalid/";
+            return payload;
+          },
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <aside class="banner" aria-label="Announcement">
+      <div class="container banner__inner">
+        <span>Meet the Sendspin team at CES</span>
+        <a class="banner__cta" href="mailto:sendspin@openhomefoundation.org">Set up a meeting</a>
+      </div>
+    </aside>
+    <nav class="nav nav--build">
+      <div class="container nav__inner">
+        <div class="nav__brand">
+          <a href="/sendspin/" class="nav__logo" aria-label="Sendspin home">
+  <img class="nav__logo-image" src="/sendspin/images/sendspin-lockup.svg" width="148" height="35" alt="" />
+</a>
+
+          
+          <span class="nav__crumb-sep" aria-hidden="true">/</span>
+          <a class="nav__crumb" href="/sendspin/build/">构建</a>
+          
+        </div>
+        <button
+          class="nav__toggle"
+          type="button"
+          aria-label="切换菜单"
+          aria-expanded="false"
+          aria-controls="nav-menu"
+        >
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+        </button>
+        <div class="nav__links" id="nav-menu">
+          
+          <a class="nav__link " href="/sendspin/build/manufacturers/">为什么选择 Sendspin</a>
+          <a class="nav__link is-active" href="/sendspin/build/guide/">如何构建</a>
+          <a class="nav__link " href="/sendspin/build/sdks/">SDKs</a>
+          <a class="nav__link " href="/sendspin/build/spec/">规范</a>
+          
+          
+        </div>
+      </div>
+    </nav>
+    <script>
+      (function () {
+        var nav = document.querySelector(".nav");
+        if (!nav) return;
+        var toggle = nav.querySelector(".nav__toggle");
+        var links = nav.querySelector(".nav__links");
+        function close() {
+          nav.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+        }
+        toggle.addEventListener("click", function () {
+          var open = nav.classList.toggle("is-open");
+          toggle.setAttribute("aria-expanded", String(open));
+        });
+        links.addEventListener("click", function (e) {
+          if (e.target.tagName === "A") close();
+        });
+        document.addEventListener("click", function (e) {
+          if (!nav.contains(e.target) && nav.classList.contains("is-open")) close();
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && nav.classList.contains("is-open")) close();
+        });
+      })();
+    </script>
+
+    
+    
+
+
+
+<main class="page-content guide">
+  <div class="container guide__shell">
+    <details class="guide__drawer" open>
+      <summary class="guide__drawer-summary">指南目录</summary>
+      <nav class="guide__nav" aria-label="实施指南章节">
+        
+        
+        <ul class="guide__nav-list">
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/">Welcome</a>
+            
+          </li>
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/concepts/">Sendspin 的工作原理</a>
+            
+          </li>
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/roles/">角色</a>
+            
+          </li>
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/use-cases/">Use cases</a>
+            
+          </li>
+          
+        </ul>
+        
+        <p class="eyebrow guide__nav-section">Building a client</p>
+        <ul class="guide__nav-list">
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/client/">Client step by step</a>
+            
+          </li>
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/client/pairing/">Pairing</a>
+            
+          </li>
+          
+          
+          
+          <li>
+            <a class="guide__nav-link is-active" href="/sendspin/build/guide/esphome/" aria-current="page">ESPHome</a>
+            
+            <ul class="guide__nav-sub">
+              <li><a href="#-home-assistant-">通过 Home Assistant 引导设置</a></li><li><a href="#-1">示例配置</a></li><li><a href="#esphome-">ESPHome 替你处理的事项</a></li><li><a href="#-sendspin-cpp">何时直接使用 sendspin-cpp</a></li><li><a href="#-2">已经运行它的硬件</a></li>
+            </ul>
+            
+          </li>
+          
+        </ul>
+        
+        <p class="eyebrow guide__nav-section">Building a server</p>
+        <ul class="guide__nav-list">
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/server/">Server step by step</a>
+            
+          </li>
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/server/ux/">Server UX</a>
+            
+          </li>
+          
+        </ul>
+        
+        <p class="eyebrow guide__nav-section">Security</p>
+        <ul class="guide__nav-list">
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/pairing-and-encryption/">Trust model</a>
+            
+          </li>
+          
+        </ul>
+        
+        <p class="eyebrow guide__nav-section">Ship it</p>
+        <ul class="guide__nav-list">
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/testing/">Testing & certification</a>
+            
+          </li>
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/contributing/">Contributing</a>
+            
+          </li>
+          
+        </ul>
+        
+        <p class="eyebrow guide__nav-section">更多</p>
+        <ul class="guide__nav-list">
+          <li><a class="guide__nav-link" href="/sendspin/build/sdks/">SDK 与工具</a></li>
+          <li><a class="guide__nav-link" href="/sendspin/build/spec/">协议规范</a></li>
+          <li><a class="guide__nav-link" href="/sendspin/licensing/">许可与商标</a></li>
+          <li><a class="guide__nav-link" href="/sendspin/build/guide/all/">单页 / PDF</a></li>
+        </ul>
+      </nav>
+    </details>
+    <script>
+      // A closed <details> cannot be opened from CSS, so keep the drawer open on
+      // wide screens and collapsed on narrow ones, also across resizes.
+      (function () {
+        var drawer = document.querySelector(".guide__drawer");
+        var narrow = window.matchMedia("(max-width: 900px)");
+        function sync() { drawer.open = !narrow.matches; }
+        sync();
+        narrow.addEventListener("change", sync);
+      })();
+    </script>
+    <article class="guide__article">
+      <h1>使用 ESPHome 构建</h1>
+      <p>使用 ESPHome 为 ESP32 构建 Sendspin 播放器，无需编写 C++。<a href="https://esphome.io">ESPHome</a> 提供了一个 <code>sendspin</code> 组件，它封装了 <a href="https://github.com/Sendspin/sendspin-cpp">sendspin-cpp</a>，并将其接入 ESPHome 音频栈的其余部分。你用 YAML 描述硬件，ESPHome 构建固件，Home Assistant 则负责引导设置、更新和配对。</p>
+<h2 id="" tabindex="-1"><a class="heading-anchor" href="#" aria-hidden="true">#</a>组件包含的内容</h2>
+<p>该组件是一个 hub 加上一组平台：</p>
+<ul>
+<li><code>sendspin:</code> 是 hub（中心组件）。它接受可选的 <code>manufacturer</code>、<code>model</code> 和 <code>firmware_version</code>，用于 <code>client/hello</code> 中的 <code>device_info</code>；还接受 <code>task_stack_in_psram</code>，适用于内部 RAM 紧张的板卡。它会自动启用 ESPHome 的高性能网络功能。</li>
+<li>一个 <code>media_source</code> 平台 <code>sendspin</code>，它就是播放器角色。它向 <code>speaker_source</code> 媒体播放器提供数据，后者可驱动任何 ESPHome 扬声器管线：I2S DAC、内部 DAC、带独立重采样器和混音器的扬声器。其 <code>initial_static_delay</code> 和 <code>static_delay_adjustable</code> 选项分别对应<a href="/sendspin/build/guide/client/#7-set-the-static-output-delay">输出延迟</a>，以及用户是否可以更改它。</li>
+<li>一个 <code>media_player</code> 平台 <code>sendspin</code>，它就是控制器角色：它将设备所在的组以 Home Assistant 媒体播放器的形式暴露出来，具备播放、暂停、下一曲和音量功能。</li>
+<li>一个 <code>text_sensor</code> 平台，其 <code>type</code> 为 <code>title</code>、<code>artist</code>、<code>album</code> 或 <code>album_artist</code>；以及一个 <code>sensor</code> 平台，对应 <code>track_progress</code>、<code>track_duration</code>、<code>year</code> 或 <code>track</code>。</li>
+<li>一个用于专辑封面的 <code>image</code> 平台，可按你的显示屏所需的 <code>format</code> 和 <code>resize</code> 尺寸，从专辑或艺术家通道获取图像。</li>
+<li>用于启动和停止 Sendspin 客户端、以及允许访客访问的 <code>switch</code> 实体（entity）——后者是 Home Assistant 对<a href="/sendspin/build/guide/client/pairing/#unpaired-access-is-your-default-to-choose">未配对访问</a>的称呼。</li>
+</ul>
+<p>其底层是未经修改的 sendspin-cpp。该库的设计目标是被 ESPHome 使用，但本身不依赖 ESPHome 的任何内容，因此你在这里学到的知识在你将来脱离 ESPHome 时依然适用。ESPHome 的最低版本要求为 2026.3。带 PSRAM 的 ESP32-S3 是比较从容的目标。普通 ESP32 也能胜任播放器角色，但需要小心管理 RAM——<code>task_stack_in_psram</code> 选项以及在扬声器管线中只选择单一采样率正是为此而设。</p>
+<p><a href="https://esphome.io/components/sendspin/">ESPHome 文档</a>中有每个平台的完整选项列表。</p>
+<h2 id="-home-assistant-" tabindex="-1"><a class="heading-anchor" href="#-home-assistant-" aria-hidden="true">#</a>通过 Home Assistant 引导设置</h2>
+<p>用户获得的体验与正常的 ESPHome 体验一致。他们给设备上电，通过 Improv 或在 ESPHome 仪表盘（dashboard）中采纳设备的方式将其添加到 Home Assistant；从那时起，他们就能获得 OTA 更新，以及一个包含其全部实体的设备页面。</p>
+<p>Home Assistant 会将设备的配对 PSK 交给 Music Assistant，因此该设备在 Music Assistant 中显示时就已经处于配对状态，无需输入任何代码，也无需扫描二维码。手动配对方法对家中的其他服务器仍然可用：手机应用或第二台音乐服务器仍会按照<a href="/sendspin/build/guide/client/pairing/">配对章节</a>中描述的方式进行配对。</p>
+<p>访客模式开关从 Home Assistant 这一侧控制未配对访问，因此用户可以在仪表盘上决定未配对的服务器是否可以在该设备上播放。对于需要符合 EN 18031 默认合规要求的产品，可以使用一个动作（action）让固件在设置好每台设备专属的密钥之后才启用 Sendspin，从而确保设备绝不会以共享密钥或空密钥进行监听。</p>
+<div class="callout callout--example">
+<p class="callout__title">Music Assistant 就是这么做的</p>
+<p>Music Assistant 从 Home Assistant 获取设备的配对 PSK，并在首次连接时完成配对 PSK 流程。双方各自存储一条普通的配对记录，与基于代码的配对之后所做的一样。其他服务器则通过设备所通告的方法与其配对。</p>
+</div>
+<h2 id="-1" tabindex="-1"><a class="heading-anchor" href="#-1" aria-hidden="true">#</a>示例配置</h2>
+<p>请根据你的硬件调整引脚、板卡型号、采样率和名称。实体名称就是用户在 Home Assistant 中看到的名称。</p>
+<pre><code class="language-yaml"># Example: an ESP32-S3 driving an external I2S DAC. Adapt to your board.
+esphome:
+  name: shelf-speaker
+  friendly_name: Shelf Speaker
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+api:
+ota:
+  - platform: esphome
+improv_serial:
+
+i2s_audio:
+  - id: i2s_out
+    i2s_lrclk_pin: GPIO45
+    i2s_bclk_pin: GPIO46
+
+speaker:
+  - platform: i2s_audio
+    id: dac_speaker
+    i2s_audio_id: i2s_out
+    i2s_dout_pin: GPIO47
+    dac_type: external
+    sample_rate: 48000
+    bits_per_sample: 32bit
+    channel: stereo
+
+sendspin:
+  manufacturer: Example Audio
+  model: Shelf Speaker
+  firmware_version: &quot;1.0.0&quot;
+
+# The player role: Sendspin audio into the speaker pipeline.
+media_source:
+  - platform: sendspin
+    id: sendspin_source
+    initial_static_delay: 0ms      # delay of the DAC and amplifier behind the port
+    static_delay_adjustable: true  # let the user fine-tune it from Home Assistant
+
+media_player:
+  - platform: speaker_source
+    id: speaker_player
+    name: Speaker
+    media_pipeline:
+      speaker: dac_speaker
+      sources:
+        - sendspin_source
+  # The controller role: the group this device is in, as a media player entity.
+  - platform: sendspin
+    name: Sendspin group
+
+text_sensor:
+  - platform: sendspin
+    type: title
+    name: Title
+  - platform: sendspin
+    type: artist
+    name: Artist
+
+switch:
+  # Starts and stops the Sendspin client. The guest access switch is
+  # configured the same way; see the ESPHome documentation.
+  - platform: sendspin
+    name: Sendspin
+</code></pre>
+<p>刷写固件，在 Home Assistant 中采纳该设备，它就会作为播放器出现在 Music Assistant 中。测量端口之后 DAC 和功放的延迟并填入 <code>initial_static_delay</code>，然后将该设备与树莓派上的 <a href="https://github.com/Sendspin/sendspin-cpp-cli">sendspin-cpp-cli</a> 进行对比，以检查同步情况。</p>
+<p><span id="why-this-is-the-fast-lane"></span></p>
+<h2 id="esphome-" tabindex="-1"><a class="heading-anchor" href="#esphome-" aria-hidden="true">#</a>ESPHome 替你处理的事项</h2>
+<ul>
+<li><strong>OTA 与配置。</strong> ESPHome 的更新机制和 YAML 配置取代了你原本不得不自己编写的构建系统、更新程序和设置存储。</li>
+<li><strong>Home Assistant 集成（integration）。</strong> 实体、设备页面、自动化（automation）以及向 Music Assistant 交接配对信息，这些都由 ESPHome 原生 API 提供。</li>
+<li><strong>通往认证的路径。</strong> 以这种方式构建的设备可以满足 <a href="https://esphome.io/guides/made_for_esphome">Made for ESPHome</a> 的条件，并使用一致性测试套件所针对的 SDK 通过 <a href="/sendspin/build/guide/testing/">Sendspin 测试与认证</a>。</li>
+<li><strong>协议实现。</strong> sendspin-cpp 负责 Noise、时间滤波器、解码和同步校正，并且由项目方维护。</li>
+</ul>
+<h2 id="-sendspin-cpp" tabindex="-1"><a class="heading-anchor" href="#-sendspin-cpp" aria-hidden="true">#</a>何时直接使用 sendspin-cpp</h2>
+<p>在以下情况下，请抛开 ESPHome 直接使用 sendspin-cpp：</p>
+<ul>
+<li>你的芯片不是 ESP32，或者你运行自定义的 RTOS 或 Linux 构建；</li>
+<li>你已经拥有更新系统和配置存储，不想再引入第二套；</li>
+<li>你需要对线程、内存布局或音频路径的控制，而组件并未暴露这些能力。</li>
+</ul>
+<p>你使用的仍是相同的库、相同的钩子，线上的行为也完全一致。<a href="/sendspin/build/guide/client/">客户端分步指南</a>一章正是为这条路径而写的。</p>
+<h2 id="-2" tabindex="-1"><a class="heading-anchor" href="#-2" aria-hidden="true">#</a>已经运行它的硬件</h2>
+<p><a href="https://www.home-assistant.io/voice-pe/">Home Assistant Voice Preview Edition</a> 就是通过该组件提供 Sendspin 的，因此有一款量产设备可供对比；在你设计自己的电路板之前，其公开的配置是有关引脚映射、PSRAM 配置和扬声器管线的实用参考。</p>
+
+      <nav class="guide__pager" aria-label="上一章与下一章导航">
+        
+        <a class="guide__pager-link guide__pager-link--prev" href="/sendspin/build/guide/client/pairing/">
+          <span class="guide__pager-label">上一章</span>
+          <span class="guide__pager-title">Pairing</span>
+        </a>
+        
+        
+        <a class="guide__pager-link guide__pager-link--next" href="/sendspin/build/guide/server/">
+          <span class="guide__pager-label">下一章</span>
+          <span class="guide__pager-title">Server step by step</span>
+        </a>
+        
+      </nav>
+    </article>
+  </div>
+</main>
+
+    
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="site-footer__inner">
+          <div class="site-footer__brand">
+            <a href="/sendspin/" class="nav__logo" aria-label="Sendspin home">
+  <img class="nav__logo-image" src="/sendspin/images/sendspin-lockup.svg" width="148" height="35" alt="" />
+</a>
+
+            <p class="site-footer__tagline">
+              The open standard for music in every room — from the Open Home&nbsp;Foundation.
+            </p>
+            <p class="site-footer__tagline site-footer__tagline--analytics">
+              本站使用 <a
+                href="https://www.openhomefoundation.org/blog/making-our-web-analytics-open-source-with-plausible/"
+                rel="noopener">privacy-first analytics</a> 帮助我们改进网站。你可以在我们的 <a
+                href="https://plausible.openhomefoundation.org/sendspin-audio.com" rel="noopener">公开面板查看全部数据</a>.
+            </p>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>听音乐</h5>
+            <ul>
+              
+              <li><a href="/sendspin/#whole-room">体验</a></li>
+              
+              <li><a href="/sendspin/#live-demo">在线演示</a></li>
+              
+              <li><a href="/sendspin/#start">快速开始</a></li>
+              
+              <li><a href="https://www.home-assistant.io/connect/aux-2/">Connect AUX-2</a></li>
+              
+            </ul>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>构建</h5>
+            <ul>
+              
+              <li><a href="/sendspin/build/">用 Sendspin 构建</a></li>
+              
+              <li><a href="/sendspin/build/manufacturers/">面向硬件厂商</a></li>
+              
+              <li><a href="/sendspin/build/guide/">实施指南</a></li>
+              
+              <li><a href="/sendspin/build/sdks/">SDK 与库</a></li>
+              
+              <li><a href="/sendspin/build/spec/">规范</a></li>
+              
+              <li><a href="https://www.github.com/Sendspin">GitHub</a></li>
+              
+            </ul>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>社区</h5>
+            <ul>
+              
+              <li><a href="https://discord.gg/kaVm8hGpne">Discord</a></li>
+              
+              <li><a href="https://www.openhomefoundation.org">Open Home Foundation</a></li>
+              
+              <li><a href="mailto:sendspin@openhomefoundation.org">联系我们</a></li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="site-footer__legal">
+          <span>© Sendspin · Open Home Foundation. Sendspin 现为 Release Candidate 1，规范正在最终定稿。 <a href="/sendspin/licensing/">许可与商标</a></span>
+          <span>产自温暖的瑞士。</span>
+        </div>
+      </div>
+    </footer>
+    
+    
+    
+  </body>
+</html>

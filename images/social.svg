@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <style>
+      .bg { fill: #F5F4EC; }
+      .h { font-family: 'Sendspin Display', ui-sans-serif, system-ui, sans-serif; font-weight: 700; font-size: 104px; letter-spacing: -2.6px; }
+      .h-espresso { fill: #201A17; }
+      .h-coral { fill: #E25C4C; }
+      .sub { font-family: 'Figtree', ui-sans-serif, system-ui, sans-serif; font-weight: 500; font-size: 34px; fill: #463D39; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="630"/>
+
+  <!-- Brand wordmark -->
+  <image href="sendspin-lockup.svg" x="80" y="60" width="380" height="90"/>
+
+  <!-- Headline -->
+  <text x="80" y="302" class="h h-espresso">Whole-home audio,</text>
+  <text x="80" y="410" class="h h-coral">without the lock-in.</text>
+
+  <!-- Subtext -->
+  <text x="80" y="504" class="sub">Music, art and light in microsecond sync.</text>
+  <text x="80" y="550" class="sub">An open standard from the Open Home Foundation.</text>
+</svg>

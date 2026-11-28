@@ -1,0 +1,471 @@
+
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <link href="/sendspin/style.css" rel="stylesheet" />
+    
+    
+    <link href="/sendspin/guide.css?v=20261002" rel="stylesheet" />
+    
+    
+    <title>角色及其构成的产品 – Sendspin</title>
+    <link rel="icon" href="/sendspin/images/sendspin-favicon.svg?v=20260916" type="image/svg+xml" />
+    <link rel="icon" href="/sendspin/images/sendspin-favicon.png?v=20260916" type="image/png" sizes="192x192" />
+    <meta name="description" content="Sendspin 的七种角色、哪些产品会用到它们、每种角色对硬件有什么要求，以及它们如何组合。" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="角色及其构成的产品 – Sendspin" />
+    <meta property="og:site_name" content="Sendspin" />
+    <meta
+      property="og:url"
+      content="https://www.sendspin-audio.com/build/guide/roles/"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="Sendspin 的七种角色、哪些产品会用到它们、每种角色对硬件有什么要求，以及它们如何组合。" />
+    <meta
+      property="og:image"
+      content="https://www.sendspin-audio.com/images/social2.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Sendspin logo — Whole-home audio, without the lock-in." />
+    <meta name="twitter:image:alt" content="Sendspin logo — Whole-home audio, without the lock-in." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="角色及其构成的产品 – Sendspin" />
+    <meta name="twitter:description" content="Sendspin 的七种角色、哪些产品会用到它们、每种角色对硬件有什么要求，以及它们如何组合。" />
+    <meta
+      name="twitter:image"
+      content="https://www.sendspin-audio.com/images/social2.png"
+    />
+    <script async src="https://plausible.openhomefoundation.org/js/pa-obCWzmtDxu9-S0vPtBpJu.js"></script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js?id=3MhQABjxy4RZQ6Ig&ck=3MhQABjxy4RZQ6Ig"></script>
+    <script>
+      (function () {
+        // Fetched once per build by script/fetch-allowed-referrers.js. Visitors arriving
+        // from their own Home Assistant or ESPHome instance send that private URL as the
+        // referrer, so anything not on this list is replaced before Plausible sees it.
+        var allowedReferrers = [];
+
+        window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments) };
+        window.plausible.init = window.plausible.init || function (i) { window.plausible.o = i || {} };
+
+        window.plausible.init({
+          transformRequest: function (payload) {
+            var ref = payload.r;
+            if (!ref) return payload;
+
+            var host = "";
+            try {
+              host = new URL(ref).hostname.replace(/\.$/, "");
+            } catch (e) {
+              // Unparseable referrer: falls through and gets replaced.
+            }
+
+            for (var i = 0; i < allowedReferrers.length; i++) {
+              var d = allowedReferrers[i];
+              if (host === d || (host.length > d.length && host.slice(-(d.length + 1)) === "." + d)) {
+                return payload;
+              }
+            }
+
+            // One aggregate bucket so we can see how much we filter without learning
+            // anything about individual visitors. .invalid is reserved by RFC 2606 and
+            // can never collide with a real domain.
+            payload.r = "https://unlisted.invalid/";
+            return payload;
+          },
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <aside class="banner" aria-label="Announcement">
+      <div class="container banner__inner">
+        <span>Meet the Sendspin team at CES</span>
+        <a class="banner__cta" href="mailto:sendspin@openhomefoundation.org">Set up a meeting</a>
+      </div>
+    </aside>
+    <nav class="nav nav--build">
+      <div class="container nav__inner">
+        <div class="nav__brand">
+          <a href="/sendspin/" class="nav__logo" aria-label="Sendspin home">
+  <img class="nav__logo-image" src="/sendspin/images/sendspin-lockup.svg" width="148" height="35" alt="" />
+</a>
+
+          
+          <span class="nav__crumb-sep" aria-hidden="true">/</span>
+          <a class="nav__crumb" href="/sendspin/build/">构建</a>
+          
+        </div>
+        <button
+          class="nav__toggle"
+          type="button"
+          aria-label="切换菜单"
+          aria-expanded="false"
+          aria-controls="nav-menu"
+        >
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+        </button>
+        <div class="nav__links" id="nav-menu">
+          
+          <a class="nav__link " href="/sendspin/build/manufacturers/">为什么选择 Sendspin</a>
+          <a class="nav__link is-active" href="/sendspin/build/guide/">如何构建</a>
+          <a class="nav__link " href="/sendspin/build/sdks/">SDKs</a>
+          <a class="nav__link " href="/sendspin/build/spec/">规范</a>
+          
+          
+        </div>
+      </div>
+    </nav>
+    <script>
+      (function () {
+        var nav = document.querySelector(".nav");
+        if (!nav) return;
+        var toggle = nav.querySelector(".nav__toggle");
+        var links = nav.querySelector(".nav__links");
+        function close() {
+          nav.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+        }
+        toggle.addEventListener("click", function () {
+          var open = nav.classList.toggle("is-open");
+          toggle.setAttribute("aria-expanded", String(open));
+        });
+        links.addEventListener("click", function (e) {
+          if (e.target.tagName === "A") close();
+        });
+        document.addEventListener("click", function (e) {
+          if (!nav.contains(e.target) && nav.classList.contains("is-open")) close();
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && nav.classList.contains("is-open")) close();
+        });
+      })();
+    </script>
+
+    
+    
+
+
+
+<main class="page-content guide">
+  <div class="container guide__shell">
+    <details class="guide__drawer" open>
+      <summary class="guide__drawer-summary">指南目录</summary>
+      <nav class="guide__nav" aria-label="实施指南章节">
+        
+        
+        <ul class="guide__nav-list">
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/">Welcome</a>
+            
+          </li>
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/concepts/">Sendspin 的工作原理</a>
+            
+          </li>
+          
+          
+          
+          <li>
+            <a class="guide__nav-link is-active" href="/sendspin/build/guide/roles/" aria-current="page">角色</a>
+            
+            <ul class="guide__nav-sub">
+              <li><a href="#-1">角色如何组合</a></li><li><a href="#-2">所有角色共有的内容</a></li><li><a href="#-3">尚不存在的角色</a></li>
+            </ul>
+            
+          </li>
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/use-cases/">Use cases</a>
+            
+          </li>
+          
+        </ul>
+        
+        <p class="eyebrow guide__nav-section">Building a client</p>
+        <ul class="guide__nav-list">
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/client/">Client step by step</a>
+            
+          </li>
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/client/pairing/">Pairing</a>
+            
+          </li>
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/esphome/">ESPHome</a>
+            
+          </li>
+          
+        </ul>
+        
+        <p class="eyebrow guide__nav-section">Building a server</p>
+        <ul class="guide__nav-list">
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/server/">Server step by step</a>
+            
+          </li>
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/server/ux/">Server UX</a>
+            
+          </li>
+          
+        </ul>
+        
+        <p class="eyebrow guide__nav-section">Security</p>
+        <ul class="guide__nav-list">
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/pairing-and-encryption/">Trust model</a>
+            
+          </li>
+          
+        </ul>
+        
+        <p class="eyebrow guide__nav-section">Ship it</p>
+        <ul class="guide__nav-list">
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/testing/">Testing & certification</a>
+            
+          </li>
+          
+          
+          
+          <li>
+            <a class="guide__nav-link" href="/sendspin/build/guide/contributing/">Contributing</a>
+            
+          </li>
+          
+        </ul>
+        
+        <p class="eyebrow guide__nav-section">更多</p>
+        <ul class="guide__nav-list">
+          <li><a class="guide__nav-link" href="/sendspin/build/sdks/">SDK 与工具</a></li>
+          <li><a class="guide__nav-link" href="/sendspin/build/spec/">协议规范</a></li>
+          <li><a class="guide__nav-link" href="/sendspin/licensing/">许可与商标</a></li>
+          <li><a class="guide__nav-link" href="/sendspin/build/guide/all/">单页 / PDF</a></li>
+        </ul>
+      </nav>
+    </details>
+    <script>
+      // A closed <details> cannot be opened from CSS, so keep the drawer open on
+      // wide screens and collapsed on narrow ones, also across resizes.
+      (function () {
+        var drawer = document.querySelector(".guide__drawer");
+        var narrow = window.matchMedia("(max-width: 900px)");
+        function sync() { drawer.open = !narrow.matches; }
+        sync();
+        narrow.addEventListener("change", sync);
+      })();
+    </script>
+    <article class="guide__article">
+      <h1>角色及其构成的产品</h1>
+      <p>角色（role）是客户端（client）提供的一种能力。客户端在其 hello 消息中列出所支持的角色，服务器（server）激活它需要的角色，此后每种角色都有各自的消息，并在需要时拥有各自的二进制流。服务器会实现所有角色，因此只需选择你的产品所需的角色。</p>
+<h2 id="" tabindex="-1"><a class="heading-anchor" href="#" aria-hidden="true">#</a>七种角色</h2>
+<div class="table-scroll" tabindex="0">
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>功能</th>
+<th>设备需求</th>
+<th>典型产品</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>player</code></td>
+<td>接收带时间戳的音频并同步播放。拥有自己的音量、静音和输出延迟。</td>
+<td>一个音频输出、一个 FLAC 或 PCM 解码器（Opus 可选）、一个时钟、几百 KB 的缓冲区。</td>
+<td>扬声器、功放、流媒体播放器、条形音箱、机顶盒、桌面和移动应用。</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>采集本地输入并将其流式传输到服务器，由服务器进行分发。</td>
+<td>一个音频输入。重采样和混音由服务器完成。</td>
+<td>黑胶唱片机和 AUX 桥接器、蓝牙接收器、转发自身音频的电视和机顶盒、麦克风。</td>
+</tr>
+<tr>
+<td><code>controller</code></td>
+<td>为其所在分组（group）发送播放、暂停、下一曲、音量、静音、重复、随机播放、进度跳转和切换等指令，并接收该分组的状态。</td>
+<td>一种供用户操作的方式：按钮、旋钮、触摸屏、语音助手。</td>
+<td>遥控器、壁挂面板、旋钮、任何带按键的播放器。</td>
+</tr>
+<tr>
+<td><code>metadata</code></td>
+<td>接收标题、艺术家、专辑、进度等信息，包括为下一首曲目安排的更新。</td>
+<td>一种能显示文本的东西。</td>
+<td>壁挂平板、扬声器上的显示屏、车载主机、配套应用。</td>
+</tr>
+<tr>
+<td><code>artwork</code></td>
+<td>以其请求的精确尺寸和格式接收图片，最多支持四个通道。</td>
+<td>一个屏幕和一个 JPEG 或 PNG 解码器。</td>
+<td>显示屏、带屏幕的扬声器、电子墨水屏相框。</td>
+</tr>
+<tr>
+<td><code>visualizer</code></td>
+<td>接收与音频同步的响度、节拍、频谱和峰值事件。</td>
+<td>灯光或屏幕，以及时间滤波器（time filter）。</td>
+<td>灯带、LED 点阵、灯具、可视化屏幕。</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>接收从专辑封面或音乐中提取的小型调色板，并保证对比度。</td>
+<td>任何能显示颜色的东西。</td>
+<td>氛围灯、显示屏上的 UI 主题配色。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>规范：<a href="/sendspin/build/spec/#role-versioning">角色版本控制</a>，以及从<a href="/sendspin/build/spec/#player-messages">播放器消息</a>开始的每个角色各自的章节。</p>
+<h2 id="-1" tabindex="-1"><a class="heading-anchor" href="#-1" aria-hidden="true">#</a>角色如何组合</h2>
+<p>大多数产品会使用不止一种角色。</p>
+<ul>
+<li><strong>扬声器或功放：</strong> <code>player</code> 加上 <code>controller</code>，这样设备上的按键就能作用于其所在的分组。如果有线路输入，再加上 <code>source</code>。</li>
+<li><strong>流媒体播放器（仅输出）：</strong> 仅使用 <code>player</code>，或者当它配有遥控器或应用时，使用 <code>player</code> 加上 <code>controller</code>。</li>
+<li><strong>显示屏：</strong> <code>metadata</code> 加上 <code>artwork</code> 加上 <code>controller</code>。再加上 <code>color</code>，可以让界面主题跟随专辑封面变化；如果显示屏带有扬声器，再加上 <code>player</code>。</li>
+<li><strong>灯光：</strong> <code>visualizer</code> 用于随音乐变化的效果，<code>color</code> 用于氛围色彩，或者两者兼用。</li>
+<li><strong>专用控制器：</strong> 仅使用 <code>controller</code>。例如一个旋钮、一个按键面板，或一个只需控制所在房间的语音卫星设备。</li>
+<li><strong>输入桥接器：</strong> 仅使用 <code>source</code>，适用于黑胶唱片机、调音台或向系统输入音频的蓝牙接收器。</li>
+</ul>
+<div class="callout callout--note">
+<p class="callout__title">每个音频输出对应一个客户端</p>
+<p>拥有多个独立输出的设备（例如双分区功放），应当为每个输出呈现为一个客户端。每个客户端都有自己的身份标识、分组、音量和时序参数。两个时间滤波器都由同一个主机时钟驱动，因此该设备也可以将两路流叠加到一个物理输出上。</p>
+</div>
+<h2 id="-2" tabindex="-1"><a class="heading-anchor" href="#-2" aria-hidden="true">#</a>所有角色共有的内容</h2>
+<p>无论选择哪些角色，客户端都需要相同的基础：稳定的身份标识、Noise 握手、时间滤波器、hello 与 activate 交互流程，以及报告自身是否可用的能力。<a href="/sendspin/build/guide/client/">客户端章节</a>介绍了这些共享组件。</p>
+<p>在连接的生命周期中，服务器会激活和停用角色。客户端仅在角色处于激活状态时保留该角色的状态，当角色再次被激活时会从干净的状态开始。</p>
+<h2 id="-3" tabindex="-1"><a class="heading-anchor" href="#-3" aria-hidden="true">#</a>尚不存在的角色</h2>
+<p>规范有意省略了那些更适合由服务器完成、或者尚未准备就绪的功能。公告和提示音、歌词、播放列表以及原生音源选择都已被讨论过，可能会作为新角色到来。新角色绝不会破坏现有客户端，因为客户端只会看到自己请求的角色。如果你现在就需要某个功能，可以将其作为 <code>_vendorname_</code> 角色制作原型，并将你的实践经验反馈到<a href="https://github.com/Sendspin/spec/issues">规范仓库</a>；参见<a href="/sendspin/build/guide/contributing/">参与贡献</a>。</p>
+
+      <nav class="guide__pager" aria-label="上一章与下一章导航">
+        
+        <a class="guide__pager-link guide__pager-link--prev" href="/sendspin/build/guide/concepts/">
+          <span class="guide__pager-label">上一章</span>
+          <span class="guide__pager-title">Sendspin 的工作原理</span>
+        </a>
+        
+        
+        <a class="guide__pager-link guide__pager-link--next" href="/sendspin/build/guide/use-cases/">
+          <span class="guide__pager-label">下一章</span>
+          <span class="guide__pager-title">Use cases</span>
+        </a>
+        
+      </nav>
+    </article>
+  </div>
+</main>
+
+    
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="site-footer__inner">
+          <div class="site-footer__brand">
+            <a href="/sendspin/" class="nav__logo" aria-label="Sendspin home">
+  <img class="nav__logo-image" src="/sendspin/images/sendspin-lockup.svg" width="148" height="35" alt="" />
+</a>
+
+            <p class="site-footer__tagline">
+              The open standard for music in every room — from the Open Home&nbsp;Foundation.
+            </p>
+            <p class="site-footer__tagline site-footer__tagline--analytics">
+              本站使用 <a
+                href="https://www.openhomefoundation.org/blog/making-our-web-analytics-open-source-with-plausible/"
+                rel="noopener">privacy-first analytics</a> 帮助我们改进网站。你可以在我们的 <a
+                href="https://plausible.openhomefoundation.org/sendspin-audio.com" rel="noopener">公开面板查看全部数据</a>.
+            </p>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>听音乐</h5>
+            <ul>
+              
+              <li><a href="/sendspin/#whole-room">体验</a></li>
+              
+              <li><a href="/sendspin/#live-demo">在线演示</a></li>
+              
+              <li><a href="/sendspin/#start">快速开始</a></li>
+              
+              <li><a href="https://www.home-assistant.io/connect/aux-2/">Connect AUX-2</a></li>
+              
+            </ul>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>构建</h5>
+            <ul>
+              
+              <li><a href="/sendspin/build/">用 Sendspin 构建</a></li>
+              
+              <li><a href="/sendspin/build/manufacturers/">面向硬件厂商</a></li>
+              
+              <li><a href="/sendspin/build/guide/">实施指南</a></li>
+              
+              <li><a href="/sendspin/build/sdks/">SDK 与库</a></li>
+              
+              <li><a href="/sendspin/build/spec/">规范</a></li>
+              
+              <li><a href="https://www.github.com/Sendspin">GitHub</a></li>
+              
+            </ul>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>社区</h5>
+            <ul>
+              
+              <li><a href="https://discord.gg/kaVm8hGpne">Discord</a></li>
+              
+              <li><a href="https://www.openhomefoundation.org">Open Home Foundation</a></li>
+              
+              <li><a href="mailto:sendspin@openhomefoundation.org">联系我们</a></li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="site-footer__legal">
+          <span>© Sendspin · Open Home Foundation. Sendspin 现为 Release Candidate 1，规范正在最终定稿。 <a href="/sendspin/licensing/">许可与商标</a></span>
+          <span>产自温暖的瑞士。</span>
+        </div>
+      </div>
+    </footer>
+    
+    
+    
+  </body>
+</html>

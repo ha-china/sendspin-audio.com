@@ -1,0 +1,271 @@
+
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <link href="/sendspin/style.css" rel="stylesheet" />
+    
+    <title>使用 Sendspin 构建 – Sendspin</title>
+    <link rel="icon" href="/sendspin/images/sendspin-favicon.svg?v=20260916" type="image/svg+xml" />
+    <link rel="icon" href="/sendspin/images/sendspin-favicon.png?v=20260916" type="image/png" sizes="192x192" />
+    <meta name="description" content="将 Sendspin 集成到您的产品中所需的一切内容；包括面向制造商的推介、实施指南以及各类 SDK。" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="使用 Sendspin 构建 – Sendspin" />
+    <meta property="og:site_name" content="Sendspin" />
+    <meta
+      property="og:url"
+      content="https://www.sendspin-audio.com/build/"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="将 Sendspin 集成到您的产品中所需的一切内容；包括面向制造商的推介、实施指南以及各类 SDK。" />
+    <meta
+      property="og:image"
+      content="https://www.sendspin-audio.com/images/social2.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Sendspin logo — Whole-home audio, without the lock-in." />
+    <meta name="twitter:image:alt" content="Sendspin logo — Whole-home audio, without the lock-in." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="使用 Sendspin 构建 – Sendspin" />
+    <meta name="twitter:description" content="将 Sendspin 集成到您的产品中所需的一切内容；包括面向制造商的推介、实施指南以及各类 SDK。" />
+    <meta
+      name="twitter:image"
+      content="https://www.sendspin-audio.com/images/social2.png"
+    />
+    <script async src="https://plausible.openhomefoundation.org/js/pa-obCWzmtDxu9-S0vPtBpJu.js"></script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js?id=3MhQABjxy4RZQ6Ig&ck=3MhQABjxy4RZQ6Ig"></script>
+    <script>
+      (function () {
+        // Fetched once per build by script/fetch-allowed-referrers.js. Visitors arriving
+        // from their own Home Assistant or ESPHome instance send that private URL as the
+        // referrer, so anything not on this list is replaced before Plausible sees it.
+        var allowedReferrers = [];
+
+        window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments) };
+        window.plausible.init = window.plausible.init || function (i) { window.plausible.o = i || {} };
+
+        window.plausible.init({
+          transformRequest: function (payload) {
+            var ref = payload.r;
+            if (!ref) return payload;
+
+            var host = "";
+            try {
+              host = new URL(ref).hostname.replace(/\.$/, "");
+            } catch (e) {
+              // Unparseable referrer: falls through and gets replaced.
+            }
+
+            for (var i = 0; i < allowedReferrers.length; i++) {
+              var d = allowedReferrers[i];
+              if (host === d || (host.length > d.length && host.slice(-(d.length + 1)) === "." + d)) {
+                return payload;
+              }
+            }
+
+            // One aggregate bucket so we can see how much we filter without learning
+            // anything about individual visitors. .invalid is reserved by RFC 2606 and
+            // can never collide with a real domain.
+            payload.r = "https://unlisted.invalid/";
+            return payload;
+          },
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <aside class="banner" aria-label="Announcement">
+      <div class="container banner__inner">
+        <span>Meet the Sendspin team at CES</span>
+        <a class="banner__cta" href="mailto:sendspin@openhomefoundation.org">Set up a meeting</a>
+      </div>
+    </aside>
+    <nav class="nav nav--build">
+      <div class="container nav__inner">
+        <div class="nav__brand">
+          <a href="/sendspin/" class="nav__logo" aria-label="Sendspin home">
+  <img class="nav__logo-image" src="/sendspin/images/sendspin-lockup.svg" width="148" height="35" alt="" />
+</a>
+
+          
+          <span class="nav__crumb-sep" aria-hidden="true">/</span>
+          <a class="nav__crumb" href="/sendspin/build/">构建</a>
+          
+        </div>
+        <button
+          class="nav__toggle"
+          type="button"
+          aria-label="切换菜单"
+          aria-expanded="false"
+          aria-controls="nav-menu"
+        >
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+        </button>
+        <div class="nav__links" id="nav-menu">
+          
+          <a class="nav__link " href="/sendspin/build/manufacturers/">为什么选择 Sendspin</a>
+          <a class="nav__link " href="/sendspin/build/guide/">如何构建</a>
+          <a class="nav__link " href="/sendspin/build/sdks/">SDKs</a>
+          <a class="nav__link " href="/sendspin/build/spec/">规范</a>
+          
+          
+        </div>
+      </div>
+    </nav>
+    <script>
+      (function () {
+        var nav = document.querySelector(".nav");
+        if (!nav) return;
+        var toggle = nav.querySelector(".nav__toggle");
+        var links = nav.querySelector(".nav__links");
+        function close() {
+          nav.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+        }
+        toggle.addEventListener("click", function () {
+          var open = nav.classList.toggle("is-open");
+          toggle.setAttribute("aria-expanded", String(open));
+        });
+        links.addEventListener("click", function (e) {
+          if (e.target.tagName === "A") close();
+        });
+        document.addEventListener("click", function (e) {
+          if (!nav.contains(e.target) && nav.classList.contains("is-open")) close();
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && nav.classList.contains("is-open")) close();
+        });
+      })();
+    </script>
+
+    
+    <main class="page-content">
+      <div class="container">
+        <h1>使用 Sendspin 构建</h1>
+        <p>Sendspin 是 Apple AirPlay 和 Google Cast 的开放替代方案，提供额外的控制和可视化功能，为您的客户打造真正沉浸式的音乐体验。</p>
+<div class="hub-cards">
+  <a class="hub-card" href="/sendspin/build/manufacturers/">
+    <h3>为什么基于 Sendspin 构建</h3>
+    <p>为什么现有协议让制造商失望、您的品牌能获得哪些战略优势，以及它的工作原理。</p>
+    <span class="hub-card__go">阅读推介 <svg class="svg-icon arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M5 12h14"/>
+  <path d="m13 6 6 6-6 6"/>
+</svg>
+</span>
+  </a>
+  <a class="hub-card" href="/sendspin/build/guide/">
+    <h3>实施指南</h3>
+    <p>构建客户端或服务器的实用手册：核心概念、实际用例、分步章节、配对用户体验、ESPHome、测试与认证。</p>
+    <span class="hub-card__go">阅读指南 <svg class="svg-icon arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M5 12h14"/>
+  <path d="m13 6 6 6-6 6"/>
+</svg>
+</span>
+  </a>
+  <a class="hub-card" href="/sendspin/build/sdks/">
+    <h3>SDKs &amp; libraries</h3>
+    <p>Official SDKs for C++, JavaScript and Python, from microcontrollers to servers, plus a reference CLI player.</p>
+    <span class="hub-card__go">Browse the SDKs <svg class="svg-icon arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M5 12h14"/>
+  <path d="m13 6 6 6-6 6"/>
+</svg>
+</span>
+  </a>
+  <a class="hub-card" href="/sendspin/build/spec/">
+    <h3>协议规范</h3>
+    <p>协议本身的消息级详解：握手、流协商、编解码器，以及让各个房间保持同步的时序规则。</p>
+    <span class="hub-card__go">阅读规范 <svg class="svg-icon arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M5 12h14"/>
+  <path d="m13 6 6 6-6 6"/>
+</svg>
+</span>
+  </a>
+</div>
+<p>有问题？欢迎加入 <a href="https://discord.gg/kaVm8hGpne" target="_blank">Music Assistant Discord</a> 上的 <code>#sendspin-protocol</code> 频道。想参与构建 Sendspin？规范、SDK 和一致性测试套件均在开放状态下开发；<a href="/sendspin/build/guide/contributing/">贡献章节</a>介绍了项目的运作方式以及如何参与其中。</p>
+
+      </div>
+    </main>
+    
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="site-footer__inner">
+          <div class="site-footer__brand">
+            <a href="/sendspin/" class="nav__logo" aria-label="Sendspin home">
+  <img class="nav__logo-image" src="/sendspin/images/sendspin-lockup.svg" width="148" height="35" alt="" />
+</a>
+
+            <p class="site-footer__tagline">
+              The open standard for music in every room — from the Open Home&nbsp;Foundation.
+            </p>
+            <p class="site-footer__tagline site-footer__tagline--analytics">
+              本站使用 <a
+                href="https://www.openhomefoundation.org/blog/making-our-web-analytics-open-source-with-plausible/"
+                rel="noopener">privacy-first analytics</a> 帮助我们改进网站。你可以在我们的 <a
+                href="https://plausible.openhomefoundation.org/sendspin-audio.com" rel="noopener">公开面板查看全部数据</a>.
+            </p>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>听音乐</h5>
+            <ul>
+              
+              <li><a href="/sendspin/#whole-room">体验</a></li>
+              
+              <li><a href="/sendspin/#live-demo">在线演示</a></li>
+              
+              <li><a href="/sendspin/#start">快速开始</a></li>
+              
+              <li><a href="https://www.home-assistant.io/connect/aux-2/">Connect AUX-2</a></li>
+              
+            </ul>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>构建</h5>
+            <ul>
+              
+              <li><a href="/sendspin/build/">用 Sendspin 构建</a></li>
+              
+              <li><a href="/sendspin/build/manufacturers/">面向硬件厂商</a></li>
+              
+              <li><a href="/sendspin/build/guide/">实施指南</a></li>
+              
+              <li><a href="/sendspin/build/sdks/">SDK 与库</a></li>
+              
+              <li><a href="/sendspin/build/spec/">规范</a></li>
+              
+              <li><a href="https://www.github.com/Sendspin">GitHub</a></li>
+              
+            </ul>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>社区</h5>
+            <ul>
+              
+              <li><a href="https://discord.gg/kaVm8hGpne">Discord</a></li>
+              
+              <li><a href="https://www.openhomefoundation.org">Open Home Foundation</a></li>
+              
+              <li><a href="mailto:sendspin@openhomefoundation.org">联系我们</a></li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="site-footer__legal">
+          <span>© Sendspin · Open Home Foundation. Sendspin 现为 Release Candidate 1，规范正在最终定稿。 <a href="/sendspin/licensing/">许可与商标</a></span>
+          <span>产自温暖的瑞士。</span>
+        </div>
+      </div>
+    </footer>
+    
+    
+    
+  </body>
+</html>

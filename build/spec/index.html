@@ -1,0 +1,1833 @@
+
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <link href="/sendspin/style.css" rel="stylesheet" />
+    
+    <title>Sendspin 协议规范 – Sendspin</title>
+    <link rel="icon" href="/sendspin/images/sendspin-favicon.svg?v=20260916" type="image/svg+xml" />
+    <link rel="icon" href="/sendspin/images/sendspin-favicon.png?v=20260916" type="image/png" sizes="192x192" />
+    <meta name="description" content="Sendspin 音乐体验协议的技术规范。" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="Sendspin 协议规范 – Sendspin" />
+    <meta property="og:site_name" content="Sendspin" />
+    <meta
+      property="og:url"
+      content="https://www.sendspin-audio.com/build/spec/"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="Sendspin 音乐体验协议的技术规范。" />
+    <meta
+      property="og:image"
+      content="https://www.sendspin-audio.com/images/social2.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Sendspin logo — Whole-home audio, without the lock-in." />
+    <meta name="twitter:image:alt" content="Sendspin logo — Whole-home audio, without the lock-in." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sendspin 协议规范 – Sendspin" />
+    <meta name="twitter:description" content="Sendspin 音乐体验协议的技术规范。" />
+    <meta
+      name="twitter:image"
+      content="https://www.sendspin-audio.com/images/social2.png"
+    />
+    <script async src="https://plausible.openhomefoundation.org/js/pa-obCWzmtDxu9-S0vPtBpJu.js"></script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js?id=3MhQABjxy4RZQ6Ig&ck=3MhQABjxy4RZQ6Ig"></script>
+    <script>
+      (function () {
+        // Fetched once per build by script/fetch-allowed-referrers.js. Visitors arriving
+        // from their own Home Assistant or ESPHome instance send that private URL as the
+        // referrer, so anything not on this list is replaced before Plausible sees it.
+        var allowedReferrers = [];
+
+        window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments) };
+        window.plausible.init = window.plausible.init || function (i) { window.plausible.o = i || {} };
+
+        window.plausible.init({
+          transformRequest: function (payload) {
+            var ref = payload.r;
+            if (!ref) return payload;
+
+            var host = "";
+            try {
+              host = new URL(ref).hostname.replace(/\.$/, "");
+            } catch (e) {
+              // Unparseable referrer: falls through and gets replaced.
+            }
+
+            for (var i = 0; i < allowedReferrers.length; i++) {
+              var d = allowedReferrers[i];
+              if (host === d || (host.length > d.length && host.slice(-(d.length + 1)) === "." + d)) {
+                return payload;
+              }
+            }
+
+            // One aggregate bucket so we can see how much we filter without learning
+            // anything about individual visitors. .invalid is reserved by RFC 2606 and
+            // can never collide with a real domain.
+            payload.r = "https://unlisted.invalid/";
+            return payload;
+          },
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <aside class="banner" aria-label="Announcement">
+      <div class="container banner__inner">
+        <span>Meet the Sendspin team at CES</span>
+        <a class="banner__cta" href="mailto:sendspin@openhomefoundation.org">Set up a meeting</a>
+      </div>
+    </aside>
+    <nav class="nav nav--build">
+      <div class="container nav__inner">
+        <div class="nav__brand">
+          <a href="/sendspin/" class="nav__logo" aria-label="Sendspin home">
+  <img class="nav__logo-image" src="/sendspin/images/sendspin-lockup.svg" width="148" height="35" alt="" />
+</a>
+
+          
+          <span class="nav__crumb-sep" aria-hidden="true">/</span>
+          <a class="nav__crumb" href="/sendspin/build/">构建</a>
+          
+        </div>
+        <button
+          class="nav__toggle"
+          type="button"
+          aria-label="切换菜单"
+          aria-expanded="false"
+          aria-controls="nav-menu"
+        >
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+        </button>
+        <div class="nav__links" id="nav-menu">
+          
+          <a class="nav__link " href="/sendspin/build/manufacturers/">为什么选择 Sendspin</a>
+          <a class="nav__link " href="/sendspin/build/guide/">如何构建</a>
+          <a class="nav__link " href="/sendspin/build/sdks/">SDKs</a>
+          <a class="nav__link is-active" href="/sendspin/build/spec/">规范</a>
+          
+          
+        </div>
+      </div>
+    </nav>
+    <script>
+      (function () {
+        var nav = document.querySelector(".nav");
+        if (!nav) return;
+        var toggle = nav.querySelector(".nav__toggle");
+        var links = nav.querySelector(".nav__links");
+        function close() {
+          nav.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+        }
+        toggle.addEventListener("click", function () {
+          var open = nav.classList.toggle("is-open");
+          toggle.setAttribute("aria-expanded", String(open));
+        });
+        links.addEventListener("click", function (e) {
+          if (e.target.tagName === "A") close();
+        });
+        document.addEventListener("click", function (e) {
+          if (!nav.contains(e.target) && nav.classList.contains("is-open")) close();
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && nav.classList.contains("is-open")) close();
+        });
+      })();
+    </script>
+
+    
+    <main class="page-content">
+      <div class="container">
+        <h1>Sendspin 协议规范</h1>
+        <!-- Synced from https://github.com/Sendspin/spec/commit/671a34d408581fc25ea56b3528a4a3f13e3be901 -->
+<p>Sendspin 是一种多房间音乐体验协议。该协议的目标是协调构成音乐聆听体验的所有设备（device）。这包括同时在多个扬声器上输出音频、通过屏幕和灯光可视化音频或专辑封面，以及由壁挂平板电脑提供媒体控制。</p>
+<h2 id="" tabindex="-1"><a class="heading-anchor" href="#" aria-hidden="true">#</a>许可与商标</h2>
+<p>Sendspin 是一个开放、免版税（royalty-free）的协议，任何人都可以实现。本规范基于 <a href="https://github.com/Sendspin/spec/blob/main/LICENSE.md">Community Specification License 1.0</a> 授权，其中包括每位贡献者就其<a href="https://github.com/Sendspin/spec/blob/main/SCOPE.md">范围（Scope）</a>内的规范实现所授予的免版税专利许可。贡献将根据<a href="https://github.com/Sendspin/spec/blob/main/CONTRIBUTOR-LICENSE-AGREEMENT.md">贡献者许可协议（Contributor License Agreement）</a>被接受。</p>
+<p>Sendspin 是 Open Home Foundation 的商标。实现该协议并不授予在商业产品上使用 Sendspin 名称或标志的权利；参见 <a href="https://github.com/Sendspin/spec/blob/main/TRADEMARKS.md">TRADEMARKS.md</a>。</p>
+<p>本材料按“现状”提供。贡献者和被许可人明确声明不提供与本材料相关的任何保证（明示的、默示的或其他形式的保证），包括对适销性、不侵权、特定用途适用性或权利所有权的默示保证。实现或以其他方式使用本材料的全部风险由实现者和用户自行承担。在任何情况下，贡献者或被许可人均不对任何其他方承担因本交付物或其管辖协议所引起的任何诉由而导致的利润损失或任何形式的间接、特殊、附带或后果性损害的责任，无论该责任基于违约、侵权（包括过失）还是其他原因，也无论对方成员是否已被告知发生此类损害的可能性。</p>
+<h2 id="-1" tabindex="-1"><a class="heading-anchor" href="#-1" aria-hidden="true">#</a>规范性语言</h2>
+<p>本文档中的关键词 &quot;MUST&quot;、&quot;MUST NOT&quot;、&quot;REQUIRED&quot;、&quot;SHALL&quot;、&quot;SHALL NOT&quot;、&quot;SHOULD&quot;、&quot;SHOULD NOT&quot;、&quot;RECOMMENDED&quot;、&quot;NOT RECOMMENDED&quot;、&quot;MAY&quot; 和 &quot;OPTIONAL&quot;，当且仅当它们像此处所示以全大写形式出现时，应按照 BCP 14 <a href="https://www.rfc-editor.org/rfc/rfc2119">RFC 2119</a> <a href="https://www.rfc-editor.org/rfc/rfc8174">RFC 8174</a> 中所描述的方式进行解释。</p>
+<h2 id="-2" tabindex="-1"><a class="heading-anchor" href="#-2" aria-hidden="true">#</a>协议概述</h2>
+<p>一次典型的会话，从握手、播放到断开连接：</p>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Note over Client,Server: Noise handshake complete (see Communication)
+
+    Server->>Client: server/hello (name)
+    Client->>Server: client/hello (roles and capabilities)
+    Server->>Client: server/activate (activities, active_roles)
+
+    loop Continuous clock sync
+        Client->>Server: client/time (client clock)
+        Server->>Client: server/time (timing + offset info)
+    end
+
+    Note over Client,Server: Clock synchronization established
+    Client->>Server: client/state (available: true, player: volume, muted)
+
+    alt Stream starts
+        Server->>Client: stream/start (codec, format details)
+    end
+
+    Server->>Client: group/update (playback_state, group_id, group_name)
+    Server->>Client: server/state (metadata, controller, color)
+
+    loop During playback
+        alt Player role
+            Server->>Client: binary Type 4 (audio chunks with timestamps)
+        end
+        alt Artwork role
+            Server->>Client: binary Types 8-11 (artwork channels 0-3)
+        end
+        alt Visualizer role
+            Server->>Client: binary Types 16-20 (loudness, beat, f_peak, spectrum, peak)
+        end
+    end
+
+    alt Player changes preferred format
+        Client->>Server: client/state (player: format)
+        Server->>Client: stream/start (player: new format)
+    end
+
+    alt Seek operation
+        Server->>Client: stream/clear (roles: [player, visualizer])
+    end
+
+    alt Track jump (skip to different track)
+        Server->>Client: stream/clear (roles: [player, visualizer])
+    end
+
+    alt Controller role
+        Client->>Server: client/command (controller: play/pause/seek/volume/switch/etc)
+    end
+
+    alt State changes
+        Client->>Server: client/state (state and/or player changes)
+    end
+
+    alt Server commands player
+        Server->>Client: server/command (player: volume, mute)
+    end
+
+    Server->>Client: stream/end (ends all role streams)
+
+    alt Graceful disconnect
+        Client->>Server: client/goodbye (reason)
+        Note over Client,Server: Server initiates disconnect
+    end
+</pre>
+<h2 id="-3" tabindex="-1"><a class="heading-anchor" href="#-3" aria-hidden="true">#</a>定义</h2>
+<ul>
+<li><strong>服务器（Server）</strong> - 协调所有设备、生成音频流、管理播放器和客户端、提供元数据</li>
+<li><strong>客户端（Client）</strong> - 能够播放音频、采集音频输入、可视化音频、显示元数据、显示颜色或提供音乐控制的设备或应用程序。可担任不同的角色（播放器、音源、元数据、控制器、封面、可视化器、颜色）。每个客户端都有唯一的标识符
+<ul>
+<li><strong>播放器（Player）</strong> - 接收音频并同步播放。拥有自己的音量和静音状态以及首选格式设置</li>
+<li><strong>音源（Source）</strong> - 从本地输入采集音频，并将其流式传输到服务器</li>
+<li><strong>控制器（Controller）</strong> - 控制该客户端所属的分组</li>
+<li><strong>元数据（Metadata）</strong> - 显示文本元数据（标题、艺术家、专辑等）</li>
+<li><strong>封面（Artwork）</strong> - 显示封面图片。拥有首选的图片格式</li>
+<li><strong>可视化器（Visualizer）</strong> - 将音乐可视化。拥有音频特征的首选格式</li>
+<li><strong>颜色（Color）</strong> - 接收从当前音频中提取的颜色</li>
+</ul>
+</li>
+<li><strong>分组（Group）</strong> - 一组客户端。每个客户端恰好属于一个分组，且每个分组至少包含一个客户端。每个分组都有唯一的标识符。每个分组具有以下状态：成员客户端列表、音量、静音和播放状态</li>
+<li><strong>流（Stream）</strong> - 关于二进制数据在任一方向上如何格式化和发送的客户端特定细节。每个角色的流单独管理。对于服务器到客户端的流，每个客户端根据自己的能力和偏好接收独立编码的流。对于播放器，服务器会在客户端缓冲区容量允许的范围内尽可能提前发送音频数据块。对于封面客户端，服务器通过该流发送专辑封面和其他可视化图像</li>
+<li><strong>CSPRNG</strong> - 以足够的熵（entropy）作为种子的密码学安全伪随机数生成器（<a href="https://www.rfc-editor.org/rfc/rfc4086">RFC 4086</a>）；硬件 RNG 也符合要求</li>
+<li><strong>身份（Identity）</strong> - 用于在 <a href="#encryption">Noise</a> 握手中标识客户端或服务器的 Curve25519 密钥对。Base64URL 编码的公钥（43 个字符，无填充）用作 <code>client_id</code> 或 <code>server_id</code>。在重启后保持不变。私钥必须取自 CSPRNG。</li>
+<li><strong>长期 PSK（long-term PSK）</strong> - 在<a href="#pairing">配对</a>期间建立的 32 字节预共享对称密钥，并在之后的每次连接中混入 <a href="#encryption">Noise</a> 握手状态。必须取自 CSPRNG。</li>
+<li><strong>配对 PSK（pairing PSK）</strong> - 在<a href="#pairing">配对 PSK 方法</a>中用作 PSK 的 32 字节对称密钥。它始终与客户端的静态公钥（<code>client_id</code>）一同分发，服务器需要该公钥来验证客户端身份。操作者将其作为<a href="#pairing-token">配对令牌</a>输入服务器，可以文本形式复制或以二维码形式扫描。它不同于配对所产生的长期 PSK。必须取自 CSPRNG。</li>
+<li><strong>配对码（Pairing Code）</strong> - 在基于码的<a href="#pairing">配对</a>方法中使用的值。静态配对码方法使用固定的 8 位十进制值；动态配对码方法使用每次会话生成的值，以 6 位十进制码或二维码的形式发出（参见<a href="#dynamic-pairing-code-flow">动态配对码流程</a>）。</li>
+<li><strong>出厂重置（Factory Reset）</strong> - 将设备恢复到出厂状态：制造商预置的凭据和设置（身份密钥对、配对 PSK、静态配对码、已校准的<a href="#client--server-clientstate-player-object">输出延迟</a>）被恢复；此后积累的一切内容（包括配对记录）都被清除。</li>
+<li><strong>已配对会话（Paired Session）</strong> - 以长期 PSK 为密钥的会话，即客户端持有针对该服务器的配对记录。以配对 PSK 或 Sentinel PSK 为密钥的会话是<em>未配对</em>的，这将把服务器限制为只能进行配对交换，或在启用<a href="#unpaired-access">未配对访问</a>时进行正常的播放和控制流程。双方都不会在网络上传输此信息：双方都是从 <a href="#encryption">Noise</a> 握手期间匹配到的 PSK 中派生出该状态。</li>
+</ul>
+<h2 id="-4" tabindex="-1"><a class="heading-anchor" href="#-4" aria-hidden="true">#</a>角色版本控制</h2>
+<p>角色定义了客户端具备哪些能力与职责。所有角色都使用带 <code>@</code> 字符的显式版本控制：<code>&lt;role&gt;@&lt;version&gt;</code>（例如 <code>player@v1</code>、<code>controller@v1</code>）。</p>
+<p>本规范定义了以下角色：<a href="#player-messages"><code>player</code></a>、<a href="#source-messages"><code>source</code></a>、<a href="#controller-messages"><code>controller</code></a>、<a href="#metadata-messages"><code>metadata</code></a>、<a href="#artwork-messages"><code>artwork</code></a>、<a href="#visualizer-messages"><code>visualizer</code></a>、<a href="#color-messages"><code>color</code></a>。所有服务器必须（MUST）实现本规范中描述的这些角色的所有版本。</p>
+<p>所有不以 <code>_</code> 开头的角色名称和版本均保留，供本规范的未来修订版使用。</p>
+<h3 id="-5" tabindex="-1"><a class="heading-anchor" href="#-5" aria-hidden="true">#</a>优先级与激活</h3>
+<p>客户端在 <code>supported_roles</code> 中按优先级顺序列出角色（最优先的排在最前）。如果客户端支持某个角色的多个版本，则应当（SHOULD）全部列出：<code>[&quot;player@v2&quot;, &quot;player@v1&quot;]</code>。</p>
+<p>服务器对每个角色族（role family）最多激活一个版本（例如一个 <code>player@vN</code>、一个 <code>controller@vN</code>）——即从客户端列表中选择服务器所实现的第一个匹配项；如果服务器策略拒绝激活该角色族，则不激活任何版本。服务器不得（MUST NOT）激活客户端未在 <code>supported_roles</code> 中列出的角色或版本。服务器在 <code>active_roles</code> 中报告已激活的角色；客户端必须参考其已接收的 <code>server/activate</code> 消息所建立的激活状态，并避免为未激活的角色发送命令或状态。</p>
+<p>消息对象键（例如 <code>player?</code>、<code>controller?</code>）使用不带版本号的角色名称。服务器根据客户端的 <code>active_roles</code> 确定应使用的版本。</p>
+<h3 id="-6" tabindex="-1"><a class="heading-anchor" href="#-6" aria-hidden="true">#</a>检测过期的服务器</h3>
+<p>服务器应当跟踪客户端请求其未实现的角色或角色版本的情况（以 <code>_</code> 开头的角色除外）。这表明客户端所支持的角色版本比服务器更新，服务器需要更新。</p>
+<p>该机制只能检测角色版本偏差（role-version skew），而且这仅是因为角色是在握手（handshake）之后才交换的。更新版的核心 <code>version</code>、密码套件（cipher suite）或握手（密码或握手的变更本身就是核心 <code>version</code> 的升级）会使<a href="#failure-handling">握手</a>在角色交换之前中止，因此这种偏差会表现为连接失败，而不是通过这种角色请求信号暴露出来。</p>
+<h3 id="-7" tabindex="-1"><a class="heading-anchor" href="#-7" aria-hidden="true">#</a>应用特定的角色</h3>
+<p>规范之外的自定义角色以 <code>_</code> 开头，并且在通告（advertise）时必须包含明确的版本号（例如 <code>_myapp_controller@v1</code>、<code>_custom_display@v1</code>）。为避免独立厂商之间发生冲突，自定义角色名称应当包含厂商专属前缀（例如 <code>_vendorname_role</code>）。</p>
+<p>它们的二进制消息 ID 来自不受管理的 192-255 范围：应用特定角色自身的定义负责分配其 ID，客户端不得通告两个 ID 冲突的角色。</p>
+<h2 id="-8" tabindex="-1"><a class="heading-anchor" href="#-8" aria-hidden="true">#</a>协议演进</h2>
+<p>本节描述本规范的未来修订版本如何添加标准协议功能、角色（role）和角色版本。它不会授予<a href="#application-specific-roles">应用特定角色</a>额外的权限。</p>
+<p>核心（core）和角色版本定义行为以及消息格式。如果未选择某个新功能，现有行为必须保持不变。破坏现有角色契约的变更需要新的角色版本。破坏现有行为的核心变更需要新的核心版本，除非该变更仅在双方对等端（peer）都明确选择加入时才能应用。</p>
+<p>本规范的未来修订版本可以添加可选信息，前提是较旧的接收方能够在不改变消息含义的情况下忽略它。如果某个新功能需要接收方以不同的方式行动，发送方在依赖该行为之前必须通过角色激活或明确定义的能力协商确认支持。匹配的核心版本、对等端的软件版本以及未出现错误都不能确认支持。新功能应当使用角色支持对象来表示角色特定的能力。</p>
+<p>改变整个连接范围行为的功能（例如准入或所有权）必须定义双方对等端如何选择加入，以及未选择加入时会发生什么。它不得破坏适用于其他连接上未选择加入的对等端的协议规则。对某个角色的支持不得被视为对单独的整个连接范围功能的支持，除非该角色版本明确包含这种支持。</p>
+<h2 id="-9" tabindex="-1"><a class="heading-anchor" href="#-9" aria-hidden="true">#</a>建立连接</h2>
+<p>Sendspin 有两种标准的连接建立方式：服务器发起和客户端发起。建议（RECOMMENDED）使用服务器发起的连接，因为它们能提供标准化的多服务器行为。</p>
+<p>服务器必须（MUST）支持下述两种方法。客户端同一时间必须恰好使用这两种方法中的一种，并相应地进行广播或发现。</p>
+<p>WebSocket 传输必须是纯 <code>ws://</code>。机密性与完整性由 WebSocket 载荷内部的 <a href="#encryption">Noise 层</a> 端到端地提供。</p>
+<h3 id="-10" tabindex="-1"><a class="heading-anchor" href="#-10" aria-hidden="true">#</a>服务器发起的连接</h3>
+<p>客户端通过 mDNS 宣告自身的存在，具体如下：</p>
+<ul>
+<li>服务类型：<code>_sendspin._tcp.local.</code></li>
+<li>端口：Sendspin 客户端正在监听的端口（推荐：<code>8928</code>）</li>
+<li>TXT 记录：<code>path</code> 键指定 WebSocket 端点，必需（REQUIRED）（推荐值：<code>/sendspin</code>）</li>
+<li>TXT 记录：<code>name</code> 键指定客户端的友好名称（可选（OPTIONAL））</li>
+</ul>
+<p>服务器通过 mDNS 发现可用的客户端，并使用所广播的地址和路径通过 WebSocket 连接到每个客户端。</p>
+<p>TXT <code>name</code> 应当（SHOULD）与客户端在 <a href="#client--server-clienthello"><code>client/hello</code></a> 中发送的 <code>name</code> 一致。它只是发现阶段的提示；如果两者不同，则以 <code>client/hello</code> 中的值为准。</p>
+<p>客户端在广播 <code>_sendspin._tcp</code> 期间不得（MUST NOT）手动连接到服务器。</p>
+<h4 id="-11" tabindex="-1"><a class="heading-anchor" href="#-11" aria-hidden="true">#</a>多个服务器（服务器发起）</h4>
+<p>除非下文另有说明，客户端同一时间最多持有一条已获接纳的（admitted）连接，并按其声明的 <a href="#server--client-serveractivate"><code>activities</code></a> 中排名最高的活动进行分类；从高到低依次为：</p>
+<ul>
+<li><code>'playback'</code></li>
+<li><code>'pairing'</code></li>
+</ul>
+<p><code>activities</code> 为空的连接排名最低。</p>
+<p>客户端必须持久化存储最近一次在其 <code>activities</code> 包含 <code>'playback'</code> 期间持有已获接纳连接的那台服务器的 <code>server_id</code>（即“最后播放的服务器”）。</p>
+<p>当有新的服务器连入时，客户端会先让握手完成，再执行接纳判定；在其第一条 <a href="#server--client-serveractivate"><code>server/activate</code></a> 声明自身优先级之前，这条新连接都属于临时连接（provisional）。客户端不得将优先级规则应用于不符合<a href="#server--client-serveractivate">可接纳条件</a>的激活（activation）。传入连接的优先级会与当前连接的优先级进行比较：更高或相等则被接受，更低则被拒绝。存在以下三种例外：</p>
+<ul>
+<li><a href="#entering-and-leaving-pairing">配对尝试</a>不会被传入的 <code>'playback'</code> 或 <code>'pairing'</code> 连接所取代。</li>
+<li>当当前持有者与传入连接的 <code>activities</code> 都为空时，仅当传入连接的 <code>server_id</code> 与最后播放的服务器匹配（而现有连接的不匹配）时，才接纳传入连接；否则保留现有连接。</li>
+<li>客户端可以（MAY）在已接纳的 <code>'playback'</code> 连接之外，再接纳一条传入的 <code>'pairing'</code> 连接，同时持有两者。不同时接纳两条连接的客户端会以 <a href="#client--server-pairabort"><code>pair/abort</code></a> 原因 <code>concurrent_attempt</code> 拒绝传入连接，并关闭该连接。在同时持有两者期间，后续传入的连接将与持有 <code>'playback'</code> 的连接进行仲裁。当稍后的 <code>server/activate</code> 将 <code>'pairing'</code> 从该连接的 <code>activities</code> 中移除时，客户端会将该连接与持有 <code>'playback'</code> 的连接进行仲裁，如同它是新传入的一样。</li>
+</ul>
+<p>除上述情形外，后续的 <code>server/activate</code> 更新不会触发仲裁，即使某条连接提升了其活动（activities）。临时连接如果在 30 秒内未发送 <code>server/activate</code>，就会被丢弃。客户端可以限制同时持有的临时连接数量，将后续传入的连接视作较低优先级而予以拒绝。</p>
+<p>被取代的连接会收到 <a href="#client--server-clientgoodbye"><code>client/goodbye</code></a> 原因 <code>'another_server'</code>（若该连接是配对握手，则收到 <a href="#client--server-pairabort"><code>pair/abort</code></a> 原因 <code>concurrent_attempt</code>）。被拒绝的传入连接会收到 <a href="#client--server-clientgoodbye"><code>client/goodbye</code></a> 原因 <code>'concurrent_attempt'</code>（对于配对，则为 <a href="#client--server-pairabort"><code>pair/abort</code></a> 原因 <code>concurrent_attempt</code>）。随后客户端会关闭该连接。</p>
+<h3 id="-12" tabindex="-1"><a class="heading-anchor" href="#-12" aria-hidden="true">#</a>客户端发起的连接</h3>
+<p>如果客户端更倾向于由自己主动发起连接，而不是等待服务器来连接，则服务器必须可通过 mDNS 被发现，具体如下：</p>
+<ul>
+<li>服务类型：<code>_sendspin-server._tcp.local.</code></li>
+<li>端口：Sendspin 服务器正在监听的端口（推荐：<code>8927</code>）</li>
+<li>TXT 记录：<code>path</code> 键指定 WebSocket 端点，必需（推荐值：<code>/sendspin</code>）</li>
+<li>TXT 记录：<code>name</code> 键指定服务器的友好名称（可选）</li>
+</ul>
+<p>客户端通过 mDNS 发现服务器，并使用所广播的地址和路径发起 WebSocket 连接。</p>
+<p>TXT <code>name</code> 应当与服务器在 <a href="#server--client-serverhello"><code>server/hello</code></a> 中发送的 <code>name</code> 一致。它只是发现阶段的提示；如果两者不同，则以 <code>server/hello</code> 中的值为准。</p>
+<p>客户端在使用客户端发起的连接时不得广播 <code>_sendspin._tcp</code>。</p>
+<h4 id="-13" tabindex="-1"><a class="heading-anchor" href="#-13" aria-hidden="true">#</a>多个服务器（客户端发起）</h4>
+<p>与服务器发起的连接不同，服务器无法通过重新连接来重新夺回客户端。客户端如何处理多个已发现的服务器、如何进行服务器选择和切换，均由实现自行定义（implementation-defined）。</p>
+<p><strong>注意：</strong> 从这里开始，Sendspin 的运行不再依赖于连接是如何建立的。</p>
+<h2 id="-14" tabindex="-1"><a class="heading-anchor" href="#-14" aria-hidden="true">#</a>加密</h2>
+<p>所有 Sendspin 连接均使用基于 <a href="https://noiseprotocol.org/noise.html">Noise 协议框架（Noise Protocol Framework）</a> 的端到端加密。</p>
+<h3 id="-15" tabindex="-1"><a class="heading-anchor" href="#-15" aria-hidden="true">#</a>模式</h3>
+<p>Sendspin 使用 <code>KKpsk2</code> Noise 模式。双方的静态密钥彼此预先已知（客户端的 <code>client_id</code> 和服务器的 <code>server_id</code> 即为静态公钥），并在握手第二条消息的末尾混入一个<a href="#pre-shared-key">预共享密钥（Pre-Shared Key）</a>。</p>
+<p><strong>服务器是 Noise 发起方（initiator）</strong>，<strong>客户端是 Noise 响应方（responder）</strong>，无论由哪一方发起 WebSocket 连接。</p>
+<p><strong>安全特性。</strong> 前向保密（forward secrecy）由每次握手中的临时密钥 DH 提供：静态密钥或 PSK 的泄露不会追溯解密先前会话的传输流量（例外是第一条握手消息的负载，可用客户端的静态密钥恢复）。重放保护由 Noise 的按方向传输计数器提供；重复或乱序的密文将导致 AEAD 解密失败并中止连接。</p>
+<h3 id="-16" tabindex="-1"><a class="heading-anchor" href="#-16" aria-hidden="true">#</a>密码套件</h3>
+<p>套件指定完整 Noise 协议名称中的 <code>&lt;DH&gt;_&lt;cipher&gt;_&lt;hash&gt;</code> 部分。Sendspin 定义了两个：</p>
+<ul>
+<li><code>25519_ChaChaPoly_SHA256</code> - 适合软件实现的套件</li>
+<li><code>25519_AESGCM_SHA256</code> - 硬件加速套件（AES-NI / ARMv8 Crypto Extensions）</li>
+</ul>
+<p>服务器必须支持这两种套件。客户端必须至少支持一种。</p>
+<p>客户端选择一个套件并在 <a href="#client--server-clientinit"><code>client/init</code></a> 中声明；由于要求服务器支持每一种套件，因此无需协商。</p>
+<h3 id="-17" tabindex="-1"><a class="heading-anchor" href="#-17" aria-hidden="true">#</a>身份</h3>
+<p><code>client_id</code> 和 <code>server_id</code> 字段分别是客户端和服务器经过 base64url 编码（无填充）的 Curve25519 公钥，每个为 43 个字符。这些密钥既作为路由/持久化标识符，也作为 Noise 握手中使用的静态密钥。私钥必须在每台设备上取自 <a href="#definitions">CSPRNG</a>，并且不得是跨设备共享的固定默认值。</p>
+<p><strong>密钥轮换。</strong> 每一方的静态密钥对都是长期使用的；标识符即公钥，因此轮换密钥对会改变身份。轮换了静态密钥对的服务器（例如，硬件重新配置、主机迁移、私钥丢失）在客户端看来是另一台服务器。希望在服务器迁移期间保持身份的操作者必须保留服务器的静态私钥（例如，作为服务器备份/恢复集的一部分）。</p>
+<h3 id="-18" tabindex="-1"><a class="heading-anchor" href="#-18" aria-hidden="true">#</a>预共享密钥</h3>
+<p>PSK 在第二条握手消息的末尾混入握手状态（<code>psk2</code> 修饰符）。因此，握手之后派生的传输模式密钥包含 PSK，但第一条握手消息的负载（由服务器发送）在加密时并未混入 PSK。</p>
+<p>为了让客户端在必须混入 PSK 之前选出正确的 PSK，服务器会在第一条握手消息的负载中包含 <code>psk_id</code> 和 <code>psk_category</code>。该标识符是一个 43 字符的 base64url 编码值（无填充），来自 32 字节的 SHA-256 输出，并由 PSK 确定性地派生：</p>
+<pre><code>psk_id = base64url(SHA-256(&quot;sendspin-psk-id-v1&quot; || PSK))
+</code></pre>
+<p>标签为所示字面字符组成的 UTF-8 字节序列（无 NUL 终止符，无外层引号）；<code>||</code> 表示字节串联。同一公式适用于所有三种 PSK 类别（长期、配对、Sentinel）；客户端存储其每个 PSK 时都会标记其所属类别。<code>psk_category</code> 声明服务器将所引用的 PSK 用作哪个类别——<code>'lt'</code>（长期）、<code>'pr'</code>（配对）或 <code>'sn'</code>（Sentinel）——因此匹配会使双方绑定到同一类别，而该类别决定了后续的处理方式。三种情况均使用同一个握手模式（<code>KKpsk2</code>）；仅 PSK 输入不同。</p>
+<p><strong>Sentinel PSK</strong> 是一个公开的常量，在没有其他 PSK 适用时用作 PSK 输入。它本身不提供任何身份验证（其值是公开的）；所需的身份验证会在稍后的<a href="#pairing">配对（Pairing）</a>过程中建立。该 Sentinel 值为：</p>
+<pre><code>Sentinel PSK = SHA-256(&quot;sendspin-sentinel-psk-v1&quot;)
+             = 0x1b5e24dbc1aed95fc2a5a338a90c05df44bd10f5ec1f4cd66cbf86272767b9d3
+</code></pre>
+<p>因此，其 <code>psk_id</code> 同样是一个公开的常量：</p>
+<pre><code>Sentinel psk_id = 0x185b15f6d2da4909bd1dc156a4ab206103abef0153bcd52d926170b95cf7ce8a
+                = base64url &quot;GFsV9tLaSQm9HcFWpKsgYQOr7wFTvNUtkmFwuVz3zoo&quot;
+</code></pre>
+<p>客户端解密第一条握手消息的负载（如上所述，无需 PSK 即可完成），将其中包含的 <code>psk_id</code> 与所声明 <code>psk_category</code> 的每个候选 PSK 的哈希值进行比较，并选出匹配的那个。随后，客户端混入该 PSK 以处理第二条握手消息。如果没有候选 PSK 匹配，客户端回退到 Sentinel PSK（参见 <a href="#sentinel-fallback">Sentinel 回退</a>）。</p>
+<p>每个<a href="#definitions">长期 PSK</a> 都会与服务器端的 <code>server_id</code> 一起持久化保存在<a href="#pairing-records">配对记录</a>中。在 <code>psk_id</code> 匹配之后，客户端会验证匹配 PSK 所存储的 <code>server_id</code> 是否与 <a href="#server--client-serverinit"><code>server/init</code></a> 中的一致；不一致则握手失败。</p>
+<h3 id="sentinel-" tabindex="-1"><a class="heading-anchor" href="#sentinel-" aria-hidden="true">#</a>Sentinel 回退</h3>
+<p><code>psk_id</code> 查找未命中（lookup miss）意味着服务器引用了一个客户端无法使用的凭据：客户端丢失了其配对记录（例如，发生了<a href="#definitions">恢复出厂设置（Factory Reset）</a>、记录<a href="#pairing-records">被逐出（eviction）</a>或存储故障）、<a href="#server--client-serverpair-finalize">配对完成（pairing finalize）</a>被中断导致客户端没有服务器已持久化的记录，或者客户端持有所引用 PSK 的类别与所声明的 <code>psk_category</code> 不同。在初始握手中发生查找未命中时，客户端会使用 Sentinel PSK 完成第二条握手消息，而不是直接失败。该回退仅适用于此场景：在<a href="#re-handshake">重新握手</a>期间发生的未命中，以及匹配后对存储公钥的检查失败（属于错误绑定，而非未命中），仍会照常导致握手失败。</p>
+<p>服务器会使用其第一条消息所引用的 PSK 来验证第二条握手消息。如果验证失败且所引用的 PSK 不是 Sentinel，则服务器会在将握手视为失败之前，使用 Sentinel PSK 再次验证该消息。在 Sentinel 下通过验证的第二条消息是一个经过身份验证的<strong>凭据不匹配信号</strong>：握手会对客户端的静态密钥进行身份验证，因此该信号证明其持有者无法使用所引用的 PSK。仅有该信号本身，不得导致任何一方移除或替换记录。</p>
+<p>会话会作为一个普通的<a href="#definitions">未配对</a>、以 Sentinel 为密钥的会话继续进行，但在其配对记录存在期间，服务器不得激活角色或声明 <code>'playback'</code> 活动——会话要么承载<a href="#pairing">配对</a>交换，要么保持空闲。服务器应当向其操作者呈现这一不匹配情况并提供重新配对；重新配对会替换记录并恢复正常服务。</p>
+<h3 id="prologue" tabindex="-1"><a class="heading-anchor" href="#prologue" aria-hidden="true">#</a>序言（Prologue）</h3>
+<p>双方混入 Noise 握手状态的序言，是 <a href="#client--server-clientinit"><code>client/init</code></a> 的确切字节后接 <a href="#server--client-serverinit"><code>server/init</code></a> 的确切字节的串联，与线路上传输的内容完全一致（即 JSON 编码的 UTF-8 消息体，不含 WebSocket 帧封装）。这会将明文的 init 交换与握手绑定在一起；任何篡改都会导致握手失败。</p>
+<p>双方必须对完全按发送和接收原样的原始消息字节进行哈希，而不是对解析后消息的重新编码。</p>
+<h3 id="-19" tabindex="-1"><a class="heading-anchor" href="#-19" aria-hidden="true">#</a>失败处理</h3>
+<p>仅凭明文 <a href="#client--server-clientinit"><code>client/init</code></a> 即可判定的服务器端失败——不受支持的 <code>version</code>、未知的 <code>suite</code>，或并非所定义结构的有效 JSON 的消息——属于 <strong>init 失败</strong>：服务器必须发送带有对应原因的 <a href="#server--client-servererror"><code>server/error</code></a>，然后关闭连接。该消息未经身份验证，因此该原因仅作为日志记录和操作者界面展示的提示。</p>
+<p>能够作为消息信封 JSON 解析、且其 <code>version</code> 为 <code>1</code> 以外整数的 <code>client/init</code>，无论其其他负载字段如何，均为 <code>unsupported_version</code>，因为未来的版本可能定义不同的结构。所有其他结构失败（包括并非有效 JSON 的输入）均为 <code>malformed</code>；<code>suite</code> 在 <code>version</code> 之后检查，随后是其余字段。</p>
+<p>所有其他握手阶段失败——客户端拒绝 <code>server/init</code>、握手超时、内部 <code>noise/handshake</code> 负载格式错误、未经 <a href="#sentinel-fallback">Sentinel 回退</a> 处理的 <code>psk_id</code> 查找未命中、Noise AEAD 失败、进入传输模式后的 AEAD 失败，或切换到传输模式后收到的明文消息——均属于<strong>静默失败</strong>：检测到失败的一方直接关闭连接，不再发送任何消息。</p>
+<p>实现应当设置超时（例如，30 秒），限定在序言和 Noise 握手阶段中每一方接收下一条预期消息的时间。</p>
+<h3 id="-20" tabindex="-1"><a class="heading-anchor" href="#-20" aria-hidden="true">#</a>重新握手</h3>
+<p>服务器可以在传输模式下重新运行 Noise 握手，以便在不关闭 WebSocket 的情况下更换会话密钥——通常用于在成功<a href="#pairing">配对</a>后将 会话提升为已配对状态、从 Sentinel 切换到配对 PSK，或在长时间运行的连接上轮换会话密钥。</p>
+<p>由服务器发起，与初始握手相同。两条 <a href="#client--server-noisehandshake"><code>noise/handshake</code></a> 消息作为加密的二进制消息在当前通道内发送；noise 消息 1 中的 <code>psk_id</code> 和 <code>psk_category</code> 为新会话选择 PSK。<code>client/init</code> 和 <code>server/init</code> 不会重新发送——<code>client_id</code>、<code>server_id</code> 和 <code>suite</code> 延续使用。新握手的序言是先前握手的哈希 <code>h</code>。一旦新密钥就位，服务器必须发送 <a href="#server--client-serveractivate"><code>server/activate</code></a> 作为其在新密钥下的第一条消息。<a href="#server--client-serverhello"><code>server/hello</code></a> 和 <a href="#client--server-clienthello"><code>client/hello</code></a> 均不会重新发送。该激活是同一连接上的后续激活。激活规则（包括针对省略 <code>active_roles</code> 的规则）在新匹配的 PSK 下适用。</p>
+<p>服务器在发送 Noise 消息 1 之后不得开始新的应用消息，客户端在收到该消息之后亦然，握手消息和 <code>server/activate</code> 除外。当服务器发送或客户端收到新的 <code>server/activate</code> 时，此限制即告结束。</p>
+<p>服务器必须容忍在 Noise 消息 2 之前收到的使用旧密钥的有效应用消息，因为客户端可能在收到消息 1 之前就已发送这些消息。服务器可以在不处理、不响应的情况下丢弃这些消息。</p>
+<p>连接状态（例如带有其缓冲数据的已打开流，或<a href="#clock-synchronization">时间过滤器</a>）会在重新握手过程中保持；只有会话密钥以及握手本身派生的内容会发生变化。</p>
+<h2 id="-21" tabindex="-1"><a class="heading-anchor" href="#-21" aria-hidden="true">#</a>通信</h2>
+<p>WebSocket 连接建立后，客户端（Client）与服务器（Server）在交换应用数据之前会先执行一次初始握手：</p>
+<ol>
+<li>客户端 → 服务器：<a href="#client--server-clientinit"><code>client/init</code></a>（明文）</li>
+<li>服务器 → 客户端：<a href="#server--client-serverinit"><code>server/init</code></a>（明文）</li>
+<li>服务器 → 客户端：<a href="#client--server-noisehandshake"><code>noise/handshake</code></a> - Noise 消息 1（明文）</li>
+<li>客户端 → 服务器：<a href="#client--server-noisehandshake"><code>noise/handshake</code></a> - Noise 消息 2（明文）</li>
+<li>双方切换到 Noise 传输模式。从此时起，所有 Sendspin 应用数据都将以 WebSocket 二进制消息的形式发送，其负载为 Noise 传输消息。</li>
+<li>服务器 → 客户端：<a href="#server--client-serverhello"><code>server/hello</code></a>（加密）</li>
+<li>客户端 → 服务器：<a href="#client--server-clienthello"><code>client/hello</code></a>（加密）</li>
+<li>服务器 → 客户端：<a href="#server--client-serveractivate"><code>server/activate</code></a>（加密）</li>
+</ol>
+<p>在发送初始的 <a href="#server--client-serveractivate"><code>server/activate</code></a> 之前，服务器不得（MUST NOT）发送其他 Sendspin 消息，但在初始化失败时用来代替 <code>server/init</code> 发送的 <a href="#server--client-servererror"><code>server/error</code></a> 除外。在收到该激活消息之前，客户端不得发送其他 Sendspin 消息，但在初始 Noise 握手完成后，客户端可以（MAY）发送一条加密的 <a href="#client--server-clientgoodbye"><code>client/goodbye</code></a>。<a href="#failure-handling">故障处理</a>中定义的静默失败仍会在不发送任何后续消息的情况下关闭连接。加密细节请参见<a href="#encryption">加密</a>。</p>
+<p>明文握手消息（<code>client/init</code>、<code>server/init</code>、<code>noise/handshake</code>、<code>server/error</code>）各自作为一条完整的 WebSocket <strong>文本</strong>（text）消息发送，其中包含 JSON。加密通道建立后，所有消息均以承载 Noise 传输消息的 WebSocket <strong>二进制</strong>（binary）消息形式发送。</p>
+<p>WebSocket 消息可能跨越多个 RFC 6455 帧。Sendspin 仅在完整的 WebSocket 消息上操作。这种 WebSocket 分片与 Sendspin 的<a href="#fragmentation">分片</a>是不同的。</p>
+<p>WebSocket 控制帧（Ping、Pong、Close；RFC 6455）不是 Sendspin 消息：它们在任何时候都保持有效，不会在 Noise 层被加密，并且 Ping/Pong 是预期的连接存活检测机制。</p>
+<p>在字段定义中，<code>?</code> 表示可选字段（例如，<code>field?</code>: type 表示该字段可以省略）。</p>
+<p>所有 JSON 消息都有一个标识消息的 <code>type</code> 字段和一个包含消息特定数据的 <code>payload</code> 对象。负载结构因消息类型而异，并在下文各消息章节中详细说明。</p>
+<p><strong>消息类型前缀。</strong> 消息 <code>type</code> 中 <code>/</code> 之前的前缀标识一组消息。<code>client/</code> 和 <code>server/</code> 指明发送方。<code>stream/</code> 涵盖控制从服务器到客户端的二进制信道的消息，<code>client-stream/</code> 则涵盖控制从客户端到服务器的二进制信道的消息；这两种信道相互独立，各自拥有独立的生命周期。<code>group/</code>、<code>pair/</code> 和 <code>noise/</code> 表示主题。只有 <code>client/</code>、<code>server/</code> 和 <code>client-stream/</code> 隐含方向；其他每个前缀所对应的方向由各消息的定义给出。</p>
+<p><strong>向前兼容。</strong> 客户端和服务器必须（MUST）忽略无法识别的 <code>payload</code> 字段（即未为该消息定义的键），而不是将其视为错误。客户端和服务器不得发送规范未为该消息定义的字段，但消息明确允许的以 <code>_</code> 为前缀的<a href="#application-specific-roles">应用特定角色</a>对象，以及 <code>client/hello</code> 中针对已通告的应用特定角色版本的支持对象（例如 <code>player@_experimental_support</code>）除外。</p>
+<p>客户端和服务器必须忽略带有无法识别的 <code>type</code> 的 JSON 消息，前提是该消息是包含 <code>type</code> 字符串和 <code>payload</code> 对象的有效 JSON 对象。它们还必须忽略其未实现相应 ID 的二进制消息。在服务器发送初始的 <a href="#server--client-serveractivate"><code>server/activate</code></a>，或客户端接收到该消息之后，这些规则即适用。</p>
+<p>在<a href="#re-handshake">重新握手</a>期间，这些忽略规则仅适用于重新握手规则所允许的消息，包括使用先前会话密钥加密、且在 Noise 消息 2 之前被服务器接收的有效消息。</p>
+<p>在发送本规范未来修订版所新增功能的消息或字段之前，发送方必须通过角色激活或显式能力协商确认支持。该功能所规定的协商字段不受此要求约束。本规范为现有消息新增的可选信息性字段同样不受此要求约束，前提是较旧的接收方能够在不改变消息含义的情况下忽略它们。未收到错误并不能证明接收方理解或处理了该消息。本规范的未来修订版可以在现有消息中定义较旧接收方可忽略的协商字段。参见<a href="#protocol-evolution">协议演进</a>。</p>
+<p>Noise 认证以及针对已识别消息的校验、方向和顺序规则仍然适用。接收方已实现的 ID，即使其所属角色处于非活动状态，仍会被视为已识别。已知字段中出现无法识别的值时，应遵循该字段自身的规则，而不是忽略无法识别字段的规则。</p>
+<p>消息格式示例：</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;stream/start&quot;,
+  &quot;payload&quot;: {
+    &quot;server_transmitted&quot;: 1234567890,
+    &quot;player&quot;: {
+      &quot;codec&quot;: &quot;opus&quot;,
+      &quot;sample_rate&quot;: 48000,
+      &quot;channels&quot;: 2,
+      &quot;bit_depth&quot;: 16
+    },
+    &quot;artwork&quot;: {
+      &quot;channels&quot;: [
+        {
+          &quot;source&quot;: &quot;album&quot;,
+          &quot;format&quot;: &quot;jpeg&quot;,
+          &quot;width&quot;: 800,
+          &quot;height&quot;: 800
+        }
+      ]
+    }
+  }
+}
+</code></pre>
+<p>WebSocket 二进制消息用于发送 JSON 负载、音频数据块、媒体封面和可视化数据。每条完整的二进制消息恰好承载一条 Noise 传输消息；经 AEAD 解密后，第一个字节是表示消息类型的 uint8。在本规范中，位 0 指最低有效位。</p>
+<p>丢弃二进制角色负载的接收方仍必须处理 Noise 消息、遵循下文的分片规则，并执行该角色所要求的消息检查。</p>
+<h3 id="-id-" tabindex="-1"><a class="heading-anchor" href="#-id-" aria-hidden="true">#</a>二进制消息 ID 结构</h3>
+<p>每条解密后二进制消息的第一个字节就是其消息 ID。ID 按下表进行分配；每个角色的二进制消息定义都会指明其所使用的确切 ID。</p>
+<div class="table-scroll" tabindex="0">
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>分配</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>JSON 消息主体（UTF-8）</td>
+</tr>
+<tr>
+<td>1</td>
+<td><a href="#fragmentation">分片</a></td>
+</tr>
+<tr>
+<td>2-3</td>
+<td>保留供将来使用</td>
+</tr>
+<tr>
+<td>4-7</td>
+<td>播放器角色</td>
+</tr>
+<tr>
+<td>8-11</td>
+<td>封面（Artwork）角色</td>
+</tr>
+<tr>
+<td>12-15</td>
+<td>音源（Source）角色</td>
+</tr>
+<tr>
+<td>16-23</td>
+<td>可视化（Visualizer）角色</td>
+</tr>
+<tr>
+<td>24-191</td>
+<td>保留供未来角色使用</td>
+</tr>
+<tr>
+<td>192-255</td>
+<td>可供<a href="#application-specific-roles">应用特定角色</a>使用</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>未来的角色将从保留的 24-191 范围内按对齐方式分配包含 4 个或 8 个 ID 的区块。</p>
+<p><strong>注意：</strong> 各角色版本共享相同的二进制消息 ID（例如，<code>player@v1</code> 和 <code>player@v2</code> 都使用 ID 4-7）。</p>
+<h3 id="-22" tabindex="-1"><a class="heading-anchor" href="#-22" aria-hidden="true">#</a>分片</h3>
+<p>根据 Noise 规范，单条 Noise 传输消息的大小限制为 65535 字节。两种已定义的密码套件均使用 16 字节的 AEAD 认证标签，且消息类型字节占用 AEAD 明文的第一个字节，因此每条 Noise 传输消息的应用负载最多为 65535 − 16 − 1 = 65518 字节。更大的消息必须使用分片消息类型拆分到多条 WebSocket 二进制消息中发送。</p>
+<p><strong>线上格式</strong>（每条分片消息中受 AEAD 保护的明文内部）：</p>
+<ul>
+<li>首个分片：<code>[1][flags][orig_type][data]</code></li>
+<li>后续分片：<code>[1][flags][data]</code></li>
+</ul>
+<p><code>flags</code> 是一个 uint8。消息的首个分片会设置位 1，最后一个分片则设置位 0。位 2-7 为保留位，必须为零。</p>
+<p>将所有分片的 <code>data</code> 拼接起来即可得到原始消息的负载（也就是在类型为 <code>orig_type</code> 的非分片消息中，紧随消息类型字节之后的那些字节）。</p>
+<p><strong>约束条件：</strong></p>
+<ul>
+<li>每个方向同一时间只能有一个分片消息处于在途状态。发送方必须以最后一个分片结束某个分片消息之后，才能在该方向上发送任何其他二进制消息，无论其是否分片。</li>
+<li>发送方不应（SHOULD NOT）对能够容纳于单条 Noise 传输消息中的消息进行分片。</li>
+<li>发送方不得使用 <code>1</code> 作为 <code>orig_type</code>。</li>
+</ul>
+<p><strong>接收方行为：</strong> 维护单个重组缓冲区以及对应的在途 <code>orig_type</code>。收到首个分片时，从字节 2 读取 <code>orig_type</code>，并以其 <code>data</code> 开始一个新的缓冲区；收到任何其他分片时，将其 <code>data</code> 追加到缓冲区中。当位 0 被设置时，将缓冲区作为一条类型为 <code>orig_type</code> 的完整消息进行分发，然后清空缓冲区。</p>
+<p><a href="#communication">忽略规则</a>同样适用于分片消息。如果接收方未实现 <code>orig_type</code>，它可以丢弃每个分片的 <code>data</code>，而不必分配重组缓冲区。但它仍必须对每条 Noise 传输消息进行认证、跟踪分片序列，并执行下文的畸形序列规则。最后一个分片会清除序列状态。被丢弃的消息不会被分发。</p>
+<p><strong>畸形序列</strong>属于协议错误；接收方必须关闭连接。畸形序列包括：在某个分片消息在途期间收到首个分片、在没有任何分片消息在途时收到非首个分片、在某个分片消息在途期间收到非分片的二进制消息、保留标志位非零，以及 <code>orig_type</code> 为 <code>1</code>。</p>
+<h2 id="-23" tabindex="-1"><a class="heading-anchor" href="#-23" aria-hidden="true">#</a>时钟同步</h2>
+<p>客户端发送 <code>client/time</code> 消息，以在其时钟与服务器时钟之间保持准确的映射。实现必须足够频繁地发送这些消息，以使滤波器保持收敛。time-filter 库的<a href="https://github.com/Sendspin-Protocol/time-filter#recommended-usage">推荐用法</a>一节描述了一种已知良好的突发策略基线。</p>
+<p>二进制音频消息包含服务器时域中的时间戳，用于指示音频应当播放的时刻。客户端必须使用 <a href="https://github.com/Sendspin-Protocol/time-filter">time-filter</a> 算法将服务器时间戳转换为其本地时钟，以实现同步播放。该时间滤波器是一个二维卡尔曼滤波器，同时跟踪时钟偏移和时钟漂移。C++ 参考实现见 <a href="https://github.com/Sendspin-Protocol/time-filter">time-filter</a> 仓库，Python 实现见 <a href="https://github.com/Sendspin-Protocol/aiosendspin/blob/main/aiosendspin/client/time_sync.py">aiosendspin</a>。</p>
+<p>每个 <a href="#server--client-servertime"><code>server/time</code></a> 响应都会提供滤波器所需的四个时间戳：客户端的发送时间戳、服务器的接收时间戳、服务器的发送时间戳，以及客户端的接收时间（在响应到达时于本地捕获）。客户端通过时间滤波器的 <code>update</code> 方法将这些值输入滤波器，并使用其 <code>compute_client_time</code> 方法将服务器时间戳转换为本地时钟值，用于播放调度。</p>
+<p>在其时间滤波器收敛到足以开始调度播放之前，播放器不得报告 <code>available: true</code>。在其时间滤波器收敛到足以给捕获的音频打时间戳之前，音源（source）不得报告 <code>available: true</code>。</p>
+<h3 id="-24" tabindex="-1"><a class="heading-anchor" href="#-24" aria-hidden="true">#</a>发送时间戳</h3>
+<p>有两处信息报告了服务器发送消息的时刻：<code>server_transmitted</code> 字段，以及二进制音频块中携带的 <code>send_ahead</code> 间隔。服务器会在其实现允许的前提下尽可能晚地取这一时刻：在任何应用层排队或针对每个客户端的调度之后、消息即将加密传输之前的瞬间。服务器不得在消息入队等待后续传输时就打上时间戳。</p>
+<p>在该时刻之后累积的延迟——传输层发送缓冲、仍在途中的更早的分片消息、链路争用——不会体现在该值中，而是被客户端观测为网络延迟。</p>
+<p>测量传输时间的客户端会在消息对应用可用的那一刻获取该消息的 <code>arrival</code> 时间：即 AEAD 解密之后；对于分片消息，则是重组之后。因此，这一测量的两端都位于应用边界上。</p>
+<h2 id="-25" tabindex="-1"><a class="heading-anchor" href="#-25" aria-hidden="true">#</a>核心消息</h2>
+<p>本节描述了建立客户端与服务器之间通信的基础消息。这些消息处理初始握手、持续的时钟同步、流生命周期管理以及基于角色的状态更新和命令。</p>
+<p>每个客户端和服务器都必须实现本节中的所有消息，无论其具体角色如何。特定于角色的对象细节记录在各自的角色部分中，并且仅在客户端支持该角色时才需要实现。</p>
+<p><a href="#pairing">配对</a>消息对所有服务器都是必需的；客户端实现与其公布的配对方法相匹配的子集。</p>
+<p>WebSocket 保留每个方向内的消息顺序，但相反方向的消息可能会交错。客户端必须按传递顺序处理 <code>stream/start</code>、<code>stream/clear</code> 和 <code>stream/end</code>，即使在丢弃角色数据时也是如此。服务器同样必须按传递顺序处理 <code>client-stream/start</code> 和 <code>client-stream/end</code>。</p>
+<h3 id="--clientinit" tabindex="-1"><a class="heading-anchor" href="#--clientinit" aria-hidden="true">#</a>客户端 → 服务器：<code>client/init</code></h3>
+<p>建立 WebSocket 连接后客户端发送的第一条消息。包含进行 Noise 握手所需的信息。</p>
+<ul>
+<li><code>client_id</code>：字符串 - 客户端的静态公钥（43 个字符的 base64url 编码 Curve25519，无填充）。请参阅<a href="#identities">身份</a>。在重新连接时保持不变，以便服务器可以将客户端与之前的连接关联起来（例如，记住组成员身份、设置、播放队列）</li>
+<li><code>version</code>：整数（必须为 <code>1</code>） - 客户端实现的核心消息格式版本（独立于角色版本）</li>
+<li><code>suite</code>：'25519_ChaChaPoly_SHA256' | '25519_AESGCM_SHA256' - 客户端为此连接选择的 Noise 密码套件。请参阅<a href="#cipher-suites">密码套件</a></li>
+</ul>
+<p><code>version</code>（此处以及 <a href="#server--client-serverinit"><code>server/init</code></a> 中）是一个精确匹配字段，用于命名发送方使用的单一核心消息格式，而不是最低支持版本。在本规范下，双方都发送 <code>1</code>，并在遇到任何其他值时中止握手（请参阅<a href="#failure-handling">故障处理</a>）。未来在<a href="#protocol-evolution">协议演进</a>下需要新核心版本的修订版将使用新值并定义其协商方式。</p>
+<h3 id="--serverinit" tabindex="-1"><a class="heading-anchor" href="#--serverinit" aria-hidden="true">#</a>服务器 → 客户端：<code>server/init</code></h3>
+<p>对 <a href="#client--server-clientinit"><code>client/init</code></a> 消息的响应，包含有关服务器的相应信息。</p>
+<p>服务器发送 <code>server/init</code> 后紧接着发送第一条 <a href="#client--server-noisehandshake"><code>noise/handshake</code></a> 消息（Noise 消息 1），无需等待客户端的任何中间消息。</p>
+<ul>
+<li><code>server_id</code>：字符串 - 服务器的静态公钥（43 个字符的 base64url 编码 Curve25519，无填充）。请参阅<a href="#identities">身份</a></li>
+<li><code>version</code>：整数（必须为 <code>1</code>） - 服务器实现的核心消息格式版本（独立于角色版本）</li>
+</ul>
+<h3 id="--noisehandshake" tabindex="-1"><a class="heading-anchor" href="#--noisehandshake" aria-hidden="true">#</a>客户端 ↔ 服务器：<code>noise/handshake</code></h3>
+<p>承载一条 Noise 握手消息。在握手期间发送两次：一次由服务器发送（Noise 消息 1，在 <a href="#server--client-serverinit"><code>server/init</code></a> 之后立即发送），一次由客户端响应发送（Noise 消息 2）。</p>
+<ul>
+<li><code>data</code>：字符串 - base64url 编码的 Noise 握手消息字节（无填充）</li>
+</ul>
+<p>每个 Noise 握手消息内部携带的加密有效载荷是一个 UTF-8 JSON 对象：</p>
+<ul>
+<li><strong>Noise 消息 1 有效载荷</strong>（服务器 → 客户端）：
+<ul>
+<li><code>psk_id</code>：字符串 - 从 PSK 派生的 43 个字符的 base64url 编码 SHA-256 哈希。客户端在处理消息 2 之前使用它来选择 PSK；消息 1 有效载荷无需 PSK 即可解密（请参阅<a href="#pre-shared-key">预共享密钥</a>）。</li>
+<li><code>psk_category</code>：'lt' | 'pr' | 'sn' - 服务器使用引用的 PSK 的类别：长期、配对或 Sentinel。客户端仅在不同类别下持有的 <code>psk_id</code> 会导致查找未命中（请参阅<a href="#pre-shared-key">预共享密钥</a>）。这些代码共享一个长度，因此加密有效载荷的长度与类别无关。</li>
+</ul>
+</li>
+<li><strong>Noise 消息 2 有效载荷</strong>（客户端 → 服务器）：空对象，即字面上的两个字节 <code>{}</code>（不是零长度的 Noise 有效载荷）</li>
+</ul>
+<p>格式错误的内部握手有效载荷（不是上述形状的有效 UTF-8 JSON，包括 <code>psk_category</code> 超出三个定义代码的情况）属于<a href="#failure-handling">静默故障</a>，并会关闭 WebSocket。</p>
+<p>交换两条握手消息后，双方切换到 Noise 传输模式（所有后续消息均作为上述二进制消息传输）。</p>
+<p>相同的 <code>noise/handshake</code> 消息用于带内<a href="#re-handshake">重新握手</a>：此时这两条消息作为普通的加密 JSON 消息（二进制消息，消息类型 <code>0</code>）传输，而不是裸 Noise 字节。Noise 消息 2 仍然在重新握手前的传输密钥下加密；握手完成后每一方发送的第一条二进制消息使用新密钥。</p>
+<h3 id="--servererror" tabindex="-1"><a class="heading-anchor" href="#--servererror" aria-hidden="true">#</a>服务器 → 客户端：<code>server/error</code></h3>
+<p>当服务器无法接受客户端的 <a href="#client--server-clientinit"><code>client/init</code></a> 时，由服务器代替 <a href="#server--client-serverinit"><code>server/init</code></a> 发送。服务器在发送后关闭连接。请参阅<a href="#failure-handling">故障处理</a>。</p>
+<ul>
+<li><code>reason</code>：字符串 - 以下之一：
+<ul>
+<li><code>unsupported_version</code> - 客户端的 <code>version</code> 不是服务器实现的版本</li>
+<li><code>unsupported_suite</code> - 客户端的 <code>suite</code> 不是服务器实现的套件</li>
+<li><code>malformed</code> - <code>client/init</code> 不是定义形状的有效 JSON</li>
+</ul>
+</li>
+</ul>
+<h3 id="--serverhello" tabindex="-1"><a class="heading-anchor" href="#--serverhello" aria-hidden="true">#</a>服务器 → 客户端：<code>server/hello</code></h3>
+<p>初始 Noise 握手完成后服务器发送的第一条消息。每条连接发送一次，作为加密消息（二进制消息，消息类型 <code>0</code>）。</p>
+<ul>
+<li><code>name</code>：字符串 - 服务器的友好名称</li>
+<li><code>languages?</code>：字符串数组 - 按操作员偏好降序排列的非空 <a href="https://www.rfc-editor.org/info/bcp47">BCP 47</a> 语言标签列表（例如 <code>[&quot;ca&quot;, &quot;es&quot;, &quot;en&quot;]</code>） - 关于操作员理解的语言的提示，用于通知任何面向操作员的输出</li>
+<li><code>source@v1_support?</code>：对象 - 如果服务器支持 <code>source@v1</code> 角色则必需，否则省略（<a href="#server--client-serverhello-sourcev1-support-object">请参阅服务器端 source@v1 支持对象细节</a>）</li>
+</ul>
+<h3 id="--clienthello" tabindex="-1"><a class="heading-anchor" href="#--clienthello" aria-hidden="true">#</a>客户端 → 服务器：<code>client/hello</code></h3>
+<p>客户端在收到 <a href="#server--client-serverhello"><code>server/hello</code></a> 后发送。每条连接发送一次，作为加密消息（二进制消息，消息类型 <code>0</code>）。包含有关客户端功能和角色的信息。</p>
+<p>能够输出音频的客户端应当具有 <code>player</code> 角色。</p>
+<ul>
+<li><code>name</code>：字符串 - 客户端的友好名称</li>
+<li><code>device_info?</code>：对象 - 有关设备的可选信息
+<ul>
+<li><code>product_name?</code>：字符串 - 设备型号/产品名称</li>
+<li><code>manufacturer?</code>：字符串 - 设备制造商名称</li>
+<li><code>software_version?</code>：字符串 - 客户端的软件版本（不是 Sendspin 版本）</li>
+<li><code>mac_address?</code>：字符串 - 打开连接的网络接口的 MAC 地址，小写冒号分隔格式（例如 <code>aa:bb:cc:dd:ee:ff</code>）</li>
+</ul>
+</li>
+<li><code>supported_roles</code>：字符串数组 - 客户端支持的带版本角色（例如 <code>player@v1</code>、<code>controller@v1</code>）。定义的带版本角色包括：
+<ul>
+<li><code>player@v1</code> - 输出音频</li>
+<li><code>source@v1</code> - 从本地输入捕获音频并将其流式传输到服务器</li>
+<li><code>controller@v1</code> - 控制当前组</li>
+<li><code>metadata@v1</code> - 显示描述当前播放音频的文本元数据</li>
+<li><code>artwork@v1</code> - 显示封面图片</li>
+<li><code>visualizer@v1</code> - 可视化音频</li>
+<li><code>color@v1</code> - 接收从当前音频派生的颜色</li>
+</ul>
+</li>
+<li><code>player@v1_support?</code>：对象 - 如果列出了 <code>player@v1</code> 则必需，否则省略（<a href="#client--server-clienthello-playerv1-support-object">请参阅 player@v1 支持对象细节</a>）</li>
+<li><code>source@v1_support?</code>：对象 - 如果列出了 <code>source@v1</code> 则必需，否则省略（<a href="#client--server-clienthello-sourcev1-support-object">请参阅 source@v1 支持对象细节</a>）</li>
+<li><code>visualizer@v1_support?</code>：对象 - 如果列出了 <code>visualizer@v1</code> 则必需，否则省略（<a href="#client--server-clienthello-visualizerv1-support-object">请参阅 visualizer@v1 支持对象细节</a>）</li>
+<li><code>supported_pair_methods</code>：对象 - 此客户端当前提供的配对方法，按方法标识符作为键，每个值为一个<a href="#client--server-clienthello-pair-method-descriptor">配对方法描述符</a>。每个客户端至少提供配对 PSK 方法，并且最多可以列出一个配对码方法（请参阅<a href="#pairing">配对</a>）。</li>
+<li><code>unpaired_access</code>：对象 - 此客户端当前是否允许<a href="#unpaired-access">未配对访问</a>
+<ul>
+<li><code>enabled</code>：布尔值</li>
+</ul>
+</li>
+</ul>
+<p>当角色版本定义支持对象时，其在 <code>client/hello</code> 或 <code>server/hello</code> 中的键是角色版本标识符后跟 <code>_support</code>（例如 <code>player@v1_support</code>、<code>player@v2_support</code>）。特定于应用的角色或角色版本遵循相同的模式（例如 <code>_myapp_display@v1_support</code>、<code>player@_experimental_support</code>）。</p>
+<p>如果角色版本需要支持对象，当 <code>client/hello</code> 中缺少该对象时，服务器不得激活该版本。</p>
+<h3 id="--serveractivate" tabindex="-1"><a class="heading-anchor" href="#--serveractivate" aria-hidden="true">#</a>服务器 → 客户端：<code>server/activate</code></h3>
+<p>声明服务器在此连接上的当前用途。作为加密消息（二进制消息，消息类型 <code>0</code>）发送。可以重新发送以更改活动集、活动角色或配对参数，需遵守激活和配对规则。</p>
+<ul>
+<li><code>activities</code>：('playback' | 'pairing')[] - 此连接上当前活动的用途集。可以为空。成员无序且唯一。</li>
+<li><code>active_roles?</code>：字符串数组 - 对此客户端活动的带版本角色（例如 <code>player@v1</code>、<code>controller@v1</code>）。在第一个 <code>server/activate</code> 上必需；在省略它的后续 <code>server/activate</code> 消息中保持不变。在无法播放的连接上必须为空（见下文）。客户端将省略它的第一个 <code>server/activate</code> 视为携带空的 <code>active_roles</code>。</li>
+<li><code>pairing?</code>：对象 - 此激活允许的配对尝试的参数。当 <code>'pairing'</code> 在 <code>activities</code> 中时必需；否则省略。当 <code>activities</code> 不包含 <code>'pairing'</code> 时，客户端忽略此字段。
+<ul>
+<li><code>method</code>：'dynamic_pairing_code' | 'pairing_psk' | 'static_pairing_code' - 服务器选择的配对方法，取自客户端的 <code>supported_pair_methods</code>。</li>
+<li><code>format?</code>：'digits' | 'qr_code' - 动态<a href="#dynamic-pairing-code-flow">发射格式</a>，取自客户端的 <code>dynamic_pairing_code</code> 描述符。当 <code>method</code> 为 <code>'dynamic_pairing_code'</code> 时必需；否则省略。服务器仅在其操作员界面可以扫描二维码时才选择 <code>qr_code</code>。</li>
+</ul>
+</li>
+</ul>
+<p>服务器可以合法声明的活动集受 <a href="#encryption">Noise 握手</a> 期间匹配的 PSK 限制：</p>
+<div class="table-scroll" tabindex="0">
+<table>
+<thead>
+<tr>
+<th>匹配的 PSK</th>
+<th>允许的活动集</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#definitions">长期 PSK</a></td>
+<td><code>[]</code> 或 <code>['playback']</code></td>
+</tr>
+<tr>
+<td><a href="#definitions">配对 PSK</a></td>
+<td><code>[]</code>、<code>['pairing']</code>、<code>['playback']</code>¹、<code>['playback', 'pairing']</code>¹</td>
+</tr>
+<tr>
+<td><a href="#pre-shared-key">Sentinel PSK</a></td>
+<td><code>[]</code>、<code>['pairing']</code>、<code>['playback']</code>¹、<code>['playback', 'pairing']</code>¹</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>¹ 仅当客户端启用了<a href="#unpaired-access">未配对访问</a>时。</p>
+<p>当 <code>'pairing'</code> 在 <code>activities</code> 中时，当且仅当匹配的 PSK 是<a href="#definitions">配对 PSK</a> 时，<code>pairing.method</code> 必须为 <code>'pairing_psk'</code>，并且必须是客户端 <a href="#client--server-clienthello"><code>supported_pair_methods</code></a> 中存在的方法。</p>
+<p><strong>具备播放能力的连接。</strong> 当连接的 <code>activities</code> 扩展 <code>'playback'</code> 后是匹配 PSK 的允许集时，该连接<em>具备播放能力</em>；因此，已经声明 <code>'playback'</code> 的连接恰好在其 <code>activities</code> 是允许集时具备播放能力。只有具备播放能力的连接才可以携带非空的 <code>active_roles</code>，并且即使 <code>'playback'</code> 当前不在 <code>activities</code> 中也可以这样做。客户端在每次 <code>server/activate</code> 时针对持久化的 <code>active_roles</code> 重新评估此约束：如果后续激活更改了 <code>activities</code> 导致连接不再具备播放能力，且未显式发送 <code>active_roles</code>，则持久化的角色被视为空，而不是拒绝该消息。</p>
+<p><code>server/activate</code> 在满足上述约束时是<em>可接受的</em>。当不可接受时，客户端拒绝它，按适用的第一条规则选择响应：</p>
+<ul>
+<li>如果会话<a href="#definitions">未配对</a>，客户端未启用<a href="#unpaired-access">未配对访问</a>，并且启用未配对访问会使激活可接受 - 使用 <a href="#client--server-clientgoodbye"><code>client/goodbye</code></a> 原因 <code>'pairing_required'</code> 关闭连接。</li>
+<li>如果 <code>activities</code> 不是匹配 PSK 的允许集，或者在不具备播放能力的连接上 <code>active_roles</code> 非空 - 使用 <a href="#client--server-clientgoodbye"><code>client/goodbye</code></a> 原因 <code>'unauthorized'</code> 关闭连接。</li>
+<li>如果 <code>'pairing'</code> 在 <code>activities</code> 中，且 <code>pairing.method</code> 是匹配 PSK 不允许的或客户端当前未提供的，或者 <code>pairing.format</code> 是客户端当前未提供的 - 使用 <a href="#client--server-pairabort"><code>pair/abort</code></a> 原因 <code>method_not_supported</code> 回复，保持连接打开。</li>
+</ul>
+<p><strong>示例（<code>pairing_required</code>）。</strong> 一个 Sentinel 密钥连接到一个禁用了未配对访问的客户端，收到 <code>activities: ['playback']</code> 和 <code>active_roles: ['player@v1']</code>。在假设的 <code>unpaired_access: enabled</code> 下，<code>['playback']</code> 将是 Sentinel PSK 的允许集，并且连接将具备播放能力，因此激活将是可接受的：客户端以 <code>'pairing_required'</code> 关闭。</p>
+<p>服务器应当声明反映连接当前用途的最小活动集，并在该用途结束时立即删除活动。竞争连接之间的准入由排名最高的声明活动决定（请参阅<a href="#multiple-servers-server-initiated">多服务器</a>），因此保留未使用的活动会降低多服务器协作效率。</p>
+<p>服务器通常激活客户端每个角色的<a href="#priority-and-activation">首选</a>版本，但可以自行决定省略某个角色（例如，基于会话是否已配对、部署上下文或操作员策略）。因此，需要检查 <code>active_roles</code> 以确定客户端在此会话上实际可以使用的内容。</p>
+<p>角色删除包括从 <code>active_roles</code> 中显式删除、当连接不再具备播放能力时隐式删除，以及替换活动角色版本。</p>
+<p>在 <code>server/activate</code> 删除服务器到客户端的流角色（<code>player</code>、<code>artwork</code>、<code>visualizer</code> 或具有此类流的应用特定角色）之前，如果其流处于活动状态，服务器必须发送该角色的 <a href="#server--client-streamend"><code>stream/end</code></a>。如果 <a href="#re-handshake">重新握手</a> 后的第一次激活将删除此类角色，服务器必须在开始重新握手之前发送任何必需的 <code>stream/end</code>。</p>
+<p>应用 <code>server/activate</code> 时，客户端必须：</p>
+<ul>
+<li>对于每个被删除的服务器到客户端的流角色，停止其剩余输出，清除其缓冲区，并释放该角色应用的临时输出效果，例如闪避（ducking）。即使之前的 <code>stream/end</code> 允许缓冲数据播放完毕，这也适用。</li>
+<li>对于每个定义了 <a href="#server--client-serverstate"><code>server/state</code></a> 对象的被删除角色（<code>metadata</code>、<code>color</code>、<code>controller</code> 或应用特定角色），立即丢弃当前状态和任何待处理的计划更新。不需要先前的 <code>server/state</code>。</li>
+</ul>
+<p>保持活动且版本相同的角色的状态不变。</p>
+<p>服务器必须忽略 <code>client/state</code> 和 <code>client/command</code> 中的非活动角色对象，而不单纯因为它们的出现而关闭连接，因为客户端可能尚未收到角色删除通知。活动角色的客户端级字段和对象正常处理。</p>
+<h3 id="--clienttime" tabindex="-1"><a class="heading-anchor" href="#--clienttime" aria-hidden="true">#</a>客户端 → 服务器：<code>client/time</code></h3>
+<p>将当前内部时钟时间戳（以微秒为单位）发送到服务器。
+收到后，服务器响应一条 <a href="#server--client-servertime"><code>server/time</code></a> 消息，包含<a href="#clock-synchronization">时间过滤器</a>的计时信息。</p>
+<ul>
+<li><code>client_transmitted</code>：整数 - 客户端内部时钟时间戳，以微秒为单位</li>
+</ul>
+<h3 id="--servertime" tabindex="-1"><a class="heading-anchor" href="#--servertime" aria-hidden="true">#</a>服务器 → 客户端：<code>server/time</code></h3>
+<p>对 <a href="#client--server-clienttime"><code>client/time</code></a> 消息的响应，包含<a href="#clock-synchronization">时间过滤器</a>的时间戳。</p>
+<p>为了同步，所有计时均相对于服务器的单调时钟。这些时间戳具有微秒精度，不一定基于纪元时间。</p>
+<ul>
+<li><code>client_transmitted</code>：整数 - 在 <code>client/time</code> 消息中接收到的客户端内部时钟时间戳</li>
+<li><code>server_received</code>：整数 - 服务器接收 <code>client/time</code> 消息的时间戳，以微秒为单位</li>
+<li><code>server_transmitted</code>：整数 - 服务器传输此消息的时间戳，以微秒为单位</li>
+</ul>
+<h3 id="--clientstate" tabindex="-1"><a class="heading-anchor" href="#--clientstate" aria-hidden="true">#</a>客户端 → 服务器：<code>client/state</code></h3>
+<p>客户端向服务器发送状态更新。包含客户端级状态和特定于角色的状态对象。</p>
+<p>在客户端准备好报告其运行状态（<code>available</code>）时发送一次，此后每当任何状态更改时发送。播放器或源仅在其建立<a href="#clock-synchronization">时钟同步</a>后才报告 <code>available: true</code>。当定义状态对象的角色在 <code>active_roles</code> 中变为活动状态时，客户端必须发送包含该角色对象的更新。在收到该对象之前，服务器不得发送该角色的二进制数据。对于未定义状态对象的角色，客户端的初始 <code>client/state</code> 会打开其二进制数据。在重新激活时，此类角色使用最新报告的 <code>available</code>，无需新的 <code>client/state</code>。</p>
+<p><code>active_roles</code> 非空的客户端会发送初始 <code>client/state</code>，即使其角色均未定义状态对象。</p>
+<p>每条消息必须携带 <code>available</code> 及其包含的每个角色对象的完整状态。省略角色对象会使该角色的状态保持不变。</p>
+<ul>
+<li><code>available</code>：布尔值 - 客户端是否可用于参与 Sendspin 播放
+<ul>
+<li><code>true</code> - 客户端正在运行并准备好参与播放；对于播放器或源，这意味着其时钟与服务器同步。</li>
+<li><code>false</code> - 客户端正被外部系统使用，并且不会根据请求让出给 Sendspin。请参阅<a href="#external-source-handling">外部源处理</a></li>
+</ul>
+</li>
+<li><code>player?</code>：对象 - 仅当 <code>player</code> 角色活动时（<a href="#client--server-clientstate-player-object">请参阅播放器状态对象细节</a>）</li>
+<li><code>source?</code>：对象 - 仅当 <code>source</code> 角色活动时（<a href="#client--server-clientstate-source-object">请参阅源状态对象细节</a>）</li>
+<li><code>artwork?</code>：对象 - 仅当 <code>artwork</code> 角色活动时（<a href="#client--server-clientstate-artwork-object">请参阅封面状态对象细节</a>）</li>
+<li><code>visualizer?</code>：对象 - 仅当 <code>visualizer</code> 角色活动时（<a href="#client--server-clientstate-visualizer-object">请参阅可视化器状态对象细节</a>）</li>
+</ul>
+<p><a href="#application-specific-roles">特定于应用的角色</a>也可以在此消息中包含对象（以 <code>_</code> 开头的键）。</p>
+<h3 id="-26" tabindex="-1"><a class="heading-anchor" href="#-26" aria-hidden="true">#</a>外部源处理</h3>
+<p>客户端可以被非 Sendspin 活动接管（播放其他媒体、另一种协议、HDMI 输入等）。其报告方式取决于它是否仍会根据请求让出给 Sendspin。</p>
+<p>更改本地可用性本身不会结束服务器到客户端的流。客户端在不可用时必须继续处理 <code>stream/start</code>、<code>stream/clear</code> 和 <code>stream/end</code>，因为这些消息可能是在服务器收到可用性更新之前发送的。</p>
+<h4 id="-27" tabindex="-1"><a class="heading-anchor" href="#-27" aria-hidden="true">#</a>可中断活动（客户端保持可用）</h4>
+<p>如果外部活动可以随时被 Sendspin 中断，客户端应当保持 <code>available: true</code>，以便服务器可以接管它。</p>
+<p>为了在执行非 Sendspin 活动时停止参与其组的播放，客户端可以使用 <a href="#client--server-clientleave"><code>client/leave</code></a> 离开其当前组。这仅在组的 <code>playback_state</code> 为 <code>'playing'</code> 时需要：停止组中的客户端通过留下保持其分组，并且稍后的播放仍可能接管它。</p>
+<h4 id="-28" tabindex="-1"><a class="heading-anchor" href="#-28" aria-hidden="true">#</a>不可中断活动（客户端变为不可用）</h4>
+<p>当客户端报告 <code>available: false</code> 时，表示客户端正被外部系统使用（例如，不同的音频源、HDMI 输入或本地媒体播放），并且在返回 <code>available: true</code> 之前不会参与此服务器的 Sendspin 播放。</p>
+<p>客户端应当仅在不会让出给 Sendspin 时报告 <code>available: false</code>，并且应当在其再次愿意被接管时尽快返回 <code>available: true</code>。</p>
+<h4 id="available-false" tabindex="-1"><a class="heading-anchor" href="#available-false" aria-hidden="true">#</a>当客户端变为不可用（<code>available: false</code>）时的服务器行为：</h4>
+<p>如果客户端在多客户端组中：</p>
+<ol>
+<li>记住客户端的当前组作为其“上一个组”（请参阅<a href="#switch-command-cycle">切换命令周期</a>）</li>
+<li>将客户端移动到新的单人组（已停止）
+<ul>
+<li>发送带有新组信息的 <a href="#server--client-groupupdate"><code>group/update</code></a></li>
+<li>为所有活动流发送 <a href="#server--client-streamend"><code>stream/end</code></a>（如果有）</li>
+</ul>
+</li>
+</ol>
+<p>如果客户端已经在单人组中：</p>
+<ul>
+<li>停止播放并为所有活动流发送 <a href="#server--client-streamend"><code>stream/end</code></a>（如果有）</li>
+<li>如果 <code>playback_state</code> 尚未为 <code>'stopped'</code>，发送报告 <code>playback_state: 'stopped'</code> 的 <a href="#server--client-groupupdate"><code>group/update</code></a></li>
+</ul>
+<p>当客户端返回 <code>available: true</code> 时，服务器不得自动将其重新加入上一个组或重新启动播放；客户端保留在单人组中，并且仅通过显式 <a href="#switch-command-cycle"><code>switch</code></a> 重新加入。</p>
+<h3 id="--clientcommand" tabindex="-1"><a class="heading-anchor" href="#--clientcommand" aria-hidden="true">#</a>客户端 → 服务器：<code>client/command</code></h3>
+<p>客户端向服务器发送命令。包含基于客户端活动角色的命令对象。</p>
+<ul>
+<li><code>controller?</code>：对象 - 仅当 <code>controller</code> 角色活动时（<a href="#client--server-clientcommand-controller-object">请参阅控制器命令对象细节</a>）</li>
+</ul>
+<p><a href="#application-specific-roles">特定于应用的角色</a>也可以在此消息中包含对象（以 <code>_</code> 开头的键）。</p>
+<h3 id="--clientleave" tabindex="-1"><a class="heading-anchor" href="#--clientleave" aria-hidden="true">#</a>客户端 → 服务器：<code>client/leave</code></h3>
+<p>离开客户端的当前组。无有效载荷字段。</p>
+<p>当客户端不再想参与其组的播放时发送此消息，例如在执行<a href="#interruptible-activity-client-stays-available">可中断的非 Sendspin 活动</a>时。</p>
+<p>服务器将其作为<a href="#server-behavior-when-a-client-becomes-unavailable-available-false">当客户端变为不可用</a>时处理：客户端最终处于播放已停止的单人组中，并且仅通过显式 <a href="#switch-command-cycle"><code>switch</code></a> 重新加入。</p>
+<h3 id="--serverstate" tabindex="-1"><a class="heading-anchor" href="#--serverstate" aria-hidden="true">#</a>服务器 → 客户端：<code>server/state</code></h3>
+<p>服务器向客户端发送状态更新。包含特定于角色的状态对象。</p>
+<p>每条消息必须携带其包含的每个角色对象的完整状态。省略角色对象会使该角色的状态保持不变，并保持任何待处理的计划更新。对于 <code>metadata</code> 和 <code>color</code> 对象，未来的 <code>timestamp</code> 会延迟状态生效的时间（请参阅 <a href="#scheduled-metadata-updates"><code>metadata</code></a> 和 <a href="#scheduled-color-updates"><code>color</code></a> 的计划更新）。</p>
+<p>在 <code>server/activate</code> 添加或重新添加定义 <code>server/state</code> 对象的角色后，服务器必须迅速发送包含该角色当前状态的 <code>server/state</code>。在能够提供该角色定义的完整状态对象之前，服务器不得激活此类角色，并且如果不再能够提供，则必须停用该角色。</p>
+<p>服务器必须迅速报告活动角色的 <code>server/state</code> 对象的更改。计划更新生效和播放进度推进不需要新消息。</p>
+<p>在连接上为角色发送的第一个 <code>server/state</code>，以及在该角色重新添加到 <code>active_roles</code> 之后的第一个，如果角色对象具有 <code>timestamp</code>，则必须携带过去或现在的 <code>timestamp</code>，以便在任何计划更新跟随之前使客户端保持最新。</p>
+<ul>
+<li><code>metadata?</code>：对象 - 仅当 <code>metadata</code> 角色活动时（<a href="#server--client-serverstate-metadata-object">请参阅元数据状态对象细节</a>）</li>
+<li><code>controller?</code>：对象 - 仅当 <code>controller</code> 角色活动时（<a href="#server--client-serverstate-controller-object">请参阅控制器状态对象细节</a>）</li>
+<li><code>color?</code>：对象 - 仅当 <code>color</code> 角色活动时（<a href="#server--client-serverstate-color-object">请参阅颜色状态对象细节</a>）</li>
+</ul>
+<p><a href="#application-specific-roles">特定于应用的角色</a>也可以在此消息中包含对象（以 <code>_</code> 开头的键）。</p>
+<h3 id="--servercommand" tabindex="-1"><a class="heading-anchor" href="#--servercommand" aria-hidden="true">#</a>服务器 → 客户端：<code>server/command</code></h3>
+<p>服务器向客户端发送命令。包含特定于角色的命令对象。</p>
+<ul>
+<li><code>player?</code>：对象 - 仅当 <code>player</code> 角色活动时（<a href="#server--client-servercommand-player-object">请参阅播放器命令对象细节</a>）</li>
+<li><code>source?</code>：对象 - 仅当 <code>source</code> 角色活动时（<a href="#server--client-servercommand-source-object">请参阅源命令对象细节</a>）</li>
+</ul>
+<p><a href="#application-specific-roles">特定于应用的角色</a>也可以在此消息中包含对象（以 <code>_</code> 开头的键）。</p>
+<h3 id="--streamstart" tabindex="-1"><a class="heading-anchor" href="#--streamstart" aria-hidden="true">#</a>服务器 → 客户端：<code>stream/start</code></h3>
+<p>为一个或多个角色启动流。如果为已经具有活动流的角色发送，则更新流配置而不结束流。每个角色定义如何处理在先前配置下接收的数据。</p>
+<ul>
+<li><code>server_transmitted</code>：整数 - 服务器传输此消息的时间戳，以微秒为单位</li>
+<li><code>player?</code>：对象 - 仅当 <code>player</code> 角色活动时（<a href="#server--client-streamstart-player-object">请参阅播放器对象细节</a>）</li>
+<li><code>artwork?</code>：对象 - 仅当 <code>artwork</code> 角色活动时（<a href="#server--client-streamstart-artwork-object">请参阅封面对象细节</a>）</li>
+<li><code>visualizer?</code>：对象 - 仅当 <code>visualizer</code> 角色活动时（<a href="#server--client-streamstart-visualizer-object">请参阅可视化器对象细节</a>）</li>
+</ul>
+<p><a href="#application-specific-roles">特定于应用的角色</a>也可以在此消息中包含对象（以 <code>_</code> 开头的键）。</p>
+<p>除非服务器收到的最新 <a href="#client--server-clientstate"><code>client/state</code></a> 报告 <code>available: true</code>，否则服务器不得发送 <code>stream/start</code>。</p>
+<p>每个角色的流配置源自客户端关于自身的报告：<a href="#client--server-clienthello"><code>client/hello</code></a> 中角色的支持对象用于恒定功能，以及角色的 <a href="#client--server-clientstate"><code>client/state</code></a> 对象用于客户端可能在连接期间更改的流配置字段（每个角色可能同时定义两者）。在定义 <code>client/state</code> 对象的角色添加或重新添加到 <code>active_roles</code> 后，服务器必须等待激活所需的 <a href="#client--server-clientstate"><code>client/state</code></a> 更新，然后再启动该角色的流，以免从陈旧状态开始。当 <code>client/state</code> 在角色的流处于活动状态时更改角色的流配置字段时，服务器重新派生流配置，如果发生更改，则发送带有新配置的 <code>stream/start</code>。当该角色没有活动流时，服务器不得作为响应启动一个；更新的状态适用于它为该角色启动的下一个流。</p>
+<p>客户端可以更改其流配置字段以适应不断变化的网络条件、CPU 限制或显示要求。服务器为每个客户端维护单独的编码，允许同一组内存在异构设备功能。</p>
+<h3 id="--streamclear" tabindex="-1"><a class="heading-anchor" href="#--streamclear" aria-hidden="true">#</a>服务器 → 客户端：<code>stream/clear</code></h3>
+<p>客户端必须清除指定角色的缓冲区而不结束其流。用于搜索操作和曲目跳转（切换到不同曲目而不停止流）。</p>
+<p>当没有目标流处于活动状态时，服务器不得发送此消息。</p>
+<ul>
+<li><code>server_transmitted</code>：整数 - 服务器传输此消息的时间戳，以微秒为单位</li>
+<li><code>roles?</code>：非空字符串数组 - 要清除的角色：'<a href="#server--client-streamclear-player">player</a>'、'<a href="#server--client-streamclear-visualizer">visualizer</a>' 或两者。列出的每个角色都必须具有活动流。如果省略，则清除所有活动的播放器和可视化器流</li>
+</ul>
+<p><a href="#application-specific-roles">特定于应用的角色</a>也可以包含在此数组中（名称以 <code>_</code> 开头）。</p>
+<h3 id="--streamend" tabindex="-1"><a class="heading-anchor" href="#--streamend" aria-hidden="true">#</a>服务器 → 客户端：<code>stream/end</code></h3>
+<p>结束一个或多个角色的流。一旦发送或接收此消息，双方必须将目标流视为非活动状态，即使缓冲输出继续。</p>
+<p>对于每个指定的角色，客户端必须停止输出并清除其缓冲区，除非该角色显式定义了不同的完成行为。在这种情况下，客户端必须遵循角色的规则，例如完成缓冲数据的播放。</p>
+<p>对于遵循媒体队列的角色，当播放结束且队列为空时，预期会发送此消息。具体而言：</p>
+<ul>
+<li><strong>曲目转换</strong>（一首曲目结束，下一首自然开始）：不应发送流命令，除了 <code>stream/start</code> 用于更新现有流配置。流继续不间断以支持无缝播放和服务器插入的淡入淡出。</li>
+<li><strong>搜索</strong>（跳转到当前曲目内的位置）：改为发送 <code>stream/clear</code>。</li>
+<li><strong>曲目跳转</strong>（跳到不同曲目）：与搜索相同处理，发送 <code>stream/clear</code> 而不是 <code>stream/end</code>。从概念上讲，整个队列是单个连续流。</li>
+</ul>
+<p>在这些情况下，服务器不得发送 <code>stream/end</code>，因为它表示实际播放终止，导致客户端完全停止输出而不是继续播放。</p>
+<p>当没有服务器到客户端的流处于活动状态时，服务器不得发送此消息。</p>
+<ul>
+<li><code>roles?</code>：非空字符串数组 - 要结束流的角色（'player'、'artwork'、'visualizer'）。列出的每个角色都必须具有活动流。如果省略，则结束所有活动流</li>
+</ul>
+<p><a href="#application-specific-roles">特定于应用的角色</a>也可以包含在此数组中（名称以 <code>_</code> 开头）。</p>
+<h3 id="--groupupdate" tabindex="-1"><a class="heading-anchor" href="#--groupupdate" aria-hidden="true">#</a>服务器 → 客户端：<code>group/update</code></h3>
+<p>此客户端所属的组的状态更新。</p>
+<p>在连接上的第一个 <code>server/activate</code> 之后以及下面列出的任何字段发生更改时，服务器必须迅速发送此消息。</p>
+<p>每条消息必须携带下面列出的所有字段。</p>
+<ul>
+<li><code>playback_state</code>：'playing' | 'stopped' - 组的播放状态</li>
+<li><code>group_id</code>：字符串 - 组标识符</li>
+<li><code>group_name</code>：字符串 - 组的友好名称</li>
+</ul>
+<h3 id="--serverunpair" tabindex="-1"><a class="heading-anchor" href="#--serverunpair" aria-hidden="true">#</a>服务器 → 客户端：<code>server/unpair</code></h3>
+<p>由已配对的服务器发送，以从客户端删除其自己的配对记录。无论当前 <code>activities</code> 如何均有效，需遵守<a href="#communication">初始消息序列</a>和<a href="#re-handshake">重新握手限制</a>。无有效载荷字段。</p>
+<p>服务器也会删除其相应的配对记录。</p>
+<p>客户端行为：</p>
+<ul>
+<li>删除匹配的配对记录，发送 <a href="#client--server-clientgoodbye"><code>client/goodbye</code></a> 原因 <code>'unpaired'</code>，并关闭连接。</li>
+<li>如果会话<a href="#definitions">未配对</a>，忽略该消息并继续不变。</li>
+</ul>
+<h3 id="--clientgoodbye" tabindex="-1"><a class="heading-anchor" href="#--clientgoodbye" aria-hidden="true">#</a>客户端 → 服务器：<code>client/goodbye</code></h3>
+<p>由客户端在优雅关闭连接之前发送。这允许客户端通知服务器其断开连接的原因。</p>
+<p>收到此消息后，服务器应当发起断开连接。</p>
+<ul>
+<li><code>reason</code>：'another_server' | 'shutdown' | 'restart' | 'user_request' | 'unauthorized' | 'pairing_required' | 'concurrent_attempt' | 'unpaired'
+<ul>
+<li><code>another_server</code> - 客户端正在切换到不同的服务器。离开一个服务器前往另一个服务器的客户端必须向它离开的服务器发送此原因。服务器不应自动重新连接，但应当将客户端显示为可用于未来播放</li>
+<li><code>shutdown</code> - 客户端正在关闭。当设备关闭或以其他方式不再返回且没有更具体的原因适用时，客户端应当发送此原因。服务器不应自动重新连接</li>
+<li><code>restart</code> - 客户端正在重新启动并将重新连接。服务器应当自动重新连接</li>
+<li><code>user_request</code> - 用户明确要求断开与此服务器的连接。服务器不应自动重新连接</li>
+<li><code>unauthorized</code> - 服务器声明了客户端无权访问的活动集或 <code>active_roles</code>（请参阅 <a href="#server--client-serveractivate"><code>server/activate</code></a>）。服务器不应使用相同的活动集自动重新连接</li>
+<li><code>pairing_required</code> - 客户端拒绝或不再允许<a href="#unpaired-access">未配对访问</a>连接，因为它未启用未配对访问。服务器在未首先配对的情况下不应自动重新连接</li>
+<li><code>concurrent_attempt</code> - 客户端在<a href="#multiple-servers-server-initiated">多服务器准入规则</a>下拒绝了连接。服务器可以稍后重试</li>
+<li><code>unpaired</code> - 客户端已处理来自此服务器的 <a href="#server--client-serverunpair"><code>server/unpair</code></a>。服务器不应自动重新连接</li>
+</ul>
+</li>
+</ul>
+<p>在客户端发起的连接上，服务器无法重新连接；此时重新连接指导适用于客户端重新建立连接。</p>
+<p>连接可能会在没有此消息的情况下丢失（例如，崩溃、网络丢失）。除非本规范要求，否则客户端可以故意在不发送 <code>client/goodbye</code> 的情况下关闭。发送 <code>client/goodbye</code> 后，客户端可以立即关闭而无需等待服务器断开连接。当客户端在不发送 <code>client/goodbye</code> 的情况下断开连接时：</p>
+<ul>
+<li>在 <code>activities</code> 为空或包含 <code>'playback'</code> 的连接上，服务器应当假设断开连接原因是 <code>restart</code> 并尝试自动重新连接。</li>
+<li>否则，服务器应当将断开视为会话终止并且不自动重新连接；如果需要恢复，则由操作员驱动。</li>
+<li>服务器还应当对重复的 Noise 握手故障应用退避，以避免紧密的重新连接循环。</li>
+</ul>
+<h2 id="-29" tabindex="-1"><a class="heading-anchor" href="#-29" aria-hidden="true">#</a>配对</h2>
+<p>配对是一次性的设置过程，用于让客户端与服务器相互进行身份验证。配对流程与其他所有连接使用相同的 WebSocket 端点和 <a href="#encryption"><code>KKpsk2</code></a> Noise 模式；不同的只是输入握手的 PSK（预共享密钥）以及客户端握手后的路由（参见<a href="#pre-shared-key">预共享密钥</a>）。任何一次成功的配对之后，双方都会持久化新的配对记录，随后服务器对刚交付的 <code>long_term_psk</code> 发起一次带内的<a href="#re-handshake">重新握手</a>，在不关闭 WebSocket 的情况下将信道提升为已配对的会话。</p>
+<p>本规范定义了三种配对方法。服务器必须（MUST）实现全部三种；客户端必须实现配对 PSK，并可以（MAY）额外实现其他方法。</p>
+<h3 id="-30" tabindex="-1"><a class="heading-anchor" href="#-30" aria-hidden="true">#</a>方法</h3>
+<ol>
+<li><strong>配对 PSK</strong>（Pairing PSK） - 通过<a href="#definitions">配对 PSK</a> 进行身份验证的配对；无 PAKE 轮次，无配对码。参见<a href="#pairing-psk-flow">配对 PSK 流程</a>。</li>
+<li><strong>动态配对码</strong>（Dynamic Pairing Code） - 使用每会话的<a href="#definitions">配对码</a>进行配对，该配对码由客户端通过 commit-and-reveal（承诺-揭示）机制绑定到 Noise 握手而推导得出，并经由输出通道（out-channel，显示器、扬声器等）呈现，供操作者（operator）输入到服务器。参见<a href="#dynamic-pairing-code-flow">动态配对码流程</a>。</li>
+<li><strong>静态配对码</strong>（Static Pairing Code） - 使用固定的<a href="#definitions">配对码</a>进行配对。适用于没有输出通道的设备；如果配对码泄露，则容易受到中间人（MITM）攻击。参见<a href="#static-pairing-code-flow">静态配对码流程</a>。</li>
+</ol>
+<p>基于配对码的配对运行在以 Sentinel 为密钥的连接之上：在 <a href="#pake">PAKE</a> 轮次完成之前，信道未经身份验证。该轮次从零开始建立信任，并产生一个新的<a href="#definitions">长期 PSK</a>。</p>
+<p>客户端只有在 <code>server_kc</code> 验证通过之后才会揭示新的长期 PSK，且仅以<a href="#wrapping">在 CPace 输出下密封</a>的 <code>wrapped_psk</code> 形式揭示：无法完成 PAKE 的对端——配对码错误，或是在两次握手之间进行中继的中间人，其不同的 <code>h</code> 使每条链路得到不同的 <code>sid</code>——既不会触发揭示，也无法将其解封装。</p>
+<p>静态配对方法（配对 PSK、静态配对码）不使用设备的输出通道。动态配对（动态配对码）会占用输出通道——通常是音频输出或显示器——来呈现每会话的配对码。当输出通道同时也是某个角色的输出时，客户端会在尝试期间在本地暂停该输出（参见<a href="#entering-and-leaving-pairing">进入和退出配对</a>）。</p>
+<p>拥有可用输出通道（显示器、扬声器等）的客户端应当（SHOULD）提供 <code>dynamic_pairing_code</code> 而非 <code>static_pairing_code</code>，后者是为没有输出通道的设备设计的。显示器能够渲染二维码的客户端还应提供 <code>qr_code</code> <a href="#dynamic-pairing-code-flow">呈现格式</a>。</p>
+<h3 id="-31" tabindex="-1"><a class="heading-anchor" href="#-31" aria-hidden="true">#</a>配对记录</h3>
+<p>每次成功的配对都会产生一条配对记录：即与服务器 <code>server_id</code> 一起持久化保存的新<a href="#definitions">长期 PSK</a>。客户端必须持久化这条新记录，并替换它已持有的该服务器的任何记录。</p>
+<p>服务器将长期 PSK 与客户端的 <code>client_id</code> 一起持久化保存。</p>
+<p>客户端必须能够存储至少 5 条配对记录；允许更多。当容量已满时完成配对，客户端必须逐出一条现有记录，以便新记录得以持久化——配对绝不会因记录存储空间不足而失败。逐出哪条记录由实现自行决定（例如最久未使用的），但客户端不得（MUST NOT）逐出支撑当前已打开连接（无论是临时连接还是已接纳连接）的记录；客户端必须将其并发打开的已配对连接数量限制在记录容量以下（参见<a href="#multiple-servers-server-initiated">多服务器</a>），从而确保始终存在可逐出的记录。</p>
+<p>逐出不需要任何线路信号。被逐出的服务器在下一次握手时引用的 <code>psk_id</code> 已不再被客户端持有，从而落入 <a href="#sentinel-fallback">Sentinel 回退</a>：服务器会收到一个经过身份验证的凭据不匹配信号，并可以为其操作者提供重新配对。</p>
+<h3 id="-32" tabindex="-1"><a class="heading-anchor" href="#-32" aria-hidden="true">#</a>进入和退出配对</h3>
+<p>配对可以与播放并行进行。将 <code>'pairing'</code> 加入 <code>activities</code> 的 <a href="#server--client-serveractivate"><code>server/activate</code></a> 本身并不影响 <code>active_roles</code>、流或分组归属。当配对码的输出通道同时也是某个角色的输出时——正在播放流的扬声器、正在显示封面的显示器——客户端会在尝试期间在本地暂停该输出，并全程保持 <a href="#client--server-clientstate"><code>available</code></a> 状态。流保持打开且其时间线不受影响：播放器会丢弃尝试期间排定播放的音频，并在之后恢复同步。</p>
+<p>每个用于配对的 <code>server/activate</code> 只接纳一次<strong>配对尝试</strong>，从 <a href="#client--server-clientpair-init"><code>client/pair-init</code></a> 起，直至成功或收到 <a href="#client--server-pairabort"><code>pair/abort</code></a> 为止。<a href="#client--server-clientpair-pending">client/pair-pending</a> 发生在尝试之前，不会启动尝试。客户端为每次尝试设定一个<strong>尝试超时</strong>，从其第一条消息起计时（建议 2 分钟）；到期时它会发送原因为 <code>attempt_timeout</code> 的 <code>pair/abort</code>。</p>
+<p>结束配对转换的 <code>server/activate</code> 会声明连接最终的 <code>activities</code> 和 <code>active_roles</code>。</p>
+<p>同一个 <code>server/activate</code> 也可以在不做最终化的情况下结束一次配对尝试：它替代 <a href="#server--client-serverpair-finalize"><code>server/pair-finalize</code></a> 发送，不持久化任何内容，并丢弃已收到的任何 PSK。在发送 <a href="#client--server-clientpair-finalize"><code>client/pair-finalize</code></a> 之后收到 <code>server/activate</code> 的客户端同样不持久化任何内容。</p>
+<p>在发送 <code>pair/abort</code> 或退出配对之后，服务器会静默丢弃客户端仍在途中的配对消息——即在客户端察觉中止或退出 <code>server/activate</code> 之前发送的消息。已中止尝试的客户端同样会静默丢弃在下一个 <code>server/activate</code> 之前收到的配对消息。</p>
+<p>服务器可以在配对尝试期间的任意时点发送这种起取消作用的 <code>server/activate</code>。客户端收到后会放弃该尝试，丢弃全部配对状态，并按所声明的活动继续运行；被放弃的尝试不占用<a href="#pairing-window">配对窗口</a>的尝试次数，只有当配对码已经开始呈现时才计入<a href="#rounds">轮次上限</a>。因操作者操作而取消的服务器应当先发送原因为 <code>user_cancelled</code> 的 <a href="#client--server-pairabort"><code>pair/abort</code></a>，以便客户端能呈现尝试结束的原因。服务器在等待 <a href="#client--server-clientpair-init"><code>client/pair-init</code></a> 期间应当应用自己的超时，到期时按上述方式取消。</p>
+<h3 id="-33" tabindex="-1"><a class="heading-anchor" href="#-33" aria-hidden="true">#</a>未配对访问</h3>
+<p>客户端可以接纳没有配对记录的服务器来激活角色或声明 <code>'playback'</code> 活动。该会话处于<a href="#definitions">未配对</a>状态。客户端是否接纳未配对访问由其 <code>unpaired_access</code> 设置决定：默认值由制造商选择，更改它属于客户端本地操作（由制造商定义），当前值会在 <a href="#client--server-clienthello"><code>client/hello</code></a> 中以 <code>unpaired_access.enabled</code> 通告。停止接纳未配对访问的客户端会以 <a href="#client--server-clientgoodbye"><code>client/goodbye</code></a> 关闭所有依赖该机制的连接，原因为 <code>'pairing_required'</code>。</p>
+<p>当未配对访问被启用时，客户端可以发送原因为 <code>'restart'</code> 的 <a href="#client--server-clientgoodbye"><code>client/goodbye</code></a>，关闭现有的未配对连接，以便下一次 <code>client/hello</code> 通告更新后的设置。</p>
+<p>在服务器侧，未配对访问受<strong>操作者批准</strong>的约束，批准按 <a href="#definitions"><code>client_id</code></a> 逐一授予：服务器不得在与其操作者尚未批准的客户端的<a href="#definitions">未配对</a>连接上声明 <code>'playback'</code> 或激活角色。操作者通过专用的批准控件授予批准。服务器也可以将明确表示要使用该客户端的操作者动作（例如在其上开始播放）视为默示批准。批准应当持久保存，必须可由操作者撤销，并且必须在配对成功后丢弃。服务器侧没有对应的线路标志：它只需在 <a href="#server--client-serveractivate"><code>server/activate</code></a> 中激活角色或声明 <code>'playback'</code> 即可授予未配对访问。服务器可以将连接保持在 <code>activities</code> 为空的状态，随时准备在获得批准后激活角色，或进入配对。</p>
+<p>当客户端尚未获得批准时，服务器应当识别它并将其呈现给操作者。在呈现客户端时，服务器必须清晰区分既未配对也未获批的客户端与已配对或已获批的客户端，以免声称使用熟悉名称的新客户端冒充现有设备。当未获批的客户端提供配对时，服务器必须将配对作为该客户端明确可用的操作呈现出来。对于已获批的客户端，配对应当保持可用，作为一种升级选项。</p>
+<p><strong>安全性。</strong> 未配对的连接容易受到<strong>中间人攻击</strong>。Sentinel PSK 是一个公开的常量，且在未配对的情况下，任何一方的静态密钥都没有通过任何经过身份验证的带外交换绑定到其身份上；因此本地网络上的攻击者可以冒充任意一方。Noise 握手仍能为会话本身提供机密性和重放保护，但无法保证会话究竟是与哪个对端建立的。</p>
+<h3 id="-psk-" tabindex="-1"><a class="heading-anchor" href="#-psk-" aria-hidden="true">#</a>配对 PSK 流程</h3>
+<p>Noise 握手使用配对 PSK 完成，对双方进行身份验证。在配对的 <code>server/activate</code> 之后，客户端必须发送 <a href="#client--server-clientpair-init"><code>client/pair-init</code></a>，并紧随其后发送 <a href="#client--server-clientpair-finalize"><code>client/pair-finalize</code></a>，无需等待服务器响应。</p>
+<p><strong>生命周期。</strong> 客户端的配对 PSK 必须按设备从 <a href="#definitions">CSPRNG（密码学安全随机数生成器）</a>中抽取，且不得是跨设备共享的固定默认值，无论是在制造时预置还是由客户端生成。它在重启后保持不变，属于每个客户端独有且长期有效：成功的配对不会消耗它（配对会产生一个单独的<a href="#definitions">长期 PSK</a>），因此它可以将该客户端与任意数量的服务器配对。</p>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Note over Client,Server: Initial Noise handshake completes with the pairing PSK
+
+    Server->>Client: server/hello (name)
+    Client->>Server: client/hello (supported_pair_methods)
+    Server->>Client: server/activate (activities=['pairing'], active_roles=[], pairing={method: pairing_psk})
+    Client->>Server: client/pair-init
+    Client->>Server: client/pair-finalize (long_term_psk)
+    Server->>Client: server/pair-finalize
+    Note over Client,Server: Both sides persist the pairing record. Server re-handshakes to the new long-term PSK, then sends server/activate.
+</pre>
+<p>当操作者选择 <code>pairing_psk</code> 时，如果连接已在任何其他 PSK 下打开——无论是 Sentinel 还是某个<a href="#definitions">长期 PSK</a>——服务器会先<a href="#re-handshake">重新握手</a>到配对 PSK，然后再发送上面所示的 <code>server/activate</code>。</p>
+<p>由此流程产生两项客户端的常设义务：</p>
+<ol>
+<li>客户端必须始终将其配对 PSK 保留在握手 PSK 候选之中，而不仅仅是在配对活动运行期间：服务器到配对 PSK 的重新握手只有在客户端已经识别其 <code>psk_id</code> 的情况下才会成功。</li>
+<li>在发送 <a href="#client--server-clientpair-init"><code>client/pair-init</code></a> 之前，客户端必须验证连接所匹配的 PSK 是配对 PSK（即 <a href="#server--client-serveractivate"><code>server/activate</code></a> 中 <code>pairing.method</code> 不变式的接收侧）；如果不匹配，则以 <code>method_not_supported</code> 为原因发送 <a href="#client--server-pairabort"><code>pair/abort</code></a> 中止。</li>
+</ol>
+<p><strong>配对令牌。</strong> 服务器需要同时拥有<a href="#definitions">配对 PSK</a> 和客户端的静态公钥，才能选择并验证客户端的 Noise 身份。这两者被打包在一个版本 0 的<a href="#pairing-token">配对令牌</a>中一起分发：</p>
+<pre><code>payload = client_key (32 bytes) || pairing_psk (32 bytes)
+</code></pre>
+<ul>
+<li><code>client_key</code> - 原始的 32 字节 Curve25519 公钥，其 base64url 形式即 <a href="#identities"><code>client_id</code></a>。</li>
+<li><code>pairing_psk</code> - 原始的 32 字节<a href="#definitions">配对 PSK</a>。</li>
+</ul>
+<p>操作者将该令牌输入服务器以开始此流程。配对 PSK 必须以令牌的形式暴露，而非裸 PSK。在配对之前，服务器必须确认解码得到的 <code>client_key</code> 与连接上出示的 <code>client_id</code> 一致。</p>
+<p><code>client_key = 0x00 0x01 … 0x1f</code> 与 <code>pairing_psk = 0xe0 0xe1 … 0xff</code> 的参考向量：</p>
+<pre><code>SP:0AAAQEAYEAUDAOCAJBIFQYDIOB4IBCEQTCQKRMFYYDENBWHA5DYP6BYPC4PSOLZXH5DU6V97M5XXO74HR6LZ7J5PW674PT6X37T6757Y
+</code></pre>
+<h3 id="-34" tabindex="-1"><a class="heading-anchor" href="#-34" aria-hidden="true">#</a>动态配对码流程</h3>
+<p>使用每会话的配对码进行配对，该配对码从 Noise 握手推导得出，并由客户端通过其输出通道呈现，采用两种<strong>呈现格式</strong>之一（即激活消息的 <a href="#server--client-serveractivate"><code>format</code></a>）：<code>digits</code>——操作者键入服务器的十进制码——或 <code>qr_code</code>——渲染为二维码、由操作者扫描进服务器的码。无论哪种方式，都由一个 <a href="#pake">PAKE</a> 轮次对双方进行身份验证。尝试可在开始前被<a href="#rounds">暂缓</a>。</p>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Note over Client,Server: Initial Noise handshake completes with the Sentinel PSK
+
+    Server->>Client: server/hello (name)
+    Client->>Server: client/hello (supported_pair_methods)
+    Note over Server: Operator picks dynamic pairing code
+    Server->>Client: server/activate (activities=['pairing'], active_roles=[], pairing={method: dynamic_pairing_code, format: digits|qr_code})
+    opt attempt held back
+        Client->>Server: client/pair-pending
+        Note over Client: Cooldown elapses or operator acts
+    end
+    Client->>Server: client/pair-init (commit_B)
+    loop until server_kc verifies
+        Server->>Client: server/pair-init (nonce_A only in the first round)
+        Note over Client: Derive pairing code from (h, nonce_A, nonce_B) in the first round, emit via out-channel
+        Note over Server: Operator enters pairing code
+        Server->>Client: server/pair-auth (pake_msg_1)
+        Client->>Server: client/pair-auth (pake_msg_2)
+        Server->>Client: server/pair-confirm (server_kc)
+        Note over Client: Verify server_kc
+        opt server_kc fails
+            Client->>Server: client/pair-retry
+        end
+    end
+    Client->>Server: client/pair-confirm (client_kc, wrapped_nonce_B)
+    Note over Server: Verify client_kc, commit opening, and pairing code binding
+    Note over Client: Sent back-to-back, no server response awaited
+    Client->>Server: client/pair-finalize (wrapped_psk)
+    Server->>Client: server/pair-finalize
+    Note over Client,Server: Both sides persist the pairing record. Server re-handshakes to the new long-term PSK, then sends server/activate.
+</pre>
+<p><strong>绑定值。</strong> 动态配对码流程在两条消息中引入了三个值，用于将配对码绑定到底层的 Noise 握手：</p>
+<ul>
+<li><code>nonce_A</code> - 由服务器从 <a href="#definitions">CSPRNG</a> 抽取的 32 字节，在第一轮的 <a href="#server--client-serverpair-init"><code>server/pair-init</code></a> 中发送，base64url 编码（43 个字符）。</li>
+<li><code>nonce_B</code> - 由客户端从 <a href="#definitions">CSPRNG</a> 抽取的 32 字节，保持私密，直到 <a href="#client--server-clientpair-confirm"><code>client/pair-confirm</code></a> 将其作为 <code>wrapped_nonce_B</code> 揭示——<a href="#wrapping">在 CPace 输出下密封</a>。</li>
+<li><code>commit_B</code> - <code>SHA-256(&quot;sendspin-pair-commit-v1&quot; || nonce_B)</code>，由客户端在 <a href="#client--server-clientpair-init"><code>client/pair-init</code></a> 中、在知晓来自服务器的任何值之前发送（32 字节 base64url 编码，43 个字符）。锁定客户端对配对码推导的贡献。</li>
+</ul>
+<p><strong>配对码推导。</strong> 两种格式都从同一个由 Noise 握手哈希 <code>h</code> 与两个 nonce 构成的摘要中推导配对码：</p>
+<pre><code>digest   = SHA-256(&quot;sendspin-pairing-code-derive-v1&quot; || h || nonce_A || nonce_B)
+
+digits:   code_int = uint256_be(digest) mod 10^6
+          code     = decimal(code_int) zero-padded to 6 digits
+qr_code:  code     = digest[0..23]
+</code></pre>
+<p>哈希输入为字面标签 <code>&quot;sendspin-pairing-code-derive-v1&quot;</code> 的 UTF-8 字节（无分隔符，无 NUL 终止符），后接 <code>h</code>（32 字节，原始）、<code>nonce_A</code>（32 字节，原始）和 <code>nonce_B</code>（32 字节，原始）。在 <code>digits</code> 格式中，完整的 32 字节 SHA-256 输出被解释为一个无符号大端 256 位整数，并对 10^6 取模，左侧补零至恰好 6 个 ASCII 数字。作为 <code>PRS</code> 输入 CPace 的配对码字节就是这 6 个 ASCII 数字——与静态配对码相同的逐数字编码。在 <code>qr_code</code> 格式中，配对码是二进制的——即摘要的前 24 字节——作为 <code>PRS</code> 输入 CPace 的码字节就是这 24 个原始字节。</p>
+<p><strong>数字呈现。</strong> 显示配对码的客户端遵循<a href="#pairing-code-presentation">配对码展示</a>。以语音播报配对码的客户端使用其自身捆绑的音频——录音或合成器——服务器不提供任何音频。语音播报的客户端应当使用其所支持的匹配度最高的语言，将服务器的 <a href="#server--client-serverhello"><code>languages</code></a> 按照 <a href="https://www.rfc-editor.org/rfc/rfc4647#section-3.4">RFC 4647</a> 的 Lookup 匹配作为语言优先级列表，在没有匹配项时回退到自身默认语言。语音呈现按<a href="#pairing-code-presentation">展示分组</a>逐位读取数字，并应当在数字之间留出短暂间隔，在分组之间留出更长的间隔。</p>
+<p><strong>二维码呈现。</strong> 在 <code>qr_code</code> 格式中，客户端将配对码作为版本 1 的<a href="#pairing-token">配对令牌</a>呈现，以 24 字节的码作为其载荷（39 个主体字符），并在其显示器上渲染为二维码。服务器对操作者输入应用令牌<a href="#pairing-token">解码</a>规则；载荷的前 24 字节即所输入的配对码。</p>
+<p><code>code = 0xe0 0xe1 … 0xf7</code> 的参考向量：</p>
+<pre><code>SP:14DQ6FY7E4XTOP9HJ5LV6Z3PO57YPD4XT6T97N5Y
+</code></pre>
+<p><strong>客户端验证。</strong> 收到 <a href="#server--client-serverpair-confirm"><code>server/pair-confirm</code></a> 后，客户端验证 CPace MCF 标签 <code>server_kc</code>。若验证失败，客户端以 <a href="#client--server-clientpair-retry"><code>client/pair-retry</code></a> 或 <a href="#client--server-pairabort"><code>pair/abort</code></a> 回应；参见<a href="#rounds">轮次</a>。绑定值——因而配对码——在各轮次之间保持不变：显示它的客户端持续显示它，播报它的客户端在每一轮再次播报。</p>
+<p><strong>服务器验证。</strong> 当 <a href="#client--server-clientpair-confirm"><code>client/pair-confirm</code></a> 到达时，服务器按以下顺序验证：</p>
+<ol>
+<li>CPace MCF 标签 <code>client_kc</code></li>
+<li><code>wrapped_nonce_B</code> <a href="#wrapping">解封装</a>出的 <code>nonce_B</code> 满足 <code>SHA-256(&quot;sendspin-pair-commit-v1&quot; || nonce_B) == commit_B</code></li>
+<li><code>derived_code(h, nonce_A, nonce_B) == code_entered</code></li>
+</ol>
+<p>密钥确认失败将导致原因为 <code>pairing_code_mismatch</code> 的 <a href="#client--server-pairabort"><code>pair/abort</code></a>。无法解密的 <code>wrapped_nonce_B</code>、与 <code>commit_B</code> 不匹配的恢复出的 <code>nonce_B</code>，或未通过绑定检查的所输入的码，都属于<a href="#protocol-errors">协议错误</a>。任何失败都会丢弃收到的 <code>wrapped_psk</code>。只有当三项检查全部通过时，服务器才会处理 <a href="#client--server-clientpair-finalize"><code>client/pair-finalize</code></a>，并<a href="#wrapping">解封装</a>该 PSK。</p>
+<h4 id="-35" tabindex="-1"><a class="heading-anchor" href="#-35" aria-hidden="true">#</a>轮次</h4>
+<p>一次尝试会针对同一个配对码运行多个<strong>轮次</strong>。一个轮次以 <a href="#server--client-serverpair-init"><code>server/pair-init</code></a> 开始，以客户端对来自 <a href="#server--client-serverpair-confirm"><code>server/pair-confirm</code></a> 的 <code>server_kc</code> 的验证结束，或随整个尝试一同结束。在轮次内，客户端呈现该码，操作者将其输入，随后进行一次独立的 CPace 运行——使用全新的标量、自己的 <code>sid</code>。当 <code>server_kc</code> 验证通过时，客户端继续发送 <a href="#client--server-clientpair-confirm"><code>client/pair-confirm</code></a>。若失败，客户端要么发送 <a href="#client--server-clientpair-retry"><code>client/pair-retry</code></a> 请求再进行一轮，要么以 <code>pairing_code_mismatch</code> 为原因发送 <a href="#client--server-pairabort"><code>pair/abort</code></a> 结束尝试。客户端应当重试，而在达到轮次上限时必须改为中止。重试会保持该次尝试、其配对码以及正在计时的<a href="#entering-and-leaving-pairing">尝试超时</a>不变；服务器以新的 <code>server/pair-init</code> 开始下一轮。</p>
+<p>自上一次验证通过的 <code>server_kc</code> 起满 20 轮——即<strong>轮次上限</strong>——之后，客户端必须中止而不是重试，并暂缓后续尝试，直到发生一次刻意做出的、由制造商定义的操作者动作，该动作同时会重置计数。该计数不按 <code>server_id</code> 或源地址进行划分。客户端可以更早地暂缓尝试——通过冷却期或操作者动作，包括从第一次尝试起——同样也可以在未达上限时就中止而不是重试。</p>
+<p>该上限并不是错误状态——该方法仍然保持可用——在它暂缓尝试期间，客户端发送 <a href="#client--server-clientpair-pending"><code>client/pair-pending</code></a>，并可在 <code>message</code> 中可选地说明它在等待什么。</p>
+<h3 id="-36" tabindex="-1"><a class="heading-anchor" href="#-36" aria-hidden="true">#</a>静态配对码流程</h3>
+<p>使用固定的配对码进行配对。操作者将其输入服务器，由一个 <a href="#pake">PAKE</a> 轮次对双方进行身份验证。每次尝试都受<a href="#pairing-window">配对窗口</a>的手势约束。</p>
+<p><strong>生命周期。</strong> 静态配对码是一个固定的 8 位数字值。出厂预置的配对码必须按设备从 <a href="#definitions">CSPRNG</a> 中均匀随机抽取，且不得是跨设备共享的固定默认值；共享的默认值将使任何人都能与任何此类设备配对。</p>
+<pre class="mermaid">
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Note over Client,Server: Initial Noise handshake completes with the Sentinel PSK
+
+    Server->>Client: server/hello (name)
+    Client->>Server: client/hello (supported_pair_methods)
+    Note over Server: Operator picks static pairing code
+    Server->>Client: server/activate (activities=['pairing'], active_roles=[], pairing={method: static_pairing_code})
+    opt no window open
+        Client->>Server: client/pair-pending
+        Note over Client: Operator opens pairing window
+    end
+    Client->>Server: client/pair-init
+    Note over Server: Operator enters static pairing code
+    Server->>Client: server/pair-auth (pake_msg_1)
+    Client->>Server: client/pair-auth (pake_msg_2)
+    Server->>Client: server/pair-confirm (server_kc)
+    Note over Client: Verify server_kc
+    Client->>Server: client/pair-confirm (client_kc)
+    Note over Server: Verify client_kc
+    Note over Client: Sent back-to-back, no server response awaited
+    Client->>Server: client/pair-finalize (wrapped_psk)
+    Server->>Client: server/pair-finalize
+    Note over Client,Server: Both sides persist the pairing record. Server re-handshakes to the new long-term PSK, then sends server/activate.
+</pre>
+<p><strong>客户端验证。</strong> 收到 <a href="#server--client-serverpair-confirm"><code>server/pair-confirm</code></a> 后，客户端验证 CPace MCF 标签 <code>server_kc</code>。若失败，客户端发送原因为 <code>pairing_code_mismatch</code> 的 <a href="#client--server-pairabort"><code>pair/abort</code></a>。</p>
+<p><strong>服务器验证。</strong> 当 <a href="#client--server-clientpair-confirm"><code>client/pair-confirm</code></a> 到达时，服务器在处理 <a href="#client--server-clientpair-finalize"><code>client/pair-finalize</code></a> 之前验证 CPace MCF 标签 <code>client_kc</code>。若失败，服务器发送原因为 <code>pairing_code_mismatch</code> 的 <a href="#client--server-pairabort"><code>pair/abort</code></a>，并丢弃收到的 <code>wrapped_psk</code>。若成功，则处理 <code>client/pair-finalize</code>，并<a href="#wrapping">解封装</a>该 PSK。</p>
+<h4 id="-37" tabindex="-1"><a class="heading-anchor" href="#-37" aria-hidden="true">#</a>配对窗口</h4>
+<p>静态配对码流程以<strong>配对窗口</strong>约束每一次尝试：配对窗口是客户端决定接受配对尝试的一种状态。该窗口仅在承载其首次尝试的那条连接上接纳尝试，并在配对完成、其第五次失败的尝试（客户端对 <code>server_kc</code> 的验证失败）、该连接断开、操作者取消或窗口生存期到期时关闭。以任何其他方式结束的尝试——超时或被取消——本身不会关闭窗口。</p>
+<p>对每一次 <code>static_pairing_code</code> 尝试而言，尝试都是<strong>受手势约束的</strong>——在窗口打开之前，客户端会暂扣 <a href="#client--server-clientpair-init"><code>client/pair-init</code></a>。</p>
+<p>配对窗口机制：</p>
+<ul>
+<li><strong>打开窗口。</strong> 客户端上的操作者手势——按下物理按钮、按压重置小孔、组合按键、特定的开关机模式、摇晃或运动手势，或任何等效的由实现定义的动作。手势应当是刻意为之且难以远程诱发的。</li>
+<li><strong>窗口生存期。</strong> 从窗口打开起计算，在尝试期间不暂停。建议 5 分钟。到期时，窗口静默关闭。已在进行中的尝试会运行至其自然结束，但开始新的尝试需要新的配对窗口。</li>
+<li><strong>向服务器发出信号。</strong> 一旦窗口打开且 <a href="#server--client-serveractivate"><code>server/activate</code></a> 已到达，客户端就发送 <a href="#client--server-clientpair-init"><code>client/pair-init</code></a>；在等待手势期间，它会发送 <a href="#client--server-clientpair-pending"><code>client/pair-pending</code></a> 信号，并可在 <code>message</code> 中可选地说明该手势。服务器在收到 <code>client/pair-init</code> 之前不得发送 <a href="#server--client-serverpair-auth"><code>server/pair-auth</code></a>。</li>
+</ul>
+<h3 id="-38" tabindex="-1"><a class="heading-anchor" href="#-38" aria-hidden="true">#</a>配对码展示</h3>
+<p>分组仅用于展示：配对码的值是连续的数字，分隔符绝不会进入推导、输入或 <code>PRS</code>。6 位数字的动态配对码应当按 <code>3-3</code> 分组展示，8 位数字的静态配对码按 <code>4-4</code> 分组展示，组间使用连字符（<code>123-456</code>、<code>1234-5678</code>）。服务器应当呈现与之匹配的分组输入方式，使预期长度一目了然（例如每位数字一个输入格），并且应当从键入的输入中剥离分隔字符（空格、连字符）。</p>
+<h3 id="-39" tabindex="-1"><a class="heading-anchor" href="#-39" aria-hidden="true">#</a>配对令牌</h3>
+<p><strong>配对令牌</strong>是一个单一的不区分大小写的 ASCII 字符串，承载配对密钥，由操作者通过带外方式（复制/粘贴、二维码扫描）从客户端转移到服务器。令牌由固定的 <code>SP:</code> 前缀、一个版本号和一个 base32 编码的主体组成：</p>
+<pre><code>token = &quot;SP:&quot; || version || body
+</code></pre>
+<ul>
+<li><code>version</code> - 单个字母数字字符，用于选择主体所承载的载荷。本文档定义了版本 <code>0</code>——<a href="#pairing-psk-flow">附带客户端身份的配对 PSK</a>——以及版本 <code>1</code>——<code>qr_code</code> 呈现格式的每会话<a href="#dynamic-pairing-code-flow">动态配对码</a>。</li>
+</ul>
+<p>载荷通过以下步骤变为 <code>body</code>：</p>
+<ol>
+<li>按 <a href="https://www.rfc-editor.org/rfc/rfc4648#section-6">RFC 4648</a> 对其进行 base32 编码（字母表 <code>A–Z</code>、<code>2–7</code>），</li>
+<li>去除 <code>=</code> 填充，然后</li>
+<li>将每个 <code>2</code> 转写为 <code>9</code>。</li>
+</ol>
+<p>令牌仅取自二维码字母数字集（<code>0–9</code>、<code>A–Z</code>、<code>:</code>），因此可以渲染为紧凑的二维码，并经得起人工抄录。二维码逐字承载令牌字符串，没有 URI 方案或包装，因此扫描与复制/粘贴得到完全相同的输入。</p>
+<p>解码是上述变换的逆过程，并且必须对操作者提供的输入保持宽容：</p>
+<ol>
+<li>去除首尾空白并将其转为大写。</li>
+<li>如果存在，去掉开头的 <code>SP:</code>。第一个字符是 <code>version</code>；拒绝无法识别的版本。期望特定版本的接口会拒绝其他版本。</li>
+<li>将每个 <code>9</code> 转写回 <code>2</code>，用 <code>=</code> 重新填充至 8 的倍数个字符，再进行 base32 解码得到载荷。</li>
+</ol>
+<p>解码器必须拒绝格式错误的输入，包括载荷长度短于其版本所定义长度的情况。超出该版本所定义范围的载荷字节保留供未来扩展使用：解码器必须忽略它们。</p>
+<h3 id="pake" tabindex="-1"><a class="heading-anchor" href="#pake" aria-hidden="true">#</a>PAKE</h3>
+<p>基于配对码的配对流程使用 <strong>CPACE-X25519-SHA512</strong> 作为 PAKE 构造，定义于 <a href="https://datatracker.ietf.org/doc/draft-irtf-cfrg-cpace/21/">draft-irtf-cfrg-cpace-21</a>。该协议以发起方-响应方模式运行，并采用显式的相互确认流程（Mutual Confirmation Flow，MCF）。服务器扮演 <code>A</code> 角色（发起方）；客户端扮演 <code>B</code> 角色（响应方）。</p>
+<p>Sendspin 按如下方式实例化 CPace 的各项输入：</p>
+<ul>
+<li><code>PRS</code> - 作为字节串的配对码：十进制数字字面量的 UTF-8 编码（例如配对码 <code>&quot;12345678&quot;</code> 对应 <code>0x31 0x32 0x33 0x34 0x35 0x36 0x37 0x38</code>），或在 <code>qr_code</code> 呈现格式下为原始的 24 字节码。</li>
+<li><code>sid</code> - UTF-8 字节 <code>&quot;sendspin-pair-pake-v1&quot;</code> || <code>h</code> || <code>pairing_index</code> || <code>round</code>。<code>h</code> 是 Noise 握手哈希（32 字节，原始），在 Noise 传输模式开始后即可获得；<code>pairing_index</code> 是自上次 Noise 握手以来发送的配对 <a href="#server--client-serveractivate"><code>server/activate</code></a> 消息的数量，编码为大端 uint32（4 字节）；<code>round</code> 是该尝试中的<a href="#rounds">轮次</a>编号，第一轮为 1——在静态配对码流程中始终为 1——编码为大端 uint32（4 字节）。</li>
+<li><code>CI</code> - 空。</li>
+<li><code>ADa</code> - UTF-8 字节 <code>&quot;server&quot;</code>。</li>
+<li><code>ADb</code> - UTF-8 字节 <code>&quot;client&quot;</code>。</li>
+</ul>
+<p>四个配对消息字段承载相应的 CPace 值，base64url 编码且无填充：</p>
+<div class="table-scroll" tabindex="0">
+<table>
+<thead>
+<tr>
+<th>Sendspin 字段</th>
+<th>承载于</th>
+<th>CPace 值</th>
+<th>字节数</th>
+<th>base64url 长度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pake_msg_1</code></td>
+<td><a href="#server--client-serverpair-auth"><code>server/pair-auth</code></a></td>
+<td><code>Ya</code>（服务器的公开份额）</td>
+<td>32</td>
+<td>43</td>
+</tr>
+<tr>
+<td><code>pake_msg_2</code></td>
+<td><a href="#client--server-clientpair-auth"><code>client/pair-auth</code></a></td>
+<td><code>Yb</code>（客户端的公开份额）</td>
+<td>32</td>
+<td>43</td>
+</tr>
+<tr>
+<td><code>server_kc</code></td>
+<td><a href="#server--client-serverpair-confirm"><code>server/pair-confirm</code></a></td>
+<td><code>Ta</code>（服务器的 MCF 标签，HMAC-SHA-512）</td>
+<td>64</td>
+<td>86</td>
+</tr>
+<tr>
+<td><code>client_kc</code></td>
+<td><a href="#client--server-clientpair-confirm"><code>client/pair-confirm</code></a></td>
+<td><code>Tb</code>（客户端的 MCF 标签，HMAC-SHA-512）</td>
+<td>64</td>
+<td>86</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="-40" tabindex="-1"><a class="heading-anchor" href="#-40" aria-hidden="true">#</a>封装</h3>
+<p>在基于配对码的流程中，有两个值只有在以 CPace 输出密封之后才会上线路传输：新的长期 PSK，以 <code>wrapped_psk</code> 的形式携带于 <a href="#client--server-clientpair-finalize"><code>client/pair-finalize</code></a> 中；以及——在动态配对码流程中——承诺的打开值 <code>nonce_B</code>，以 <code>wrapped_nonce_B</code> 的形式携带于 <a href="#client--server-clientpair-confirm"><code>client/pair-confirm</code></a> 中。双方为每个字段分别推导一个密钥：</p>
+<pre><code>K_wrap = SHA-256(label || sid || ISK)
+</code></pre>
+<p>其中 <code>wrapped_psk</code> 的 <code>label</code> 为 <code>&quot;sendspin-pair-psk-wrap-v1&quot;</code>，<code>wrapped_nonce_B</code> 的 <code>label</code> 为 <code>&quot;sendspin-pair-nonce-wrap-v1&quot;</code>。哈希输入为字面标签的 UTF-8 字节（无分隔符，无 NUL 终止符），后接 <code>sid</code>（<a href="#pake">PAKE</a> 中定义的 CPace 会话 ID，原始）和 <code>ISK</code>（64 字节的 CPace 中间会话密钥，原始）。封装时，客户端使用连接所协商的<a href="#cipher-suites">密码套件</a>的 AEAD 加密该 32 字节的值，密钥为 <code>K_wrap</code>，nonce 为 12 字节的全零值，关联数据为空；该字段承载 48 字节的密文加标签，base64url 编码且无填充（64 个字符）。解封装时，服务器使用相同的 AEAD、密钥和 nonce 解密，恢复出该 32 字节的值。</p>
+<h3 id="-41" tabindex="-1"><a class="heading-anchor" href="#-41" aria-hidden="true">#</a>协议错误</h3>
+<p>配对过程中出现的、任何符合规范的对端都不会产生的状况——格式错误或缺失的字段、长度有误或编码了低阶点的 CPace 份额、与其承诺不匹配的已揭示 nonce、未通过绑定检查的所输入的码、无法解密的 <code>wrapped_nonce_B</code> 或 <code>wrapped_psk</code>——都属于<strong>协议错误</strong>：检测到错误的一方关闭 WebSocket，不发送任何应用层错误消息，且不持久化任何内容。</p>
+<h3 id="--clienthello-" tabindex="-1"><a class="heading-anchor" href="#--clienthello-" aria-hidden="true">#</a>客户端 → 服务器：<code>client/hello</code> 配对方法描述符</h3>
+<p><a href="#client--server-clienthello"><code>client/hello</code></a> 中的 <code>supported_pair_methods</code> 是一个以配对方法标识符为键的对象。每个值都是一个描述符对象，用于通告客户端所期望的操作者交互类型，以便服务器呈现相应的 UX。</p>
+<ul>
+<li><code>pairing_psk</code>: 对象
+<ul>
+<li><code>locations?</code>: ('device' | 'leaflet' | 'operator')[]</li>
+</ul>
+</li>
+<li><code>static_pairing_code?</code>: 对象
+<ul>
+<li><code>locations?</code>: ('device' | 'leaflet' | 'operator')[]</li>
+</ul>
+</li>
+<li><code>dynamic_pairing_code?</code>: 对象
+<ul>
+<li><code>out_channels</code>: ('display' | 'speaker')[] - 每会话配对码传达给操作者所经过的通道。</li>
+<li><code>formats</code>: ('digits' | 'qr_code')[] - 客户端所提供的<a href="#dynamic-pairing-code-flow">呈现格式</a>。不可为空；<code>qr_code</code> 需要一个能够渲染二维码的显示器。</li>
+</ul>
+</li>
+</ul>
+<p><code>locations</code> 是一个信息性提示，列出操作者可以在何处找到该方法所配置的密钥：印刷在设备上、印在包装盒内的说明单上，或由操作者设置。印刷的配对 PSK 必须以其<a href="#pairing-token">配对令牌</a>的二维码形式呈现。</p>
+<p>服务器必须忽略其无法识别的键——不验证其值——并只在其余键中选择。它同样必须忽略无法识别的 <code>formats</code>、<code>out_channels</code> 和 <code>locations</code> 值；如果某个 <code>dynamic_pairing_code</code> 处理后没有任何可识别的格式或可识别的通道，则将其视为无法识别的键。此处未定义的标识符保留用于本规范的未来修订版。与<a href="#detecting-outdated-servers">未实现的角色</a>一样，服务器应当跟踪被忽略的标识符：它们表明客户端所使用的规范修订版比服务器更新。</p>
+<h3 id="-42" tabindex="-1"><a class="heading-anchor" href="#-42" aria-hidden="true">#</a>消息</h3>
+<p>下面列出的配对消息按它们在动态配对码流程（最完整的序列）中出现的顺序排列。静态配对码流程省略了 <a href="#server--client-serverpair-init"><code>server/pair-init</code></a> 和 <a href="#client--server-clientpair-retry"><code>client/pair-retry</code></a> 消息以及 <code>commit_B</code> / <code>wrapped_nonce_B</code> 字段；配对 PSK 流程还额外省略所有 <code>pair-pending</code>、<code>pair-auth</code> 和 <code>pair-confirm</code> 消息。</p>
+<p><strong>顺序违规。</strong> 对于所选方法和当前状态而言顺序错误的配对消息——且未被<a href="#entering-and-leaving-pairing">进入和退出配对</a>中的静默丢弃规则所涵盖——属于<a href="#protocol-errors">协议错误</a>。</p>
+<p><strong>配对索引。</strong> <a href="#client--server-clientpair-pending"><code>client/pair-pending</code></a> 和 <a href="#client--server-clientpair-init"><code>client/pair-init</code></a> 携带一个 <code>pairing_index</code>——即自上次 Noise 握手以来收到的配对 <a href="#server--client-serveractivate"><code>server/activate</code></a> 消息的数量。低于服务器自身计数的值是被取代的配对留下的残留，会被静默丢弃；更高的值则属于<a href="#protocol-errors">协议错误</a>。</p>
+<h4 id="--clientpair-pending" tabindex="-1"><a class="heading-anchor" href="#--clientpair-pending" aria-hidden="true">#</a>客户端 → 服务器：<code>client/pair-pending</code></h4>
+<p>报告客户端正在暂缓所选的尝试：没有打开的<a href="#pairing-window">配对窗口</a>，或<a href="#rounds">轮次上限</a>使其暂缓。在收到这样的配对 <a href="#server--client-serveractivate"><code>server/activate</code></a> 时立即发送；一旦客户端准备就绪，随后发送 <a href="#client--server-clientpair-init"><code>client/pair-init</code></a>。此消息不会启动<a href="#entering-and-leaving-pairing">尝试</a>或其超时。服务器应当向操作者呈现该待定状态及任何 <code>message</code>，并应用自己的超时（参见<a href="#entering-and-leaving-pairing">进入和退出配对</a>）。</p>
+<ul>
+<li><code>pairing_index</code>: 整数 - 参见<a href="#messages">配对索引</a></li>
+<li><code>message?</code>: 字符串 - 给操作者的一句简短纯文本，最多 200 个字符，例如为了继续该怎么做，最好使用服务器的 <a href="#server--client-serverhello"><code>languages</code></a> 之一。它来自未经身份验证的对端：服务器将其作为归属于设备的文本显示，截断至该长度，且不得解释其中的标记或链接</li>
+</ul>
+<h4 id="--clientpair-init" tabindex="-1"><a class="heading-anchor" href="#--clientpair-init" aria-hidden="true">#</a>客户端 → 服务器：<code>client/pair-init</code></h4>
+<p>启动配对<a href="#entering-and-leaving-pairing">尝试</a>。在配对 <a href="#server--client-serveractivate"><code>server/activate</code></a> 已到达且客户端没有<a href="#client--server-clientpair-pending">暂缓尝试</a>时发送。服务器在收到此消息之前不得发送 <a href="#server--client-serverpair-auth"><code>server/pair-auth</code></a>（静态配对码）或 <a href="#server--client-serverpair-init"><code>server/pair-init</code></a>（动态配对码）。</p>
+<ul>
+<li><code>pairing_index</code>: 整数 - 参见<a href="#messages">配对索引</a>；只有匹配时才会启动尝试</li>
+<li><code>commit_B?</code>: 字符串 - <code>SHA-256(&quot;sendspin-pair-commit-v1&quot; || nonce_B)</code>（32 字节 base64url 编码，43 个字符）。在<a href="#dynamic-pairing-code-flow">动态配对码流程</a>中必填；其他情况下不出现。</li>
+</ul>
+<h4 id="--serverpair-init" tabindex="-1"><a class="heading-anchor" href="#--serverpair-init" aria-hidden="true">#</a>服务器 → 客户端：<code>server/pair-init</code></h4>
+<p>在<a href="#dynamic-pairing-code-flow">动态配对码流程</a>中开始一个<a href="#rounds">轮次</a>。在第一轮中，它是对 <a href="#client--server-clientpair-init"><code>client/pair-init</code></a> 的应答，并携带服务器的 nonce；在 <a href="#client--server-clientpair-retry"><code>client/pair-retry</code></a> 之后发送时不携带。</p>
+<ul>
+<li><code>nonce_A?</code>: 字符串 - 从 <a href="#definitions">CSPRNG</a> 抽取的 32 字节，base64url 编码（43 个字符）。仅在第一轮出现。参见<a href="#dynamic-pairing-code-flow">动态配对码流程</a></li>
+</ul>
+<p>客户端在第一轮的消息上推导配对码。之后每次收到该消息时都会呈现该码；然后操作者将其键入或扫描进服务器。</p>
+<h4 id="--serverpair-auth" tabindex="-1"><a class="heading-anchor" href="#--serverpair-auth" aria-hidden="true">#</a>服务器 → 客户端：<code>server/pair-auth</code></h4>
+<p>服务器的 CPace 公开份额。在服务器既已收到 <a href="#client--server-clientpair-init"><code>client/pair-init</code></a>、又已从操作者那里获得配对码之后发送。在静态配对码流程中，配对码从一开始就对操作者可用；在动态配对码流程中，客户端在 <a href="#server--client-serverpair-init"><code>server/pair-init</code></a> 之后呈现它。</p>
+<ul>
+<li><code>pake_msg_1</code>: 字符串 - 服务器的 CPace 公开份额 <code>Ya</code>（32 字节 base64url 编码，43 个字符）。参见 <a href="#pake">PAKE</a></li>
+</ul>
+<h4 id="--clientpair-auth" tabindex="-1"><a class="heading-anchor" href="#--clientpair-auth" aria-hidden="true">#</a>客户端 → 服务器：<code>client/pair-auth</code></h4>
+<p>客户端的 CPace 公开份额，作为对 <a href="#server--client-serverpair-auth"><code>server/pair-auth</code></a> 的响应发送。</p>
+<ul>
+<li><code>pake_msg_2</code>: 字符串 - 客户端的 CPace 公开份额 <code>Yb</code>（32 字节 base64url 编码，43 个字符）。参见 <a href="#pake">PAKE</a></li>
+</ul>
+<h4 id="--serverpair-confirm" tabindex="-1"><a class="heading-anchor" href="#--serverpair-confirm" aria-hidden="true">#</a>服务器 → 客户端：<code>server/pair-confirm</code></h4>
+<p>服务器的 MCF 标签，在服务器从 <code>Yb</code> 推导出其 CPace 会话密钥之后发送。</p>
+<ul>
+<li><code>server_kc</code>: 字符串 - 服务器的 MCF 标签 <code>Ta</code>（64 字节 base64url 编码，86 个字符）。参见 <a href="#pake">PAKE</a></li>
+</ul>
+<p>客户端在收到后先验证 <code>server_kc</code>，再发送 <a href="#client--server-clientpair-confirm"><code>client/pair-confirm</code></a>；参见<a href="#dynamic-pairing-code-flow">动态配对码流程</a> / <a href="#static-pairing-code-flow">静态配对码流程</a>。</p>
+<h4 id="--clientpair-retry" tabindex="-1"><a class="heading-anchor" href="#--clientpair-retry" aria-hidden="true">#</a>客户端 → 服务器：<code>client/pair-retry</code></h4>
+<p>请求<a href="#dynamic-pairing-code-flow">动态配对码流程</a>尝试的再一个<a href="#rounds">轮次</a>。当 <code>server_kc</code> 验证失败且客户端愿意再进行一轮时，代替 <a href="#client--server-clientpair-confirm"><code>client/pair-confirm</code></a> 发送。</p>
+<ul>
+<li>payload: <code>{}</code></li>
+</ul>
+<h4 id="--clientpair-confirm" tabindex="-1"><a class="heading-anchor" href="#--clientpair-confirm" aria-hidden="true">#</a>客户端 → 服务器：<code>client/pair-confirm</code></h4>
+<p>客户端的 MCF 标签，以及（在动态配对码流程中）先前承诺的密封打开值。在基于配对码的配对中，客户端在发送此消息后立即发送 <a href="#client--server-clientpair-finalize"><code>client/pair-finalize</code></a>，无需等待服务器响应。</p>
+<ul>
+<li><code>client_kc</code>: 字符串 - 客户端的 MCF 标签 <code>Tb</code>（64 字节 base64url 编码，86 个字符）。参见 <a href="#pake">PAKE</a></li>
+<li><code>wrapped_nonce_B?</code>: 字符串 - 此前在 <a href="#client--server-clientpair-init"><code>client/pair-init</code></a> 中发送的 <code>commit_B</code> 原像的 48 字节<a href="#wrapping">封装</a>，base64url 编码（64 个字符）。仅在<a href="#dynamic-pairing-code-flow">动态配对码流程</a>中出现。</li>
+</ul>
+<p>服务器在收到后先进行验证，再处理 <a href="#client--server-clientpair-finalize"><code>client/pair-finalize</code></a>；参见<a href="#dynamic-pairing-code-flow">动态配对码流程</a> / <a href="#static-pairing-code-flow">静态配对码流程</a>。</p>
+<h4 id="--clientpair-finalize" tabindex="-1"><a class="heading-anchor" href="#--clientpair-finalize" aria-hidden="true">#</a>客户端 → 服务器：<code>client/pair-finalize</code></h4>
+<p>交付此次配对所建立的长期 PSK。在包含 PAKE 轮次的流程中，此消息在 <a href="#client--server-clientpair-confirm"><code>client/pair-confirm</code></a> 之后立即发送，无需等待服务器响应，并携带以 CPace 输出<a href="#wrapping">封装</a>的 PSK。在<a href="#pairing-psk-flow">配对 PSK 流程</a>中，它在 <a href="#client--server-clientpair-init"><code>client/pair-init</code></a> 之后立即发送，无需等待服务器响应，直接携带 PSK。两个字段中恰好有一个存在。</p>
+<ul>
+<li><code>long_term_psk?</code>: 字符串 - 43 个字符的 base64url 编码的 32 字节<a href="#definitions">长期 PSK</a>（无填充）。仅用于<a href="#pairing-psk-flow">配对 PSK 流程</a></li>
+<li><code>wrapped_psk?</code>: 字符串 - 64 个字符的 base64url 编码的新<a href="#definitions">长期 PSK</a> 的 48 字节<a href="#wrapping">封装</a>（无填充）。仅用于基于配对码的流程</li>
+</ul>
+<h4 id="--serverpair-finalize" tabindex="-1"><a class="heading-anchor" href="#--serverpair-finalize" aria-hidden="true">#</a>服务器 → 客户端：<code>server/pair-finalize</code></h4>
+<p>确认服务器已持久化配对记录。客户端在收到此消息后持久化自己的记录。</p>
+<ul>
+<li>payload: <code>{}</code></li>
+</ul>
+<h4 id="--pairabort" tabindex="-1"><a class="heading-anchor" href="#--pairabort" aria-hidden="true">#</a>客户端 ↔ 服务器：<code>pair/abort</code></h4>
+<p>中止一次配对尝试，无论其是否已开始。当原因为 <code>concurrent_attempt</code> 时，发送方在发送后关闭连接，否则连接保持打开。在接收方自身已结束尝试之后收到的 <code>pair/abort</code> 不产生任何效果。</p>
+<ul>
+<li><code>reason</code>: 字符串 - 以下之一：
+<ul>
+<li><code>attempt_timeout</code>（客户端） - 配对尝试未能在<a href="#entering-and-leaving-pairing">尝试超时</a>内完成</li>
+<li><code>concurrent_attempt</code>（客户端） - 该客户端已有另一个配对尝试正在进行，或客户端不允许在当前已接纳的连接之外并行存在配对连接（参见<a href="#multiple-servers-server-initiated">多服务器</a>）</li>
+<li><code>method_not_supported</code>（客户端） - 服务器的活动集合与 <code>pairing.method</code> 并非该匹配 PSK 所允许的组合，或 <code>pairing.method</code> 指名的方法是客户端当前未提供的，或 <code>pairing.format</code> 指名的呈现格式是客户端当前未提供的</li>
+<li><code>pairing_code_mismatch</code>（客户端或服务器） - PAKE 密钥确认失败</li>
+<li><code>user_cancelled</code>（客户端或服务器） - 操作者通过本地 UI 中止了配对</li>
+</ul>
+</li>
+</ul>
+<h2 id="-43" tabindex="-1"><a class="heading-anchor" href="#-43" aria-hidden="true">#</a>播放器消息</h2>
+<p>本节介绍具有 <code>player</code> 角色的客户端所特有的消息，这些客户端负责处理音频输出和同步播放。播放器客户端接收带时间戳的音频数据，管理自身的音量和静音状态，并可根据自身能力和当前条件更改首选音频格式。</p>
+<p>音量值（0-100）表示感知响度，而非线性幅度（例如，音量 50 的感知响度应为音量 100 的一半）。客户端应当（SHOULD）将音量转换为线性幅度（即施加于采样上的增益，其中 1.0 为满刻度，0 为静音），即 <code>amplitude = (volume / 100)^1.5</code>。为避免可闻的咔哒声，客户端应当在短暂的渐变（ramp）过程中应用音量变化。</p>
+<p><code>volume</code> 与 <code>muted</code> 相互独立：音量变更（通过 <a href="#server--client-servercommand"><code>server/command</code></a> 或组音量命令进行）不得（MUST NOT）清除静音状态。</p>
+<h3 id="--clienthello-playerv1-" tabindex="-1"><a class="heading-anchor" href="#--clienthello-playerv1-" aria-hidden="true">#</a>客户端 → 服务器：<code>client/hello</code> player@v1 支持对象</h3>
+<p><a href="#client--server-clienthello"><code>client/hello</code></a> 中的 <code>player@v1_support</code> 对象具有以下结构：</p>
+<ul>
+<li><code>player@v1_support</code>：对象
+<ul>
+<li><code>supported_formats</code>：对象[] - 按优先顺序排列的受支持音频格式非空列表（第一项为首选）
+<ul>
+<li><code>codec</code>：'opus' | 'flac' | 'pcm' - 编解码器标识符</li>
+<li><code>channels</code>：整数 - 支持的声道数（例如 1 = 单声道，2 = 立体声）</li>
+<li><code>sample_rate</code>：整数 - 采样率，单位为 Hz（例如 44100）</li>
+<li><code>bit_depth</code>：整数 - 此格式的位深（例如 16、24）；仅对 <code>pcm</code> 和 <code>flac</code> 有意义，<code>opus</code> 则忽略</li>
+</ul>
+</li>
+<li><code>buffer_capacity</code>：整数 - 未处理音频块的最大总大小（以字节为单位），定义见<a href="#player-buffer-accounting">播放器缓冲区核算</a></li>
+</ul>
+</li>
+</ul>
+<p>服务器必须（MUST）支持 <code>flac</code> 和 <code>pcm</code> 编解码器，并可以（MAY）支持 <code>opus</code>。播放器必须在 <code>supported_formats</code> 中列出 <code>flac</code> 或 <code>pcm</code> 作为条目（也可以两者都列出），以便每台服务器都能为其提供服务，此外还可以列出 <code>opus</code>。服务器不会告知播放器自己支持哪些编解码器；服务器只会在其能够生成的格式中进行选择，如下所述。</p>
+<p><strong>注意：</strong> Opus 受第三方专利保护。在商业产品中附带 <code>opus</code> 的实现者需自行承担可能适用的许可费用；该专利池并不针对独立于硬件设备分发的开源软件。</p>
+<p>对于每个 <a href="#server--client-streamstart"><code>stream/start</code></a>，当播放器状态中设置了当前首选的 <a href="#client--server-clientstate-player-object"><code>format</code></a> 且服务器能够为当前曲目生成该格式时，服务器应当选择该格式；否则应当选择其能够生成的优先级最高的 <code>supported_formats</code> 条目。在有正当理由时，服务器可以选择其他条目，例如为匹配曲目的原生采样率以避免重采样，或应用操作员配置的格式；服务器还可以在后续曲目上通过发送新的 <code>stream/start</code> 来切换格式。</p>
+<p><strong>PCM 编码约定：</strong> 对于 <code>pcm</code> 编解码器，采样被编码为小端序有符号整数（二进制补码）。24 位采样按每个采样 3 字节打包。</p>
+<p><strong>编解码器分帧：</strong> 每个二进制音频块承载完整的编解码器单元；一个单元绝不会跨越多个块。各编解码器：</p>
+<ul>
+<li><code>pcm</code>：任意整数个 PCM 帧（一帧 = 所有声道上的一个采样），按声道交错排列，按上述约定编码。<code>codec_header</code> 不存在。</li>
+<li><code>flac</code>：一个或多个完整的 FLAC 帧。<code>codec_header</code> 为必需，其中包含 <code>fLaC</code> 流标记，后接 STREAMINFO 元数据块。</li>
+<li><code>opus</code>：每个块恰好一个 Opus 数据包（<a href="https://www.rfc-editor.org/rfc/rfc6716">RFC 6716</a>），无容器。<code>codec_header</code> 不存在；解码器根据 <a href="#server--client-streamstart"><code>stream/start</code></a> 中协商的 <code>sample_rate</code> 和 <code>channels</code> 进行配置。</li>
+</ul>
+<p><code>codec_header</code> 使用标准 Base64（<a href="https://www.rfc-editor.org/rfc/rfc4648#section-4">RFC 4648 第 4 节</a>，包含填充）。</p>
+<h3 id="--clientstate-player-" tabindex="-1"><a class="heading-anchor" href="#--clientstate-player-" aria-hidden="true">#</a>客户端 → 服务器：<code>client/state</code> player 对象</h3>
+<p><a href="#client--server-clientstate"><code>client/state</code></a> 中的 <code>player</code> 对象具有以下结构：</p>
+<p>向服务器通报播放器特有的状态变更。仅适用于 <code>player</code> 角色处于活动状态的客户端。</p>
+<p>只要 <code>player</code> 状态对象中有任何字段发生变化，就必须发送状态更新，包括音量通过 <code>server/command</code> 或设备控件被更改的情况。</p>
+<ul>
+<li><code>player</code>：对象
+<ul>
+<li><code>volume?</code>：整数 - 范围 0-100，若 'volume' 位于 <code>supported_commands</code> 中则必须包含</li>
+<li><code>muted?</code>：布尔值 - 静音状态，若 'mute' 位于 <code>supported_commands</code> 中则必须包含</li>
+<li><code>output_delay_ms</code>：整数 - 输出延迟，单位为毫秒（0-5000）</li>
+<li><code>required_lead_time_ms</code>：非负整数 - 启动前置时间的最小值，单位为毫秒（例如编解码器初始化、解码预热、音频后端缓冲、DAC 延迟）。从启动/重启触发信号的服务器发送时间（<a href="#server--client-streamstart"><code>stream/start</code></a> 或 <a href="#server--client-streamclear"><code>stream/clear</code></a> 中的 <code>server_transmitted</code> 字段）起，到第一个可完整播放的音频块的播放时间戳为止。服务器将其视为提示，可以给出更少的前置时间（参见<a href="#server-audio-send-constraints">服务器音频发送约束</a>）。</li>
+<li><code>min_buffer_ms</code>：非负整数 - 播放期间请求的最小持续缓冲时长，单位为毫秒（主要用于直播流），用于吸收网络抖动以及持续的解码/播放时序偏差。参见<a href="#client--server-clientstate-player-object">测量时序参数</a>。</li>
+<li><code>supported_commands</code>：字符串[] - 'volume'、'mute'、'set_output_delay' 的子集；当播放器不接受任何命令时为空</li>
+<li><code>format?</code>：对象 - 播放器当前首选的格式，必须是 <a href="#client--server-clienthello-playerv1-support-object"><code>supported_formats</code></a> 中的条目之一。缺省表示没有覆盖的偏好。参见<a href="#client--server-clienthello-playerv1-support-object">格式选择规则</a>。
+<ul>
+<li><code>codec</code>：'opus' | 'flac' | 'pcm' - 编解码器标识符</li>
+<li><code>channels</code>：整数 - 声道数（例如 1 = 单声道，2 = 立体声）</li>
+<li><code>sample_rate</code>：整数 - 采样率，单位为 Hz（例如 44100、48000）</li>
+<li><code>bit_depth</code>：整数 - 位深（例如 16、24）；仅对 <code>pcm</code> 和 <code>flac</code> 有意义，<code>opus</code> 则忽略</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>支持的命令：</strong> <code>supported_commands</code> 声明的是可设置性，而非可报告性。它列出服务器可以发送的命令，而播放器可以报告 <code>volume</code> 或 <code>muted</code> 却不提供相应命令：带有物理音量旋钮的功放会报告其被设置到的位置，但无法被远程设置。能力也不能从字段是否存在来推断，因为无论是否提供 <code>set_output_delay</code>，<code>output_delay_ms</code> 都绝不是可选的。当 <code>supported_commands</code> 中缺少相应命令时，服务器不得将报告的 <code>volume</code> 或 <code>muted</code> 视为可设置，但仍可以将报告的值以只读方式呈现。</p>
+<p><strong>输出延迟：</strong> 默认值为 0，表示音频在时间戳时刻从设备的音频端口输出。<code>output_delay_ms</code> 补偿端口之外的额外延迟（外部扬声器、功放）；它不涵盖端口之前的处理延迟（DAC 延迟、音频缓冲），这些由客户端自行补偿。不支持负值，任何合规的实现都不应需要负值。客户端必须将 <code>output_delay_ms</code> 限制在 0-5000 的范围内。客户端必须将 <code>output_delay_ms</code> 持久保存在本地，使其在重启和服务器重连后仍然有效。当音频输出发生变化时（例如连接了外部扬声器），客户端可以更新 <code>output_delay_ms</code> 和 <code>supported_commands</code>，并为每个输出分别持久保存延迟。减小 <code>output_delay_ms</code> 会使输出时点延后，并可能临时导致缓冲的音频多于 <code>buffer_capacity</code>，因为服务器可能已经按之前的延迟发送了音频。在处理这种临时超量时，客户端必须保持正常运行。它们可以丢弃音频并重新同步，并且应当避免产生可闻的中断。</p>
+<p><strong>音量与静音：</strong> 对播放器而言，建议（RECOMMENDED）在重启后持久保存 <code>volume</code> 和 <code>muted</code>。服务器不得假定这些值在重连后保持不变。</p>
+<p><strong>时序参数：</strong> 客户端可以随时更新 <code>required_lead_time_ms</code> 和 <code>min_buffer_ms</code>（例如在预热完成后通过实测得到前置时间之后，或当网络条件发生变化时）。<a href="#server--client-streamclear"><code>stream/clear</code></a>（定位跳转或曲目跳转）是在已运行的流水线上重启，因此它通常比开始新流的 <a href="#server--client-streamstart"><code>stream/start</code></a> 需要更少的预热。在流运行期间，客户端可以调低其报告的 <code>required_lead_time_ms</code>，并在下一个流开始之前再次调高。服务器必须将更新后的值纳入后续播放时序的考量。在更改所报告的时序参数之前，客户端应当在本地对测量结果进行去抖动处理，仅在条件变化看起来具有持续性时才更新，而不是因瞬时波动而更新。</p>
+<p><strong>测量时序参数：</strong> 播放器根据各音频块到达延迟的分布来推导 <code>min_buffer_ms</code>。每个块都带有 <a href="#server--client-audio-chunks-binary"><code>send_ahead</code></a>；块的延迟为 <code>arrival - compute_client_time(timestamp - send_ahead)</code>，其中 <code>arrival</code> 是播放器的本地接收时间（参见<a href="#transmit-timestamps">发送时间戳</a>），而 <code>compute_client_time</code> 是<a href="#clock-synchronization">时间滤波器</a>从服务器时间到本地时间的映射。播放器应当根据该分布的上尾部来确定 <code>min_buffer_ms</code> 的取值，测量窗口应当足够长以涵盖间歇性干扰，并且应当丢弃在时间滤波器收敛之前采集的样本。<code>required_lead_time_ms</code> 无法仅凭该分布推导得出：它从启动触发信号开始测量，而紧随从空缓冲开始缓冲的 <a href="#server--client-streamstart"><code>stream/start</code></a> 之后到达的块，是在突发条件下到达的，这些条件并不代表稳态延迟。</p>
+<p><strong>格式偏好：</strong> 当 <code>player</code> 流处于活动状态时 <code>format</code> 发生变化，服务器会重新推导流格式，并在格式发生变化时发送 <a href="#server--client-streamstart"><code>stream/start</code></a>；在没有活动流时，该偏好将应用于服务器启动的下一个流（参见 <a href="#server--client-streamstart"><code>stream/start</code></a>）。客户端可借此适应不断变化的网络条件或 CPU 约束。服务器为每个客户端维护独立的编码，从而允许同一分组内存在异构的设备能力。</p>
+<h3 id="--servercommand-player-" tabindex="-1"><a class="heading-anchor" href="#--servercommand-player-" aria-hidden="true">#</a>服务器 → 客户端：<code>server/command</code> player 对象</h3>
+<p><a href="#server--client-servercommand"><code>server/command</code></a> 中的 <code>player</code> 对象具有以下结构：</p>
+<p>请求播放器执行某个操作，例如更改音量或静音状态。</p>
+<ul>
+<li><code>player</code>：对象
+<ul>
+<li><code>command</code>：'volume' | 'mute' | 'set_output_delay' - 必须列在服务器于 <a href="#client--server-clientstate-player-object"><code>client/state</code></a> 中收到的最新播放器状态的 <code>supported_commands</code> 中；客户端当前 <code>supported_commands</code> 中不存在的命令将被客户端忽略</li>
+<li><code>volume?</code>：整数 - 音量范围 0-100，当 <code>command</code> 为 <code>volume</code> 时必需，否则缺省</li>
+<li><code>mute?</code>：布尔值 - true 为静音，false 为取消静音，当 <code>command</code> 为 <code>mute</code> 时必需，否则缺省</li>
+<li><code>output_delay_ms?</code>：整数 - 延迟，单位为毫秒（0-5000），当 <code>command</code> 为 <code>set_output_delay</code> 时必需，否则缺省</li>
+</ul>
+</li>
+</ul>
+<p>在该客户端发送其初始 <a href="#client--server-clientstate"><code>client/state</code></a> 之前，服务器不得向其发送播放器命令。</p>
+<h3 id="--streamstart-player-" tabindex="-1"><a class="heading-anchor" href="#--streamstart-player-" aria-hidden="true">#</a>服务器 → 客户端：<code>stream/start</code> player 对象</h3>
+<p><a href="#server--client-streamstart"><code>stream/start</code></a> 中的 <code>player</code> 对象具有以下结构：</p>
+<ul>
+<li><code>player</code>：对象
+<ul>
+<li><code>codec</code>：'opus' | 'flac' | 'pcm' - 将使用的编解码器</li>
+<li><code>sample_rate</code>：整数 - 将使用的采样率</li>
+<li><code>channels</code>：整数 - 将使用的声道数</li>
+<li><code>bit_depth</code>：整数 - 将使用的位深；<code>opus</code> 则忽略</li>
+<li><code>codec_header?</code>：字符串 - 按标准 Base64 编码的编解码器头部，必要时提供（例如 FLAC）</li>
+</ul>
+</li>
+</ul>
+<p>该格式必须是客户端在其 <a href="#client--server-clienthello-playerv1-support-object"><code>supported_formats</code></a> 中列出的格式之一。</p>
+<p>当 <code>player</code> 对象更改活动流的格式时，在此消息之前发送的块使用之前的格式，在此消息之后发送的块使用新格式。服务器必须为新格式的第一个块打上时间戳，使其在现有时间线上紧随前一格式的最后一个块，并且不得重发已发送过的音频。</p>
+<p>客户端必须保留已缓冲的块，并按照接收该块时所生效的格式对每个块进行解码。如果播放器无法在其所列出的格式之间无缝切换输出，则应当在 <a href="#client--server-clienthello-playerv1-support-object"><code>supported_formats</code></a> 中仅列出单一的 <code>sample_rate</code> 和 <code>channels</code>，此时由服务器为其进行重采样。</p>
+<h3 id="--streamclear-player" tabindex="-1"><a class="heading-anchor" href="#--streamclear-player" aria-hidden="true">#</a>服务器 → 客户端：<code>stream/clear</code> player</h3>
+<p>当 <a href="#server--client-streamclear"><code>stream/clear</code></a> 包含 player 角色时，客户端必须清除所有已缓冲的音频块，并继续处理在此消息之后接收到的块。</p>
+<h3 id="--" tabindex="-1"><a class="heading-anchor" href="#--" aria-hidden="true">#</a>服务器 → 客户端：音频块（二进制）</h3>
+<p>服务器不得在活动的播放器流之外发送音频消息。</p>
+<p>在活动流期间，处于不可用状态的客户端应当丢弃原本有效的音频数据，且不得仅因其到达而关闭连接。</p>
+<ul>
+<li>字节 0：消息类型 <code>4</code>（uint8）</li>
+<li>字节 1-8：时间戳（大端序 int64）- 按服务器时钟计、第一个采样应当输出的时间，单位为微秒</li>
+<li>字节 9-12：send_ahead（大端序 uint32）- 从服务器发送此消息到 <code>timestamp</code> 的微秒数</li>
+<li>其余字节：已编码的音频帧</li>
+</ul>
+<p>时间戳指示此块中的第一个音频采样应当在何时输出。客户端必须使用<a href="#clock-synchronization">时间滤波器</a>将此服务器时间戳转换为本地时钟，并从时间戳中减去其 <a href="#client--server-clientstate-player-object"><code>output_delay_ms</code></a>。客户端应当补偿任何已知的处理延迟（例如 DAC 延迟、音频缓冲延迟），方法是在向硬件提交音频时将这些延迟计入。</p>
+<p><code>send_ahead</code> 报告服务器在发送该块时手中所持有的提前量：其发送时间在服务器时钟下为 <code>timestamp - send_ahead</code>，取法如<a href="#transmit-timestamps">发送时间戳</a>所述。该字段采用饱和处理而非回绕：当服务器的发送时刻达到或晚于 <code>timestamp</code> 时，必须发送 <code>0</code>；当真实提前量超出该字段所能表示的范围（约 71 分钟）时，必须发送 <code>4294967295</code>。这两个饱和值都表示未测得任何提前量，而不是提前量为该数值，因此播放器不得将携带任一值的块用作延迟样本。</p>
+<p><code>send_ahead</code> 不具有任何调度含义，且不得影响块的播放时间；播放器仅用它来测量到达延迟（参见<a href="#client--server-clientstate-player-object">测量时序参数</a>）。</p>
+<h2 id="-44" tabindex="-1"><a class="heading-anchor" href="#-44" aria-hidden="true">#</a>播放同步</h2>
+<p>本节定义了要求所有实现都必须提供良好体验的规则，使播放能够在多个扬声器之间无缝保持同步。虽然实现可以自行选择策略，但本节描述了播放器必须满足的最低要求。有关符合要求的推荐策略，请参阅下文的<a href="#suggested-correction-strategy">建议的校正策略</a>小节。</p>
+<h3 id="-45" tabindex="-1"><a class="heading-anchor" href="#-45" aria-hidden="true">#</a>校正质量</h3>
+<ul>
+<li>**不可闻的校正：**在稳态下，单次校正不得在正常收听过程中产生可听见的噪声、颤音或失真。</li>
+<li>**最大速度偏差：**有效播放速度必须保持在正常速度的 ±0.5% 以内，以 150 ms 的滑动平均值测量。这限制了连续（稳态）校正。在干扰（启动、缓冲区欠载（buffer underrun），或误差过大而无法平滑校正）之后的一次性离散重新同步不属于速度偏差，可予豁免；此类事件必须保持罕见。</li>
+</ul>
+<h3 id="-46" tabindex="-1"><a class="heading-anchor" href="#-46" aria-hidden="true">#</a>同步精度</h3>
+<p>同步精度在音频输出处测量，以时间过滤器（time-filter）预测的本地时间为基准（而非真实的服务器时钟）。必须使用<a href="#clock-synchronization">时间过滤器</a>才能达到这些最低标准。误差是指采样在客户端本地时钟中实际播放的时刻，与时间过滤器针对该采样的服务器时间戳所预测的本地时间之间的绝对差值，再减去所配置的 <a href="#client--server-clientstate-player-object"><code>output_delay_ms</code></a>。</p>
+<p>每个客户端负责自行维护与服务器时间戳之间的同步。</p>
+<ul>
+<li>**精度下限：**在稳态下，实现必须将此误差保持在 ±1 ms 以内。唯一的例外是上文豁免于速度上限之外的一次性重新同步，此类事件必须保持罕见。</li>
+<li>**精度目标：**实现应该以 ±0.5 ms 为目标。</li>
+<li>客户端在调度播放之前，从服务器时间戳中减去自身的 <a href="#client--server-clientstate-player-object"><code>output_delay_ms</code></a>。</li>
+<li>由于网络延迟或缓冲，音频块的时间戳可能已处于过去；客户端应该丢弃这些迟到的音频块以维持同步。</li>
+</ul>
+<h3 id="-47" tabindex="-1"><a class="heading-anchor" href="#-47" aria-hidden="true">#</a>启动行为</h3>
+<ul>
+<li>**启动时不得有颤音：**在启动期间，客户端不得在音频输出中产生可听见的音调调制、颤音或其他瞬态伪声。</li>
+</ul>
+<h3 id="-48" tabindex="-1"><a class="heading-anchor" href="#-48" aria-hidden="true">#</a>服务器音频发送约束</h3>
+<p><a href="#client--server-clientstate-player-object"><code>required_lead_time_ms</code></a> 和 <a href="#client--server-clientstate-player-object"><code>min_buffer_ms</code></a> 通过 <a href="#client--server-clientstate-player-object"><code>client/state</code></a> 上报。播放器应该上报在预期条件下能够可靠防止缓冲区欠载和流开头被截断的最低值，以确保实时应用获得尽可能低的延迟。播放器应该将预期的网络延迟/抖动（在局域网/Wi-Fi 上较小，对远程或高延迟客户端较大）计入这两个值，并且两者均不得包含 <code>output_delay_ms</code>；服务器在计算提前发送量（send-ahead）时会单独应用 <code>output_delay_ms</code>。</p>
+<ul>
+<li>**音频块时长限制：**服务器不得发送长于 150 ms 的音频块，且不应该发送短于 15 ms 的音频块（流的最后一个音频块或格式更改前的音频块可以更短）。</li>
+<li>服务器仅向迟加入的客户端发送带有未来时间戳的音频，使其能够进行缓冲并与现有客户端同步开始播放。</li>
+<li>在从空缓冲开始缓冲的 <a href="#server--client-streamstart"><code>stream/start</code></a>（新流，或 <a href="#server--client-streamend"><code>stream/end</code></a> 之后的第一个流）或 <a href="#server--client-streamclear"><code>stream/clear</code></a> 之后，服务器必须将第一个音频时间戳安排在足够远的未来，以满足下文规定的每个播放器的最低提前发送量。在活动流上进行原地的 <code>stream/start</code> 配置更新会延续现有时间线，不会重新应用启动提前量。对于实时流，播放开始后缓冲无法再增长，因此必须在第一个音频块播放之前就达到该提前量。</li>
+<li>服务器在计算音频提前发送多远时会将每个客户端的 <a href="#client--server-clientstate-player-object"><code>output_delay_ms</code></a> 计入，从而保持有效缓冲余量恒定。</li>
+<li><code>required_lead_time_ms</code> 是一个提示值，用于避免流的开头被截断。服务器将第一个音频块安排在至少提前 <code>min_buffer_ms + output_delay_ms</code> 处，并且仅在不增加延迟的情况下才应该将提前量向 <code>required_lead_time_ms</code> 延长，即适用于带缓冲的源，但不适用于实时流。</li>
+<li>对于分组播放，使用等于分组播放器中各播放器提前发送量最大值的统一提前发送量。当播放器加入、离开或更新其时间参数时，需重新计算。</li>
+<li>当最大值在流中途减小时（播放器离开分组，或更新了时间参数），服务器可以保持当前提前发送量不变，也可以将其降低至新的最大值。该选择取决于实现的优先级（最低延迟与无毛刺音频之间的取舍）。</li>
+<li>尤其对于实时流，服务器必须安排时间戳，使每个播放器队列中的音频时长保持在其 <code>min_buffer_ms</code> 或以上。<code>buffer_capacity</code> 是对每个播放器的硬性字节上限；当协商的编解码器的字节速率会超出该上限时，它可能导致有效排队时长低于所请求的 <code>min_buffer_ms</code>。</li>
+<li>当时间参数更新或新加入的播放器在实时播放期间增加了所需的提前发送量时，播放器可以暂时低于其请求的 <code>min_buffer_ms</code>。服务器应该在 <code>buffer_capacity</code> 允许的范围内恢复所请求的最小值。</li>
+<li>对于带缓冲的流，应优先将每个播放器的队列填充至接近 <code>buffer_capacity</code>，以最大化稳定性。</li>
+<li>服务器不得发送在下方记账规则下会超出 <code>buffer_capacity</code> 的音频。</li>
+<li>服务器可以对播放器的时间参数更新进行限速、去抖或合并，以防止频繁或微小的更改造成干扰。</li>
+</ul>
+<h3 id="-49" tabindex="-1"><a class="heading-anchor" href="#-49" aria-hidden="true">#</a>播放器缓冲记账</h3>
+<p>仅统计每个音频块的 13 字节头部和编码负载。如果某个音频块的全部大小加上当前统计值会超出 <code>buffer_capacity</code>，服务器不得开始发送该音频块。在传输尚未完成或其完成时间按服务器时钟仍处于未来时，每个音频块均按全额计入，无论其是否已解码、已部分播放或已被丢弃。</p>
+<p>计算完成时间时，将 <code>client/state</code> 中收到的最新 <code>output_delay_ms</code> 换算为微秒，并从时间戳加时长中减去该值。时长以微秒为单位，根据每声道的解码采样数以及音频块发送时所采用的采样率计算。统计值初始为空。向播放器发送 <code>stream/clear</code> 或 <code>stream/end</code> 会将其重置，并移除先前已发送的音频块。延迟更新会重新计算自上次重置以来已发送的所有音频块的完成时间，包括先前被排除的音频块。原地的 <code>stream/start</code> 不会重置统计值，也不会更改先前音频块的时长。</p>
+<h3 id="-50" tabindex="-1"><a class="heading-anchor" href="#-50" aria-hidden="true">#</a>建议的校正策略</h3>
+<p>这是具有 <code>player</code> 角色的客户端的一种有效校正策略：离散的采样删除与插入。它只是一个示例，并非要求，适用于 44.1 kHz 及以上的采样率。新的实现者可以将其作为起点，尤其是在 CPU 或内存受限的场景中：它无需插值，除校正的时刻外，音频保持位精确（bit-exact）。</p>
+<p>只要满足本节中的规则，其他策略也是允许且受到鼓励的。例如，异步采样率转换（ASRC）会持续对流进行重采样以跟踪时钟，以 CPU/DSP 负载为代价，换取比离散丢帧更低的稳态失真。</p>
+<h4 id="-51" tabindex="-1"><a class="heading-anchor" href="#-51" aria-hidden="true">#</a>采样删除与插入</h4>
+<p>播放器按照解码帧的服务器时间戳（由<a href="#clock-synchronization">时间过滤器</a>转换为本地时间）进行渲染，并通过偶尔删除或复制整个帧来校正累积的漂移。在现实的时钟漂移下，这些校正幅度小且不频繁（每秒几次），且单次校正不可闻。“帧”是指所有声道上的一个采样（例如一个立体声对）。</p>
+<p>**软校正。**对每个解码后的音频块：</p>
+<ol>
+<li>测量音频块计划播放的时刻（其服务器时间戳，经由时间过滤器）与渲染器在输出缓冲区中推进到该位置的时刻之间的时间误差。</li>
+<li>如果绝对误差低于死区（约 100 µs），则原样输出该音频块。</li>
+<li>否则按 <code>N</code> 帧进行校正：如果播放落后（音频块在计划的本地时间之后才到达输出），则丢弃 <code>N</code> 帧以赶上；如果播放超前，则复制 <code>N</code> 帧以等待。超出该步长的残余误差将结转到下一个音频块。</li>
+</ol>
+<p>**选择 N。**使用能够跟上漂移的最小 <code>N</code>，并按比例缩放以使步长时长在不同采样率下保持恒定：<code>N = max(1, round(21 µs × sample_rate_hz / 1,000,000))</code>（在 44.1 和 48 kHz 时 N=1，在 96 kHz 时为 2，在 192 kHz 时为 4）。本示例将每个音频块的校正限制在 ±0.5% 以内：<code>N ≤ floor(0.005 × samples_in_chunk)</code>。保持 <code>N</code> 较小；在现实的漂移下，此范围内的任何 <code>N</code> 都不会被察觉。</p>
+<p><strong>丢弃</strong>会移除这 <code>N</code> 帧，使相邻帧直接相接。<strong>复制</strong>会将边界帧重复 <code>N</code> 次。输出就是去除了 <code>N</code> 个采样或重复了 <code>N</code> 个采样的原始采样，其余部分位精确。</p>
+<p>**大误差与启动。**当误差会超出 ±1 ms 的下限，或在启动、<a href="#server--client-streamstart"><code>stream/start</code></a>、<a href="#server--client-streamclear"><code>stream/clear</code></a> 或从欠载中恢复时，应一次性跳转到正确位置，而不是进行软校正：如果播放落后，则丢弃等于超出量的开头前缀；如果超前，则插入等时长的静音。按照<a href="#correction-quality">校正质量</a>的要求，这些一次性校正必须保持罕见。</p>
+<h2 id="-52" tabindex="-1"><a class="heading-anchor" href="#-52" aria-hidden="true">#</a>源消息</h2>
+<p>本节介绍专用于具有 <code>source</code>（源）角色的客户端的消息，这些客户端从本地输入（例如 AUX/线路输入、唱机前置放大器、蓝牙接收器或麦克风）捕获音频并将其流式传输到服务器。与其他角色不同，源将音频发送到服务器；服务器仍然是唯一负责重采样、转码、混音、缓冲并将音频分发到输出播放器（player）的地方。源保持简单：它们捕获并编码音频，可选地报告基本信号存在（线路感应），并流式传输带时间戳的音频帧。</p>
+<p>设备（device）可以同时实现 <code>source</code> 和 <code>player</code> 角色（例如，具有转发到 Sendspin 的本地 AUX 输入的扬声器）。此类设备不得在本地播放其捕获的输入。与每个播放器一样，它仅输出服务器分发的流，因此其输出与组中的其余部分保持同步。</p>
+<p><strong>注意：</strong> <code>source</code> 角色（将输入捕获<em>到</em> Sendspin 中）与报告 <a href="#external-source-handling"><code>available: false</code></a> 的客户端不同，后者标记的是已被非 Sendspin 系统接管的客户端。</p>
+<p>源客户端使用与所有客户端相同的<a href="#clock-synchronization">时钟同步</a>机制。它通过反转滤波器的服务器到本地映射（<code>t_local = compute_client_time(t_server)</code>），在服务器时间域中为每个二进制源音频消息添加时间戳：对于在本地时间 <code>t_capture</code> 进行的捕获，它发送映射到该时间的 <code>t_server</code>。该映射在滤波器的偏移和漂移中是线性的，因此该逆映射是明确定义的；请同时应用偏移和漂移，而不仅仅是偏移。</p>
+<p><strong>未配对访问：</strong> 由于 <code>source@v1</code> 将服务器的音频堆栈暴露给任意输入，因此为未经身份验证的设备激活它需要明确的<a href="#unpaired-access">批准</a>。设备的其他使用（例如在其上开始播放）所隐含的批准不适用于 <code>source@v1</code>：在明确批准之前，服务器会将该角色排除在 <a href="#server--client-serveractivate"><code>active_roles</code></a> 之外。具有麦克风等隐私敏感输入的客户端在出厂时应禁用未配对访问：否则捕获的音频将被网络上的任何人访问。</p>
+<h3 id="--clienthello-sourcev1-" tabindex="-1"><a class="heading-anchor" href="#--clienthello-sourcev1-" aria-hidden="true">#</a>客户端 → 服务器：<code>client/hello</code> source@v1 支持对象</h3>
+<p><a href="#client--server-clienthello"><code>client/hello</code></a> 中的 <code>source@v1_support</code> 对象具有以下结构：</p>
+<ul>
+<li><code>source@v1_support</code>：对象
+<ul>
+<li><code>features?</code>：对象 - 可选的功能提示
+<ul>
+<li><code>line_sense?</code>：布尔值 - 如果源报告 <code>signal</code> 则为 true</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>服务器必须接受 <code>flac</code> 和 <code>pcm</code> 输入，并且可以接受 <code>opus</code>。支持 <code>source@v1</code> 角色的服务器必须在 <code>server/hello</code> 的 <a href="#server--client-serverhello-sourcev1-support-object"><code>source@v1_support</code></a> 对象中列出其接受的编解码器。源必须在 <code>client-stream/start</code> 中仅宣布列出的编解码器，并且必须能够生成 <code>flac</code> 或 <code>pcm</code>，以便每个服务器都能接受其输入。</p>
+<p><strong>注意：</strong> Opus 受第三方专利保护。在商业产品中附带 <code>opus</code> 的实现者需负责任何适用的许可费；专利池不针对独立于硬件设备分发的开源软件。</p>
+<p>源在 <a href="#client--server-client-streamstart"><code>client-stream/start</code></a> 中宣布其输入格式；除了服务器的编解码器列表外，没有协商过程。由于服务器集中对源音频进行重采样和转码，它应该接受源宣布的任何声道数、采样率和位深。</p>
+<h3 id="--serverhello-sourcev1-" tabindex="-1"><a class="heading-anchor" href="#--serverhello-sourcev1-" aria-hidden="true">#</a>服务器 → 客户端：<code>server/hello</code> source@v1 支持对象</h3>
+<p><a href="#server--client-serverhello"><code>server/hello</code></a> 中的 <code>source@v1_support</code> 对象具有以下结构：</p>
+<ul>
+<li><code>source@v1_support</code>：对象
+<ul>
+<li><code>supported_codecs</code>：字符串数组 - 服务器在 <code>client-stream/start</code> 中接受的编解码器的非空列表，每个为 'opus'、'flac' 或 'pcm'；必须包含 'flac' 和 'pcm'</li>
+</ul>
+</li>
+</ul>
+<p>源必须忽略其无法识别的编解码器标识符。</p>
+<h3 id="--clientstate-" tabindex="-1"><a class="heading-anchor" href="#--clientstate-" aria-hidden="true">#</a>客户端 → 服务器：<code>client/state</code> 源对象</h3>
+<p><a href="#client--server-clientstate"><code>client/state</code></a> 中的 <code>source</code> 对象具有以下结构：</p>
+<ul>
+<li><code>source</code>：对象
+<ul>
+<li><code>signal?</code>：'present' | 'absent' - 可选的线路感应/信号存在，仅在支持 'line_sense' 时有效</li>
+</ul>
+</li>
+</ul>
+<h3 id="--servercommand-" tabindex="-1"><a class="heading-anchor" href="#--servercommand-" aria-hidden="true">#</a>服务器 → 客户端：<code>server/command</code> 源对象</h3>
+<p><a href="#server--client-servercommand"><code>server/command</code></a> 中的 <code>source</code> 对象具有以下结构：</p>
+<ul>
+<li><code>source</code>：对象
+<ul>
+<li><code>command</code>：'start' | 'stop'</li>
+</ul>
+</li>
+</ul>
+<h4 id="-53" tabindex="-1"><a class="heading-anchor" href="#-53" aria-hidden="true">#</a>源命令语义</h4>
+<ul>
+<li><code>command</code> 控制此源是否向服务器流式传输：
+<ul>
+<li><code>start</code>：服务器请求源打开输入流。该命令最多授权一次打开。客户端应立即发送 <code>client-stream/start</code>，然后发送源音频块。</li>
+<li><code>stop</code>：服务器请求源停止流式传输。客户端必须清除任何待处理的启动授权，停止发送源音频块，并且如果其输入流已打开，则发送 <code>client-stream/end</code>。</li>
+</ul>
+</li>
+</ul>
+<p>在启动授权待处理或输入流已打开时收到的 <code>start</code> 无效：它不得重新启动流或授权稍后重新打开。在没有待处理的启动授权且没有打开的输入流时收到的 <code>stop</code> 将被忽略。</p>
+<p>除非源角色处于活动状态、已收到该激活所需的 <a href="#client--server-clientstate"><code>client/state</code></a> 更新中的源对象，并且收到的最新 <code>client/state</code> 报告 <code>available: true</code>，否则服务器不得发送 <code>start</code>。</p>
+<p>客户端必须忽略在其不可用时收到的 <code>start</code>。再次变为可用状态不会在没有新的 <code>start</code> 的情况下恢复流式传输。</p>
+<h4 id="-54" tabindex="-1"><a class="heading-anchor" href="#-54" aria-hidden="true">#</a>默认流式传输行为</h4>
+<p>握手后的默认状态为 <code>stop</code>：源在收到服务器的 <code>command: &quot;start&quot;</code> 之前不得进行流式传输。服务器是唯一发起流式传输的一方。在没有相应服务器 <code>start</code> 的情况下打开输入流的 <code>client-stream/start</code> 是协议错误：服务器不得将输入流视为已打开，并且应关闭连接。</p>
+<p>服务器不得仅仅因为相应的 <code>start</code> 是在服务器收到前一个 <code>client-stream/end</code> 或可用性更新之前发送的，就将其他方面有效的 <code>client-stream/start</code> 视为未经请求。该命令可能在该转换之后才到达客户端。</p>
+<p>流式传输状态是每连接独立的：先前发送的 <code>start</code> 在重新连接后不会保留，如果服务器仍需要该流，则必须再次发送 <code>command: &quot;start&quot;</code>。</p>
+<p>支持线路感应的源在 <a href="#client--server-clientstate"><code>client/state</code></a> 中报告 <code>signal</code>。服务器可以将其用作何时发送 <code>command: &quot;start&quot;</code> 或 <code>command: &quot;stop&quot;</code> 的提示，但决定权在于服务器策略。</p>
+<p>当客户端收到从 <code>active_roles</code> 中移除 <code>source</code> 的 <a href="#server--client-serveractivate"><code>server/activate</code></a> 时，它必须清除任何待处理的启动授权，停止发送块，并在其输入流打开时发送 <code>client-stream/end</code>。重新激活后，客户端在收到新的 <code>start</code> 之前不得恢复流式传输。</p>
+<p>变为不可用状态的源必须清除任何待处理的启动授权。如果其输入流已打开，它必须停止发送源音频块，并在 <code>client/state</code> 中报告 <a href="#external-source-handling"><code>available: false</code></a> 之前发送 <code>client-stream/end</code>。服务器将此转换视为隐式 <code>stop</code>。</p>
+<h3 id="--client-streamstart" tabindex="-1"><a class="heading-anchor" href="#--client-streamstart" aria-hidden="true">#</a>客户端 → 服务器：<code>client-stream/start</code></h3>
+<p><code>client-stream/start</code> 消息宣布活动的输入流格式并提供任何所需的编解码器标头数据。</p>
+<ul>
+<li><code>source</code>：对象
+<ul>
+<li><code>codec</code>：'opus' | 'flac' | 'pcm'</li>
+<li><code>channels</code>：整数</li>
+<li><code>sample_rate</code>：整数</li>
+<li><code>bit_depth</code>：整数 - 对于 <code>opus</code> 被忽略</li>
+<li><code>codec_header?</code>：字符串 - 如有必要，编码为标准 Base64 的编解码器标头（例如 FLAC）</li>
+</ul>
+</li>
+</ul>
+<p>在输入流已打开时收到的 <code>client-stream/start</code> 会就地替换流格式。</p>
+<p><strong>PCM 编码约定：</strong> 对于 <code>pcm</code> 编解码器，样本编码为小端有符号整数（二进制补码）。24 位样本打包为每个样本 3 个字节。</p>
+<p><strong>编解码器成帧：</strong> 每个二进制源音频块承载完整的编解码器单元；一个单元永远不会跨越多个块。按编解码器划分：</p>
+<ul>
+<li><code>pcm</code>：任意整数个 PCM 帧（一帧 = 所有通道的一个样本），按通道交错，按上述约定编码。不存在 <code>codec_header</code>。</li>
+<li><code>flac</code>：一个或多个完整的 FLAC 帧。需要 <code>codec_header</code>，并携带 <code>fLaC</code> 流标记，后跟 STREAMINFO 元数据块。</li>
+<li><code>opus</code>：每个块恰好一个 Opus 数据包（<a href="https://www.rfc-editor.org/rfc/rfc6716">RFC 6716</a>），无容器。不存在 <code>codec_header</code>；解码器根据 <code>client-stream/start</code> 中宣布的 <code>sample_rate</code> 和 <code>channels</code> 进行配置。</li>
+</ul>
+<p><code>codec_header</code> 使用标准 Base64（<a href="https://www.rfc-editor.org/rfc/rfc4648#section-4">RFC 4648 第 4 节</a>，包含填充）。</p>
+<h3 id="--client-streamend" tabindex="-1"><a class="heading-anchor" href="#--client-streamend" aria-hidden="true">#</a>客户端 → 服务器：<code>client-stream/end</code></h3>
+<p>客户端结束当前输入流。发送此消息后，客户端在收到新的服务器 <code>start</code> 之前不得发送另一个 <code>client-stream/start</code>。在该 <code>client-stream/start</code> 之前不得恢复源音频。</p>
+<h3 id="---1" tabindex="-1"><a class="heading-anchor" href="#---1" aria-hidden="true">#</a>客户端 → 服务器：源音频块（二进制）</h3>
+<p>在没有打开的输入流的情况下接收源音频消息，或者在服务器收到的最新 <a href="#client--server-clientstate"><code>client/state</code></a> 报告 <code>available: false</code> 时接收，属于协议错误：服务器必须关闭连接。客户端的流生命周期消息、音频块和可用性更新在同一连接上按发送顺序传递，因此网络延迟无法将较早的块移到 <code>client-stream/end</code> 或可用性更新之后。</p>
+<p>客户端必须在第一个音频块之前发送 <code>client-stream/start</code>。发送 <code>command: &quot;stop&quot;</code> 或移除源角色本身不会在服务器端关闭输入流。在这两种操作之后，服务器必须容忍对先前发送的 <code>start</code> 的其他方面有效的传输中响应，包括 <code>client-stream/start</code> 和音频块，直到它收到 <code>client-stream/end</code>。它可以丢弃音频有效载荷，但必须按接收顺序处理 <code>client-stream/start</code> 和 <code>client-stream/end</code>。</p>
+<ul>
+<li>字节 0：消息类型 <code>12</code>（uint8）</li>
+<li>字节 1-8：时间戳（大端 int64）- 捕获第一个样本时的服务器时钟时间（微秒）</li>
+<li>其余字节：编码的音频帧</li>
+</ul>
+<p>时间戳指示此块中的第一个音频样本何时被捕获（在服务器时间域中）。它是音频到达输入（ADC）的最佳努力时间。对于具有编码器延迟的编解码器，它指的是解码器将为该块发出的第一个样本的捕获时间。服务器可以重采样/转码，然后使用其正常的缓冲和同步策略将音频分发到播放器。</p>
+<p>源发送的块长度不得超过 150 毫秒，并且不应发送短于 5 毫秒的块（<code>client-stream/end</code> 之前的最后一个块可以更短）。在网络停滞之后，客户端应丢弃超出小界限的缓冲积压，并从实时捕获恢复，而不是突发陈旧音频。</p>
+<p>源时间戳源自<a href="#clock-synchronization">时间滤波器</a>的映射，该映射会不断重新估计，因此它们可能会显示不连续或漂移（例如 ADC 时钟方差）。服务器实现不应假设时间戳完全连续；音频样本流本身应保持连续。服务器应从传递的样本流中估计源的有效采样率，并使用时间戳将流锚定在时间中并检测间隙和不连续，而不是作为每块的切割点。服务器应通过重采样来吸收速率偏差，使校正保持不可察觉。</p>
+<h2 id="-55" tabindex="-1"><a class="heading-anchor" href="#-55" aria-hidden="true">#</a>控制器消息</h2>
+<p>本节描述具有 <code>controller</code> 角色的客户端特有的消息，该角色使客户端能够控制其所属的组，并在组之间切换。</p>
+<p>在 <code>client/hello</code> 消息的 <code>supported_roles</code> 中列出 <code>controller</code> 角色的每个客户端都必须实现本节中的所有消息。</p>
+<h3 id="--clientcommand-" tabindex="-1"><a class="heading-anchor" href="#--clientcommand-" aria-hidden="true">#</a>客户端 → 服务端：<code>client/command</code> 控制器对象</h3>
+<p><a href="#client--server-clientcommand"><code>client/command</code></a> 中的 <code>controller</code> 对象具有以下结构：</p>
+<p>控制正在播放的组并切换组。仅对 <code>controller</code> 角色处于活动状态的客户端有效。</p>
+<ul>
+<li><code>controller</code>：对象
+<ul>
+<li><code>command</code>：'play' | 'pause' | 'stop' | 'next' | 'previous' | 'volume' | 'mute' | 'repeat_off' | 'repeat_one' | 'repeat_all' | 'shuffle' | 'unshuffle' | 'switch' | 'seek' | 'seek_relative' - 必须是客户端在 <a href="#server--client-serverstate-controller-object"><code>server/state</code></a> 中接收到的最新控制器状态的 <code>supported_commands</code> 中列出的值之一。服务端必须忽略其当前 <code>supported_commands</code> 中不存在的命令</li>
+<li><code>volume?</code>：整数 - 音量范围 0-100，仅当 <code>command</code> 为 <code>volume</code> 时设置</li>
+<li><code>mute?</code>：布尔值 - true 表示静音，false 表示取消静音，仅当 <code>command</code> 为 <code>mute</code> 时设置</li>
+<li><code>position_ms?</code>：整数 - 绝对播放位置，以毫秒为单位，范围为 0 到 <a href="#server--client-serverstate-controller-object"><code>seek_max_ms</code></a>，仅当 <code>command</code> 为 <code>seek</code> 时设置</li>
+<li><code>offset_ms?</code>：整数 - 相对于当前位置的有符号偏移量，以毫秒为单位（正数向前，负数向后），仅当 <code>command</code> 为 <code>seek_relative</code> 时设置</li>
+</ul>
+</li>
+</ul>
+<h4 id="-56" tabindex="-1"><a class="heading-anchor" href="#-56" aria-hidden="true">#</a>命令行为</h4>
+<ul>
+<li>'play' - 从当前位置恢复播放。如果当前没有正在播放的内容，服务端应恢复该组上次播放的媒体。服务端应在服务端和客户端重启时保留此历史记录</li>
+<li>'pause' - 在当前位置暂停播放</li>
+<li>'stop' - 停止播放并将位置重置为开头</li>
+<li>'next' - 跳到下一首曲目、章节等</li>
+<li>'previous' - 跳到上一首曲目、章节、重新开始当前曲目等</li>
+<li>'volume' - 设置组音量（需要 <code>volume</code> 参数）</li>
+<li>'mute' - 设置组静音状态（需要 <code>mute</code> 参数）</li>
+<li>'repeat_off' - 禁用重复模式</li>
+<li>'repeat_one' - 连续重复当前曲目</li>
+<li>'repeat_all' - 连续重复所有曲目</li>
+<li>'shuffle' - 随机播放顺序</li>
+<li>'unshuffle' - 恢复原始播放顺序</li>
+<li>'switch' - 将此客户端移动到预定义循环中的下一个组，如<a href="#switch-command-cycle">下文</a>所述</li>
+<li>'seek' - 跳转到绝对位置。客户端必须包含 <code>position_ms</code>；如果 <code>position_ms</code> 超出 0 到 <code>seek_max_ms</code> 的范围，服务端必须忽略该命令</li>
+<li>'seek_relative' - 按相对于当前位置的偏移量跳转。客户端必须包含 <code>offset_ms</code>；服务端尽力应用该偏移量，并且必须将结果限制在可跳转范围内</li>
+</ul>
+<p><strong>设置组音量：</strong> 通过 'volume' 命令设置组音量时，服务端必须对组中支持 <code>volume</code> 命令的播放器应用以下算法，在尽可能接近请求音量的同时保留相对音量级别（受播放器边界限制）。不支持音量的播放器将被排除，且不接收音量命令：</p>
+<ol>
+<li>计算差值：<code>delta = requested_volume - current_group_volume</code>（其中当前组音量是它们音量的平均值）</li>
+<li>将差值应用于每个播放器的音量</li>
+<li>限制任何超出边界（0-100%）的播放器音量</li>
+<li>如果有任何播放器被限制：
+<ul>
+<li>计算丢失的差值：所有被限制播放器的 <code>（proposed_volume - clamped_volume）</code> 之和</li>
+<li>将丢失的差值平均分配给未被限制的播放器</li>
+<li>重复步骤 1-4，直到：
+<ul>
+<li>所有差值都已成功应用，或</li>
+<li>所有播放器都被限制在其音量边界</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>循环结束后，服务端必须在发送命令前将每个最终的单播放器音量四舍五入到最接近的整数。</p>
+<p>该循环仅计算最终的单播放器音量；一旦完成，服务端会向每个播放器发送单个音量命令——从不发送中间值。</p>
+<p>这确保了当组音量设置为 100% 时，所有播放器在可能的情况下都会达到 100%，并且最终组音量在播放器边界和四舍五入允许的范围内尽可能接近请求的音量。</p>
+<p><strong>设置组静音：</strong> 通过 'mute' 命令设置组静音时，服务端会将静音状态应用于组中支持 <code>mute</code> 命令的每个播放器。组音量更改不会影响任何播放器的 <code>muted</code> 状态（请参阅<a href="#player-messages">播放器角色</a>）。</p>
+<h4 id="-57" tabindex="-1"><a class="heading-anchor" href="#-57" aria-hidden="true">#</a>切换命令循环</h4>
+<p><strong>上一组优先级：</strong> 如果客户端仍在变为不可用（<code>available: false</code>）或发送 <a href="#client--server-clientleave"><code>client/leave</code></a> 时被移入的单人组中，则 <code>switch</code> 命令会优先重新加入上一组。</p>
+<p>对于<strong>具有</strong> <code>player</code> 角色的客户端，循环包括：</p>
+<ol>
+<li>当前正在播放的多客户端组</li>
+<li>单客户端组（其他播放器单独播放）</li>
+<li>仅包含此客户端的单人组</li>
+</ol>
+<p>对于<strong>没有</strong> <code>player</code> 角色的客户端，循环包括：</p>
+<ol>
+<li>当前正在播放的多客户端组</li>
+<li>单客户端组（其他播放器单独播放）</li>
+</ol>
+<h3 id="--serverstate-" tabindex="-1"><a class="heading-anchor" href="#--serverstate-" aria-hidden="true">#</a>服务端 → 客户端：<code>server/state</code> 控制器对象</h3>
+<p><a href="#server--client-serverstate"><code>server/state</code></a> 中的 <code>controller</code> 对象具有以下结构：</p>
+<ul>
+<li><code>controller</code>：对象
+<ul>
+<li><code>supported_commands</code>：字符串数组 - 以下项的子集：'play' | 'pause' | 'stop' | 'next' | 'previous' | 'volume' | 'mute' | 'repeat_off' | 'repeat_one' | 'repeat_all' | 'shuffle' | 'unshuffle' | 'switch' | 'seek' | 'seek_relative'</li>
+<li><code>volume</code>：整数 - 整个组的音量，范围 0-100</li>
+<li><code>muted</code>：布尔值 - 整个组的静音状态</li>
+<li><code>repeat</code>：'off' | 'one' | 'all' - 重复模式：'off' = 不重复，'one' = 重复当前曲目，'all' = 重复所有曲目（在队列、播放列表等中）</li>
+<li><code>shuffle</code>：布尔值 - 随机播放模式已启用/禁用</li>
+<li><code>seek_max_ms?</code>：整数 - 'seek' 可以定位的最大绝对位置，以毫秒为单位（例如，当前曲目的结尾）。当 'seek' 在 <code>supported_commands</code> 中时，服务端必须包含此项；当可跳转范围未知时（例如，直播流），服务端必须省略 'seek'；仍然可以提供 'seek_relative'</li>
+</ul>
+</li>
+</ul>
+<p><strong>读取组音量：</strong> 报告的组音量是组中支持 <code>volume</code> 命令的播放器音量的平均值，四舍五入为整数。不支持音量的播放器将从计算中排除。如果组中没有播放器支持 <code>volume</code>，则组音量报告为 100，并且 <code>'volume'</code> 将从控制器 <code>supported_commands</code> 中移除。播放器可能会在会话中途更改其 <a href="#client--server-clientstate-player-object"><code>supported_commands</code></a>，因此每当播放器的音量支持发生变化时，服务端都会重新计算组音量和控制器 <code>supported_commands</code>。</p>
+<p><strong>读取组静音：</strong> 仅当组中所有支持静音的播放器都被静音时，组静音才为 <code>true</code>。不支持静音的播放器将被排除。如果部分支持静音的播放器被静音而其他没有，则组静音为 <code>false</code>。如果组中没有播放器支持 <code>mute</code>，则组静音报告为 <code>false</code>，并且 <code>'mute'</code> 将从控制器 <code>supported_commands</code> 中移除。当播放器的静音支持发生变化时，服务端以相同的方式重新计算组静音和控制器 <code>supported_commands</code>。</p>
+<h2 id="-58" tabindex="-1"><a class="heading-anchor" href="#-58" aria-hidden="true">#</a>元数据消息</h2>
+<p>本节介绍具有 <code>metadata</code> 角色的客户端特有的消息，这些消息用于处理曲目信息和播放进度的显示。元数据客户端会接收包含曲目详情的状态（state）更新。</p>
+<h3 id="--serverstate--1" tabindex="-1"><a class="heading-anchor" href="#--serverstate--1" aria-hidden="true">#</a>服务器 → 客户端：<code>server/state</code> 元数据对象</h3>
+<p><a href="#server--client-serverstate"><code>server/state</code></a> 中的 <code>metadata</code> 对象具有以下结构：</p>
+<ul>
+<li><code>metadata</code>: 对象
+<ul>
+<li><code>timestamp</code>: 整数 - 此元数据生效的服务器时钟时间（以微秒为单位），也是<a href="#calculating-current-track-position">进度推算</a>的起点。过去或现在的时间戳描述当前正在播放的音频；未来的时间戳则安排更新（请参阅<a href="#scheduled-metadata-updates">计划元数据更新</a>）</li>
+<li><code>title?</code>: 字符串 - 曲目标题</li>
+<li><code>artist?</code>: 字符串 - 主要艺术家</li>
+<li><code>album_artist?</code>: 字符串 - 专辑艺术家</li>
+<li><code>album?</code>: 字符串 - 此曲目所属的专辑或发行版名称</li>
+<li><code>artwork_url?</code>: 字符串 - 专辑封面图像的 URL。适用于希望将元数据转发到外部系统的客户端，或能够自行获取和处理图像的强大客户端</li>
+<li><code>year?</code>: 整数 - YYYY 格式的发行年份</li>
+<li><code>track?</code>: 整数 - 专辑中的曲目编号（从 1 开始索引），如果未知或不适用则省略</li>
+<li><code>progress?</code>: 对象 - 播放进度信息。省略它会清除客户端的位置，因此请在每个需要报告位置的 <code>metadata</code> 状态（state）中包含它。每当播放状态（state）发生变化（播放、暂停、恢复、跳转、播放速度更改）时，服务器必须（MUST）发送新的 <code>metadata</code> 状态，除非该更改已通过计划更新传达
+<ul>
+<li><code>track_progress</code>: 整数 - 自曲目开始以来的播放位置（以毫秒为单位），在 <code>timestamp</code> 时测量</li>
+<li><code>track_duration</code>: 整数 - 曲目总长度（以毫秒为单位），无限制/未知时长为 0（例如，实时无线电广播流）</li>
+<li><code>playback_speed</code>: 整数 - 播放速度乘数 * 1000（例如，1000 = 正常速度，1500 = 1.5 倍速度，500 = 0.5 倍速度，0 = 已暂停）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="-59" tabindex="-1"><a class="heading-anchor" href="#-59" aria-hidden="true">#</a>计划元数据更新</h4>
+<p><code>timestamp</code> 在未来的 <code>metadata</code> 对象是计划更新：在该时间生效的状态（state）（例如，与可听见的曲目切换同步的下一首曲目的元数据）。</p>
+<p>客户端保留一个<strong>当前状态（state）<strong>以及最多一个</strong>待处理更新</strong>。当前状态是最近应用的 <code>metadata</code> 对象，也是客户端显示的内容。如果消息的 <code>timestamp</code> 通过<a href="#clock-synchronization">时间过滤器</a>（当前最佳估计，无需等待收敛）转换到本地时钟后仍处于未来，则该消息将成为待处理更新，替换任何已保留的更新，并在到达该时刻时应用。如果转换后的时间戳在过去或现在，则立即应用并丢弃任何已保留的待处理更新。客户端可以（MAY）提前显示待处理更新（例如，下一首曲目的即将播放显示）。</p>
+<h5 id="-60" tabindex="-1"><a class="heading-anchor" href="#-60" aria-hidden="true">#</a>计划元数据的服务器规则</h5>
+<p>服务器不应（SHOULD NOT）在其 <code>timestamp</code> 之前超过 20 秒发送计划更新。</p>
+<p>要取消计划更新，请使用过去或现在的 <code>timestamp</code> 重新发送当前状态（state）。新的带有未来时间戳的消息会替换计划更新，而不是在其后排队；要按顺序显示两个更新，只有在第一个时间戳在服务器时钟上过去后才发送第二个。</p>
+<h4 id="-61" tabindex="-1"><a class="heading-anchor" href="#-61" aria-hidden="true">#</a>计算当前曲目位置</h4>
+<p>客户端可以随时使用当前元数据状态（state）中的 <code>timestamp</code> 和 <code>progress</code> 值计算当前曲目位置，绝不能使用待处理的计划更新（请参阅<a href="#scheduled-metadata-updates">计划元数据更新</a>）：</p>
+<pre><code class="language-python">calculated_progress = metadata.progress.track_progress + (current_time - metadata.timestamp) * metadata.progress.playback_speed / 1000000
+
+if metadata.progress.track_duration != 0:
+    current_track_progress_ms = max(min(calculated_progress, metadata.progress.track_duration), 0)
+else:
+    current_track_progress_ms = max(calculated_progress, 0)
+</code></pre>
+<p>通过反转<a href="#clock-synchronization">时间过滤器</a>的服务器到本地映射，获取以服务器时钟微秒为单位的 <code>current_time</code>。</p>
+<h2 id="-62" tabindex="-1"><a class="heading-anchor" href="#-62" aria-hidden="true">#</a>封面艺术消息</h2>
+<p>本节描述特定于具有 <code>artwork</code> 角色的客户端的消息，这些客户端负责处理封面艺术图像的显示。封面艺术客户端以其首选的格式和分辨率接收图像。</p>
+<p><strong>通道：</strong> 封面艺术客户端可以支持 1-4 个独立通道，允许它们显示多个相关图像。例如，设备可以在一个通道上显示专辑封面，同时在其他通道上显示艺术家照片或背景图像。每个通道独立运行，具有自己的格式、分辨率和源类型（专辑或艺术家封面）。</p>
+<h3 id="--clientstate-artwork-" tabindex="-1"><a class="heading-anchor" href="#--clientstate-artwork-" aria-hidden="true">#</a>客户端 → 服务器：<code>client/state</code> artwork 对象</h3>
+<p><a href="#client--server-clientstate"><code>client/state</code></a> 中的 <code>artwork</code> 对象具有以下结构：</p>
+<ul>
+<li><code>artwork</code>: object
+<ul>
+<li><code>channels</code>: object[] - 客户端为每个封面艺术通道所需的配置，数组索引为通道编号
+<ul>
+<li><code>source</code>: 'album' | 'artist' | 'none' - 封面艺术源类型</li>
+<li><code>format?</code>: 'jpeg' | 'png' - 图像格式标识符。除非 <code>source</code> 为 <code>'none'</code>，否则为必填项</li>
+<li><code>width?</code>: integer - 交付图像的宽度（以像素为单位）。除非 <code>source</code> 为 <code>'none'</code>，否则为必填项</li>
+<li><code>height?</code>: integer - 交付图像的高度（以像素为单位）。除非 <code>source</code> 为 <code>'none'</code>，否则为必填项</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><code>channels</code> 数组从通道 0 开始按位置排列（长度为 1-4）。数组未涵盖的通道索引视为 <code>source: 'none'</code>，因此客户端可以（MAY）在其最后一个活动通道之后截断该数组。如果 <code>artwork</code> 对象的 <code>channels</code> 数组长度超过 4，则为协议错误；服务器应当（SHOULD）关闭连接。</p>
+<p><strong>注意：</strong> 客户端可以根据其显示能力使用 1-4 个独立的封面艺术通道。通道 0 使用二进制消息类型 8，通道 1 使用类型 9，依此类推。</p>
+<p>服务器必须（MUST）支持 'jpeg' 和 'png'。</p>
+<p>服务器必须（MUST）严格按照为通道声明的 <code>width</code> 和 <code>height</code> 交付每张图像。它必须（MUST）缩放源图像以适应这些尺寸并保持其宽高比，必须（MUST）用黑色填充剩余区域，并且不得（MUST NOT）裁剪图像。</p>
+<p>当通道的配置在 <code>artwork</code> 流处于活动状态时发生变化，服务器会响应一个携带新配置的 <a href="#server--client-streamstart"><code>stream/start</code></a>，随后通过二进制消息立即为配置已更改且新 <code>source</code> 不是 <code>'none'</code> 的通道更新封面艺术。</p>
+<p><strong>None 源：</strong> 如果通道的 <code>source</code> 设置为 <code>none</code>，服务器将不会为该通道发送任何封面艺术数据。这允许客户端在运行时动态禁用和启用特定通道，而无需重新建立 WebSocket 连接（对动态显示布局很有用）。</p>
+<h3 id="--streamstart-artwork-" tabindex="-1"><a class="heading-anchor" href="#--streamstart-artwork-" aria-hidden="true">#</a>服务器 → 客户端：<code>stream/start</code> artwork 对象</h3>
+<p><a href="#server--client-streamstart"><code>stream/start</code></a> 中的 <code>artwork</code> 对象具有以下结构：</p>
+<ul>
+<li><code>artwork</code>: object
+<ul>
+<li><code>channels</code>: object[] - 每个封面艺术通道的配置，数组索引为通道编号
+<ul>
+<li><code>source</code>: 'album' | 'artist' | 'none' - 封面艺术源类型</li>
+<li><code>format?</code>: 'jpeg' | 'png' - 编码图像的格式。除非 <code>source</code> 为 <code>'none'</code>，否则为必填项</li>
+<li><code>width?</code>: integer - 编码图像的宽度（以像素为单位）。除非 <code>source</code> 为 <code>'none'</code>，否则为必填项</li>
+<li><code>height?</code>: integer - 编码图像的高度（以像素为单位）。除非 <code>source</code> 为 <code>'none'</code>，否则为必填项</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><code>channels</code> 数组从通道 0 开始按位置排列，且长度不超过 4。数组未涵盖的通道或 <code>source</code> 为 <code>'none'</code> 的通道不会被流式传输；服务器应当（SHOULD）在最后一个流式传输的通道之后截断该数组。</p>
+<p>每个通道的配置必须（MUST）与该通道当前的 <a href="#client--server-clientstate-artwork-object"><code>client/state</code></a> 封面艺术声明相匹配，状态数组未涵盖的通道计为 <code>source: 'none'</code>。</p>
+<p><strong>延迟加入：</strong> 在封面艺术 <code>stream/start</code>（初始或重连后）之后，服务器应当（SHOULD）迅速为每个 <code>source</code> 不是 <code>'none'</code> 的通道发送当前图像，以便在曲目中途加入的客户端不会在下一首曲目更改前保持空白。如果该通道还提前安排了图像，服务器会先发送当前图像，然后重新发送已安排的图像（如果顺序相反，当前图像会丢弃该安排）。</p>
+<h3 id="---2" tabindex="-1"><a class="heading-anchor" href="#---2" aria-hidden="true">#</a>服务器 → 客户端：封面艺术（二进制）</h3>
+<p>服务器不得（MUST NOT）在活动封面艺术流之外发送封面艺术消息。</p>
+<p>在活动流期间，不可用的客户端应当（SHOULD）丢弃其他方面有效的图像数据，并且不得（MUST NOT）仅因其到达而关闭连接。</p>
+<p>在活动流期间，丢弃图像数据的客户端必须（MUST）仍然处理 announce 和 cancel，并将每个部分的 <code>data</code> 字节计入 <code>total_size</code>。</p>
+<p>图像通过一个 announce 后跟编码图像的部分进行传输，所有操作均在其通道上进行。announce 携带图像的总大小，不包含图像数据。</p>
+<p><strong>线路格式：</strong></p>
+<ul>
+<li>Announce: <code>[type][flags][timestamp][total_size]</code></li>
+<li>Part: <code>[type][flags][data]</code></li>
+<li>Cancel: <code>[type][flags]</code></li>
+</ul>
+<p>字段如下：</p>
+<ul>
+<li><code>type</code>（字节 0）：uint8，<code>8</code>-<code>11</code> - 分别对应封面艺术通道 0-3</li>
+<li><code>flags</code>（字节 1）：uint8 - 在 cancel 消息（定义见下文）上设置位 0，在 announce 消息上设置位 1；part 不设置这两者。位 2-7 为保留位，必须（MUST）为零</li>
+<li><code>timestamp</code>（announce，字节 2-9）：big-endian int64 - 设备应显示该图像时的服务器时钟时间（以微秒为单位）</li>
+<li><code>total_size</code>（announce，字节 10-13）：big-endian uint32 - 编码图像的大小（以字节为单位）</li>
+<li><code>data</code>（part，剩余字节）：编码图像的后续字节</li>
+</ul>
+<p>所有部分拼接后的 <code>data</code> 即为编码图像；当接收到的数据达到 <code>total_size</code> 时，传输完成。带有 <code>total_size</code> 为 <code>0</code> 的 announce 会立即完成，没有 part。封面艺术消息不得（MUST NOT）超过 65519 字节，以便它可以在单个 Noise 传输消息中容纳而无需<a href="#fragmentation">分片</a>。</p>
+<p>在该角色的所有通道中，一次最多只能有一个图像传输处于进行中：传输从其 announce 开始处于进行中状态，直到完成或其部分接收的图像被丢弃。在传输进行中时，服务器不得（MUST NOT）在任何通道上 announce 图像；要替换仍在进行中的图像，它必须先取消该传输。在发送封面艺术 <a href="#server--client-streamend"><code>stream/end</code></a> 或更改该传输通道配置的 <a href="#server--client-streamstart"><code>stream/start</code></a> 之前，服务器必须（MUST）取消进行中的传输。在传输的消息之间可以（MAY）发送任何其他消息。</p>
+<p>服务器应当（SHOULD）对传输的部分进行节奏控制（分批发送），而不是背靠背地连续发送。封面艺术不是时间关键型的，因此分散发送部分可以防止大图像延迟连接承载的其他角色，例如 <code>player@v1</code> 音频块。</p>
+<p>时间戳指示此封面艺术应显示的时间。对于每个通道，客户端保留<strong>当前图像</strong>（即通道始终显示的内容），以及最多一个<strong>待定图像</strong>：最近 announce 的图像，从其 announce 开始直到它变为当前图像。announce 会丢弃该通道的待定图像。一旦其传输完成，并且其时间戳（通过<a href="#clock-synchronization">时间过滤器</a>转换为本地时钟，使用当前最佳估计，无需等待收敛）已到达，待定图像就会变为当前图像；封面艺术绝不会因迟到而被丢弃。客户端可以（MAY）在其时间戳附近平滑过渡到完整的待定图像（例如交叉淡入淡出）或提前显示它（例如即将显示的提示）。在封面艺术角色的 <a href="#server--client-streamend"><code>stream/end</code></a> 时，客户端必须（MUST）清除当前图像并丢弃任何待定图像，以便该通道不再显示封面艺术。更改通道配置的 <a href="#server--client-streamstart"><code>stream/start</code></a> 同样会丢弃该通道的待定图像，如果该图像仍然适用，服务器会重新发送它。</p>
+<p><strong>清除封面艺术：</strong> 要清除特定通道上当前显示的封面艺术，服务器为该通道发送一个空图像：一个 <code>total_size</code> 为 <code>0</code> 的 announce。空图像遵循与任何其他图像相同的规则：未来的时间戳会安排清除操作。在 <a href="#server--client-streamstart"><code>stream/start</code></a> 将通道的 <code>source</code> 设置为 <code>'none'</code> 之前，服务器必须（MUST）使用过去或现在的时间戳通过这种方式清除该通道。</p>
+<p><strong>Cancel 消息：</strong> 仅由 <code>type</code> 和 <code>flags</code> 字节组成的消息，其中设置了位 0。它会丢弃该通道的待定图像，立即生效；当前图像不受影响。</p>
+<p><strong>格式错误的消息</strong>属于协议错误：客户端必须（MUST）关闭连接。这些情况包括：消息短于 2 字节或超过上述大小上限、长度不是 14 字节的 announce、长于 2 字节的 cancel 消息、非零的保留标志位，以及同时设置了位 0 和位 1 的消息。</p>
+<p><strong>活动封面艺术流内的格式错误序列</strong>也要求客户端关闭连接：在传输进行中时收到 announce、在没有传输进行中或在非进行中传输的通道上收到 part，以及其 <code>data</code> 会超出 <code>total_size</code> 的 part。</p>
+<h4 id="-63" tabindex="-1"><a class="heading-anchor" href="#-63" aria-hidden="true">#</a>服务器关于计划封面艺术的规则</h4>
+<p>服务器不应当（SHOULD NOT）在其时间戳前超过 20 秒发送计划的图像 announce 消息。</p>
+<p>要取消计划的图像，请发送 cancel 消息。新的带有未来时间戳的图像会替换计划的图像，而不是在其后排队；要按顺序显示两个图像，只有在第一个图像的时间戳在服务器时钟上过去后才发送第二个。</p>
+<h2 id="visualizer-" tabindex="-1"><a class="heading-anchor" href="#visualizer-" aria-hidden="true">#</a>Visualizer 消息</h2>
+<p>本节描述具有 <code>visualizer</code> 角色的客户端专用的消息，这些客户端为正在播放的音频创建可视化呈现。Visualizer 客户端接收根据组内当前播放音频计算出的音频分析数据。</p>
+<p>每条 visualizer 二进制消息恰好携带一帧。服务器按时间戳非递减的顺序发出消息，因此客户端可以按到达顺序处理。对当前音源无法流式传输的类型会被静默地从 <a href="#server--client-streamstart-visualizer-object"><code>stream/start</code></a> 回显的集合中省略。<code>beat</code> 和 <code>peak</code> 是事件驱动的；其余类型都是周期性的。<code>rate_max</code> 仅适用于周期性类型。</p>
+<p>只有在 <a href="#server--client-streamclear-visualizer"><code>stream/clear</code></a> 之后或开始新流时，时间戳才允许回退。用 <code>stream/start</code> 更新已有流时不允许时间戳回退。</p>
+<p><strong><code>beat</code> 与 <code>peak</code> 的区别：</strong> <code>beat</code> 是由节拍/节奏追踪推导出的音乐脉冲，落在节奏网格上，强拍（downbeat）标记小节的开始。精确的节拍检测通常依赖离线分析（例如神经节拍追踪器），不具备这种分析能力的服务器会省略该类型。<code>peak</code> 是从音频流实时检测到的能量突变，在任何瞬态（鼓点、镲片、起音）上触发，与节奏网格无关。<code>beat</code> 和 <code>peak</code> 可以在同一次敲击上触发，<code>peak</code> 也可能在没有任何 <code>beat</code> 的小节中间触发。</p>
+<h3 id="client--server-clienthello-visualizerv1-" tabindex="-1"><a class="heading-anchor" href="#client--server-clienthello-visualizerv1-" aria-hidden="true">#</a>Client → Server: <code>client/hello</code> visualizer@v1 支持对象</h3>
+<p><a href="#client--server-clienthello"><code>client/hello</code></a> 中的 <code>visualizer@v1_support</code> 对象结构如下：</p>
+<ul>
+<li><code>visualizer@v1_support</code>: object
+<ul>
+<li><code>buffer_capacity</code>: integer - 缓冲的 visualizer 二进制消息的最大总字节数，只统计每条重组后消息的类型字节、时间戳和数据</li>
+</ul>
+</li>
+</ul>
+<p>如果某条消息的大小加上服务器时钟上具有未来时间戳的先前已发送 visualizer 消息的总大小会超过 <code>buffer_capacity</code>，服务器就不得发送该消息。发送 visualizer <code>stream/clear</code> 或 <code>stream/end</code> 会重置该计数。</p>
+<p>请求的数据类型、帧率上限和频谱配置是动态的，通过 <a href="#client--server-clientstate-visualizer-object"><code>client/state</code></a> 的 visualizer 对象上报。</p>
+<h3 id="client--server-clientstate-visualizer-" tabindex="-1"><a class="heading-anchor" href="#client--server-clientstate-visualizer-" aria-hidden="true">#</a>Client → Server: <code>client/state</code> visualizer 对象</h3>
+<p><a href="#client--server-clientstate"><code>client/state</code></a> 中的 <code>visualizer</code> 对象结构如下：</p>
+<ul>
+<li><code>visualizer</code>: object
+<ul>
+<li><code>types</code>: string[] - 客户端请求的可视化数据类型：'beat'、'loudness'、'f_peak'、'peak'、'spectrum'。可以为空表示不请求可视化数据</li>
+<li><code>rate_max</code>: positive integer - 每种类型每秒的最大周期性可视化帧数（分别独立适用于 <code>loudness</code>、<code>f_peak</code>、<code>spectrum</code>）。不适用于 <code>beat</code> 或 <code>peak</code> 事件。</li>
+<li><code>spectrum?</code>: object - 频谱配置，当 <code>types</code> 包含 'spectrum' 时必填
+<ul>
+<li><code>n_disp_bins</code>: integer - 显示频段的数量（即图形均衡器上的柱条数）</li>
+<li><code>scale</code>: 'mel' | 'log' | 'lin' - 从 FFT 频率到显示频段的映射。'mel' 使用 HTK mel 公式（<code>m = 2595 * log10(1 + f/700)</code>），'log' 使用以 10 为底的对数频率，'lin' 使用线性频率间隔</li>
+<li><code>f_min</code>: integer - 要分箱的最低频率（Hz）</li>
+<li><code>f_max</code>: integer - 要分箱的最高频率（Hz）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>当 <code>visualizer</code> 流处于活动状态时此配置发生变化，服务器会重新推导流配置，如有变化则发送 <a href="#server--client-streamstart"><code>stream/start</code></a>；如果没有活动流，配置将应用于服务器启动的下一个流。</p>
+<p><code>visualizer</code> 对象的 <code>types</code> 包含 <code>'spectrum'</code> 却没有 <code>spectrum</code> 对象属于协议错误；服务器应当关闭连接。</p>
+<h3 id="server--client-streamstart-visualizer-" tabindex="-1"><a class="heading-anchor" href="#server--client-streamstart-visualizer-" aria-hidden="true">#</a>Server → Client: <code>stream/start</code> visualizer 对象</h3>
+<p><a href="#server--client-streamstart"><code>stream/start</code></a> 中的 <code>visualizer</code> 对象结构如下：</p>
+<ul>
+<li><code>visualizer</code>: object
+<ul>
+<li><code>types</code>: string[] - 服务器将要流式传输的可视化数据类型。必须是客户端当前 <a href="#client--server-clientstate-visualizer-object"><code>client/state</code></a> 所请求类型的子集</li>
+<li><code>rate_max</code>: integer - 服务器每种类型每秒将发出的周期性帧数。不得超过客户端请求的 <code>rate_max</code></li>
+<li><code>tracks_downbeats?</code>: boolean - 当 <code>types</code> 包含 'beat' 时必填，否则不出现。若服务器的节拍追踪器还能识别小节起始（强拍）则为 true。为 false 时 <code>beat</code> 消息上的强拍标志始终为 0</li>
+<li><code>spectrum?</code>: object - 频谱配置，仅当 <code>types</code> 包含 'spectrum' 时出现。必须与客户端当前请求的配置一致
+<ul>
+<li><code>n_disp_bins</code>: integer - 显示频段的数量</li>
+<li><code>scale</code>: 'mel' | 'log' | 'lin' - 从 FFT 频率到显示频段的映射</li>
+<li><code>f_min</code>: integer - 最低频率（Hz）</li>
+<li><code>f_max</code>: integer - 最高频率（Hz）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="server--client-streamclear-visualizer" tabindex="-1"><a class="heading-anchor" href="#server--client-streamclear-visualizer" aria-hidden="true">#</a>Server → Client: <code>stream/clear</code> visualizer</h3>
+<p>当 <a href="#server--client-streamclear"><code>stream/clear</code></a> 包含 visualizer 角色时，客户端必须清空所有已缓冲的可视化数据，并继续处理此消息之后收到的数据。</p>
+<h3 id="server--client-" tabindex="-1"><a class="heading-anchor" href="#server--client-" aria-hidden="true">#</a>Server → Client: 可视化数据（二进制）</h3>
+<p>服务器不得在活动的 visualizer 流之外发送可视化消息。</p>
+<p>在活动流期间，不可用的客户端应当丢弃本来有效的可视化数据，并且不得仅因其到达而关闭连接。</p>
+<p>每种可视化 <code>type</code> 都有自己的二进制消息类型。每条消息恰好携带一帧 <code>[timestamp:8][data]</code>：</p>
+<ul>
+<li>字节 0：消息类型（uint8，下述类型之一）</li>
+<li>字节 1-8：时间戳（大端 int64）- 此数据应被显示时的服务器时钟时间（微秒）。客户端必须使用<a href="#clock-synchronization">时间过滤器</a>把这个服务器时间戳换算到本地时钟</li>
+<li>其余字节：数据，布局见下文各类型；所有 <code>uint16</code> 字段均为大端序</li>
+</ul>
+<p>到达时时间戳已成过去的数据会被丢弃；过期的可视化帧永远不会被渲染。</p>
+<p><code>loudness</code>、<code>spectrum</code> 频段和 <code>f_peak</code> 幅度使用完整的 <code>uint16</code> 范围 0-65535，其中 0 = 静音，65535 = 满量程。数值经过 A 加权与分贝换算：-60 dB → 0，0 dB → 65535，在该范围内线性映射。</p>
+<p>消息类型 <code>21</code>、<code>22</code> 和 <code>23</code> 在该角色 16-23 的分配中保留给未来的 visualizer 类型，实现不得使用。</p>
+<h4 id="loudness---16" tabindex="-1"><a class="heading-anchor" href="#loudness---16" aria-hidden="true">#</a><code>loudness</code> — 消息类型 <code>16</code></h4>
+<ul>
+<li>2 字节：<code>uint16</code> 值</li>
+</ul>
+<p>整体 A 加权响度，单位 dB（换算见上文）。</p>
+<h4 id="beat---17" tabindex="-1"><a class="heading-anchor" href="#beat---17" aria-hidden="true">#</a><code>beat</code> — 消息类型 <code>17</code></h4>
+<ul>
+<li>1 字节：<code>uint8</code> 标志位。位 0 = 强拍（小节起始）。位 1-7 保留，服务器必须置零，客户端忽略</li>
+</ul>
+<p>音乐节拍事件。只有当 <a href="#server--client-streamstart-visualizer-object"><code>stream/start</code></a> 设置 <code>tracks_downbeats: true</code> 时位 0 才有意义；否则它始终为 0。</p>
+<h4 id="f_peak---18" tabindex="-1"><a class="heading-anchor" href="#f_peak---18" aria-hidden="true">#</a><code>f_peak</code> — 消息类型 <code>18</code></h4>
+<ul>
+<li>2 字节：<code>uint16</code> freq - 主导频率（Hz）（0 = 未检测到峰值，此时 amp 也必须为 0）</li>
+<li>2 字节：<code>uint16</code> amp - 幅度（换算见上文）</li>
+</ul>
+<p>追踪主导 FFT 频段，它并不总是基频：强谐波可能占主导，因此不要把 <code>f_peak</code> 当作正在演奏的音符。</p>
+<h4 id="spectrum---19" tabindex="-1"><a class="heading-anchor" href="#spectrum---19" aria-hidden="true">#</a><code>spectrum</code> — 消息类型 <code>19</code></h4>
+<ul>
+<li>2*n 字节：<code>uint16[n]</code> 频段，从低频到高频。<code>n</code> = <a href="#server--client-streamstart-visualizer-object"><code>stream/start</code></a> 中的 <code>n_disp_bins</code></li>
+</ul>
+<p>每个显示频段的幅度（换算见上文）。服务器可以对 <code>n_disp_bins</code> 施加实现自定义的上限，以保持每帧大小合理。</p>
+<h4 id="peak---20" tabindex="-1"><a class="heading-anchor" href="#peak---20" aria-hidden="true">#</a><code>peak</code> — 消息类型 <code>20</code></h4>
+<ul>
+<li>1 字节：<code>uint8</code> strength</li>
+</ul>
+<p>能量突变事件。在任何瞬态（鼓点、镲片、起音）上触发，与音乐节拍无关。<code>strength</code> 取值 0-255，供客户端缩放闪烁强度。</p>
+<h2 id="-64" tabindex="-1"><a class="heading-anchor" href="#-64" aria-hidden="true">#</a>颜色消息</h2>
+<p>本节描述具有 <code>color</code> 角色的客户端特有的消息，这些客户端接收从当前音频派生的颜色。颜色可以从专辑封面中提取、由音乐源提供，或由服务器手动编程。</p>
+<h3 id="--serverstate--2" tabindex="-1"><a class="heading-anchor" href="#--serverstate--2" aria-hidden="true">#</a>服务器 → 客户端：<code>server/state</code> 颜色对象</h3>
+<p><a href="#server--client-serverstate"><code>server/state</code></a> 中的 <code>color</code> 对象具有以下结构：</p>
+<ul>
+<li><code>color</code>：对象
+<ul>
+<li><code>timestamp</code>：整数 - 这些颜色生效的服务器时钟时间（以微秒为单位）。过去或现在的时间戳描述当前正在播放的音频；未来的时间戳安排更新（请参阅<a href="#scheduled-color-updates">计划颜色更新</a>）</li>
+<li><code>background_dark?</code>：整数数组 - 适合深色模式的背景颜色，格式为 <code>[R, G, B]</code>，值范围为 0-255。服务器必须确保与白色文本以及 <code>on_dark</code>（如果也存在）的最小 WCAG 对比度为 4.5:1。</li>
+<li><code>background_light?</code>：整数数组 - 适合浅色模式的背景颜色，格式为 <code>[R, G, B]</code>，值范围为 0-255。服务器必须确保与黑色文本以及 <code>on_light</code>（如果也存在）的最小 WCAG 对比度为 4.5:1。</li>
+<li><code>primary?</code>：整数数组 - 主色调，格式为 <code>[R, G, B]</code>，值范围为 0-255。未针对对比度进行调整。</li>
+<li><code>accent?</code>：整数数组 - 辅助色或互补色，格式为 <code>[R, G, B]</code>，值范围为 0-255。未针对对比度进行调整。</li>
+<li><code>on_dark?</code>：整数数组 - 适合在深色背景上使用的浅色，格式为 <code>[R, G, B]</code>，值范围为 0-255。服务器必须确保与 <code>background_dark</code>（如果也存在）以及黑色文本的最小 WCAG 对比度为 4.5:1，因此它也可以作为备用的浅色背景。</li>
+<li><code>on_light?</code>：整数数组 - 适合在浅色背景上使用的深色，格式为 <code>[R, G, B]</code>，值范围为 0-255。服务器必须确保与 <code>background_light</code>（如果也存在）以及白色文本的最小 WCAG 对比度为 4.5:1，因此它也可以作为备用的深色背景。</li>
+</ul>
+</li>
+</ul>
+<h4 id="-65" tabindex="-1"><a class="heading-anchor" href="#-65" aria-hidden="true">#</a>计划颜色更新</h4>
+<p>时间戳（<code>timestamp</code>）在未来的 <code>color</code> 对象是计划更新：在该时间生效的状态（例如，下一首曲目的颜色与可听见的曲目切换时间同步）。</p>
+<p>客户端保留一个<strong>当前状态</strong>以及最多一个<strong>待处理更新</strong>。当前状态是最近应用的 <code>color</code> 对象，也是客户端渲染的依据。如果消息的 <code>timestamp</code> 通过<a href="#clock-synchronization">时间过滤器</a>（当前最佳估计，无需等待收敛）转换到本地时钟后仍处于未来，则该消息将成为待处理更新，替换任何已保留的更新，并在到达该时刻时应用。如果转换后的时间戳在过去或现在，则立即应用该消息并丢弃任何已保留的待处理更新。客户端可以在其时间戳附近平滑过渡到待处理更新（例如颜色混合）。</p>
+<h5 id="-66" tabindex="-1"><a class="heading-anchor" href="#-66" aria-hidden="true">#</a>计划颜色的服务器规则</h5>
+<p>服务器不应在其 <code>timestamp</code> 之前超过 20 秒发送计划更新。</p>
+<p>要取消计划更新，请使用过去或现在的 <code>timestamp</code> 重新发送当前状态。新的带有未来时间戳的消息会替换计划更新，而不是在其后排队；要按顺序显示两个更新，只有在第一个时间戳在服务器时钟上过去后才发送第二个。</p>
+
+      </div>
+    </main>
+    
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="site-footer__inner">
+          <div class="site-footer__brand">
+            <a href="/sendspin/" class="nav__logo" aria-label="Sendspin home">
+  <img class="nav__logo-image" src="/sendspin/images/sendspin-lockup.svg" width="148" height="35" alt="" />
+</a>
+
+            <p class="site-footer__tagline">
+              The open standard for music in every room — from the Open Home&nbsp;Foundation.
+            </p>
+            <p class="site-footer__tagline site-footer__tagline--analytics">
+              本站使用 <a
+                href="https://www.openhomefoundation.org/blog/making-our-web-analytics-open-source-with-plausible/"
+                rel="noopener">privacy-first analytics</a> 帮助我们改进网站。你可以在我们的 <a
+                href="https://plausible.openhomefoundation.org/sendspin-audio.com" rel="noopener">公开面板查看全部数据</a>.
+            </p>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>听音乐</h5>
+            <ul>
+              
+              <li><a href="/sendspin/#whole-room">体验</a></li>
+              
+              <li><a href="/sendspin/#live-demo">在线演示</a></li>
+              
+              <li><a href="/sendspin/#start">快速开始</a></li>
+              
+              <li><a href="https://www.home-assistant.io/connect/aux-2/">Connect AUX-2</a></li>
+              
+            </ul>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>构建</h5>
+            <ul>
+              
+              <li><a href="/sendspin/build/">用 Sendspin 构建</a></li>
+              
+              <li><a href="/sendspin/build/manufacturers/">面向硬件厂商</a></li>
+              
+              <li><a href="/sendspin/build/guide/">实施指南</a></li>
+              
+              <li><a href="/sendspin/build/sdks/">SDK 与库</a></li>
+              
+              <li><a href="/sendspin/build/spec/">规范</a></li>
+              
+              <li><a href="https://www.github.com/Sendspin">GitHub</a></li>
+              
+            </ul>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>社区</h5>
+            <ul>
+              
+              <li><a href="https://discord.gg/kaVm8hGpne">Discord</a></li>
+              
+              <li><a href="https://www.openhomefoundation.org">Open Home Foundation</a></li>
+              
+              <li><a href="mailto:sendspin@openhomefoundation.org">联系我们</a></li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="site-footer__legal">
+          <span>© Sendspin · Open Home Foundation. Sendspin 现为 Release Candidate 1，规范正在最终定稿。 <a href="/sendspin/licensing/">许可与商标</a></span>
+          <span>产自温暖的瑞士。</span>
+        </div>
+      </div>
+    </footer>
+    
+    <script src="/sendspin/js/mermaid-11.12.2.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true });</script>
+    
+    
+    
+  </body>
+</html>

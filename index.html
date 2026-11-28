@@ -1,0 +1,856 @@
+
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <link href="/sendspin/style.css" rel="stylesheet" />
+    
+    
+    <link href="/sendspin/homepage.css?v=20260916-3" rel="stylesheet" />
+    
+    
+    <title>Sendspin：全屋音频，无需锁定。</title>
+    <link rel="icon" href="/sendspin/images/sendspin-favicon.svg?v=20260916" type="image/svg+xml" />
+    <link rel="icon" href="/sendspin/images/sendspin-favicon.png?v=20260916" type="image/png" sizes="192x192" />
+    <meta name="description" content="跨房间音乐开放标准。你的高保真音响、现成的音箱、抽屉里的旧手机，可以让同一首歌同步唱响。" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="Sendspin：全屋音频，无需锁定。" />
+    <meta property="og:site_name" content="Sendspin" />
+    <meta
+      property="og:url"
+      content="https://www.sendspin-audio.com/"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="跨房间音乐开放标准。你的高保真音响、现成的音箱、抽屉里的旧手机，可以让同一首歌同步唱响。" />
+    <meta
+      property="og:image"
+      content="https://www.sendspin-audio.com/images/social2.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Sendspin logo — Whole-home audio, without the lock-in." />
+    <meta name="twitter:image:alt" content="Sendspin logo — Whole-home audio, without the lock-in." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sendspin：全屋音频，无需锁定。" />
+    <meta name="twitter:description" content="跨房间音乐开放标准。你的高保真音响、现成的音箱、抽屉里的旧手机，可以让同一首歌同步唱响。" />
+    <meta
+      name="twitter:image"
+      content="https://www.sendspin-audio.com/images/social2.png"
+    />
+    <script async src="https://plausible.openhomefoundation.org/js/pa-obCWzmtDxu9-S0vPtBpJu.js"></script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js?id=3MhQABjxy4RZQ6Ig&ck=3MhQABjxy4RZQ6Ig"></script>
+    <script>
+      (function () {
+        // Fetched once per build by script/fetch-allowed-referrers.js. Visitors arriving
+        // from their own Home Assistant or ESPHome instance send that private URL as the
+        // referrer, so anything not on this list is replaced before Plausible sees it.
+        var allowedReferrers = [];
+
+        window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments) };
+        window.plausible.init = window.plausible.init || function (i) { window.plausible.o = i || {} };
+
+        window.plausible.init({
+          transformRequest: function (payload) {
+            var ref = payload.r;
+            if (!ref) return payload;
+
+            var host = "";
+            try {
+              host = new URL(ref).hostname.replace(/\.$/, "");
+            } catch (e) {
+              // Unparseable referrer: falls through and gets replaced.
+            }
+
+            for (var i = 0; i < allowedReferrers.length; i++) {
+              var d = allowedReferrers[i];
+              if (host === d || (host.length > d.length && host.slice(-(d.length + 1)) === "." + d)) {
+                return payload;
+              }
+            }
+
+            // One aggregate bucket so we can see how much we filter without learning
+            // anything about individual visitors. .invalid is reserved by RFC 2606 and
+            // can never collide with a real domain.
+            payload.r = "https://unlisted.invalid/";
+            return payload;
+          },
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <aside class="banner" aria-label="Announcement">
+      <div class="container banner__inner">
+        <span>Meet the Sendspin team at CES</span>
+        <a class="banner__cta" href="mailto:sendspin@openhomefoundation.org">Set up a meeting</a>
+      </div>
+    </aside>
+    <nav class="nav">
+      <div class="container nav__inner">
+        <div class="nav__brand">
+          <a href="/sendspin/" class="nav__logo" aria-label="Sendspin home">
+  <img class="nav__logo-image" src="/sendspin/images/sendspin-lockup.svg" width="148" height="35" alt="" />
+</a>
+
+          
+        </div>
+        <button
+          class="nav__toggle"
+          type="button"
+          aria-label="切换菜单"
+          aria-expanded="false"
+          aria-controls="nav-menu"
+        >
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+        </button>
+        <div class="nav__links" id="nav-menu">
+          
+          <a class="nav__link" href="#whole-room">体验</a>
+          <a class="nav__link" href="#live-demo">在线演示</a>
+          
+          
+          <a class="nav__cta" href="/sendspin/build/">用 Sendspin 构建</a>
+          
+        </div>
+      </div>
+    </nav>
+    <script>
+      (function () {
+        var nav = document.querySelector(".nav");
+        if (!nav) return;
+        var toggle = nav.querySelector(".nav__toggle");
+        var links = nav.querySelector(".nav__links");
+        function close() {
+          nav.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+        }
+        toggle.addEventListener("click", function () {
+          var open = nav.classList.toggle("is-open");
+          toggle.setAttribute("aria-expanded", String(open));
+        });
+        links.addEventListener("click", function (e) {
+          if (e.target.tagName === "A") close();
+        });
+        document.addEventListener("click", function (e) {
+          if (!nav.contains(e.target) && nav.classList.contains("is-open")) close();
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && nav.classList.contains("is-open")) close();
+        });
+      })();
+    </script>
+
+    
+    
+<section class="hero ground-paper" id="top">
+  <div class="container">
+    <div class="hero__grid">
+      <div class="hero__left">
+        <span class="hero__beta">
+          Release Candidate 1 · 规范最终定稿中
+        </span>
+
+        <h1 class="hero__title">
+          <span class="l1">全屋音频，</span>
+          <span class="l2">无需依赖厂商。</span>
+        </h1>
+
+        <p class="hero__sub">
+          微秒级同步的音乐、艺术与灯光。来自
+          <a href="https://www.openhomefoundation.org" target="_blank" rel="noreferrer">Open Home Foundation</a>.
+        </p>
+
+        <div class="hero__ctas">
+          <a class="btn btn--primary" href="#live-demo">
+            试试在线演示
+            <svg class="svg-icon arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M5 12h14"/>
+  <path d="m13 6 6 6-6 6"/>
+</svg>
+
+          </a>
+          <a class="btn btn--ghost" href="#whole-room">看看原理</a>
+        </div>
+      </div>
+
+      <div class="hero__right">
+        <figure class="hero__room">
+          <picture>
+            <source srcset="/sendspin/images/room-plate.webp" type="image/webp" />
+            <img
+              class="hero__room-img"
+              src="/sendspin/images/room-plate.png"
+              fetchpriority="high"
+              decoding="async"
+              width="1177"
+              height="981"
+              alt="剖开视角的客厅：落地音箱一对、柜子上的功放、显示专辑封面的数码相框、用专辑色彩洗亮的落地灯，以及门外另一个房间里放着唱机与另一只更小的音箱。"
+            />
+          </picture>
+
+          <div class="hotspots">
+
+            <button class="hotspot" type="button" aria-expanded="false"
+                    style="--hx:25%; --hy:43.8%" data-place="right">
+              <span class="hotspot__dot" aria-hidden="true"><svg class="hotspot__badge" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true" focusable="false">
+  <circle class="hotspot__badge-circle" cx="17" cy="17" r="15.5" />
+  <image class="hotspot__badge-logo" href="/sendspin/images/sendspin-logo.svg" x="7" y="8.83" width="20" height="16.35" />
+</svg>
+</span>
+              <span class="hotspot__label">功放</span>
+              <span class="hotspot__tip" role="tooltip">
+                <strong>你自己的功放</strong>
+                一个小巧的 Sendspin 设备，把你原有的功放接入模拟或数字音源。音箱本身什么也不用换。
+              </span>
+            </button>
+
+            <button class="hotspot" type="button" aria-expanded="false"
+                    style="--hx:36.8%; --hy:38.8%" data-place="right">
+              <span class="hotspot__dot" aria-hidden="true"><svg class="hotspot__badge" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true" focusable="false">
+  <circle class="hotspot__badge-circle" cx="17" cy="17" r="15.5" />
+  <image class="hotspot__badge-logo" href="/sendspin/images/sendspin-logo.svg" x="7" y="8.83" width="20" height="16.35" />
+</svg>
+</span>
+              <span class="hotspot__label">专辑封面</span>
+              <span class="hotspot__tip" role="tooltip">
+                <strong>封面艺术</strong>
+                封面与曲目信息随音频一起到达，显示在相框上。
+              </span>
+            </button>
+
+            <button class="hotspot" type="button" aria-expanded="false"
+                    style="--hx:47.7%; --hy:28.5%" data-place="left">
+              <span class="hotspot__dot" aria-hidden="true"><svg class="hotspot__badge" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true" focusable="false">
+  <circle class="hotspot__badge-circle" cx="17" cy="17" r="15.5" />
+  <image class="hotspot__badge-logo" href="/sendspin/images/sendspin-logo.svg" x="7" y="8.83" width="20" height="16.35" />
+</svg>
+</span>
+              <span class="hotspot__label">灯光</span>
+              <span class="hotspot__tip" role="tooltip">
+                <strong>Light</strong>
+                颜色取自专辑封面，随音乐同步变化。
+              </span>
+            </button>
+
+            <button class="hotspot" type="button" aria-expanded="false"
+                    style="--hx:69.0%; --hy:37.6%" data-place="left">
+              <span class="hotspot__dot" aria-hidden="true"><svg class="hotspot__badge" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true" focusable="false">
+  <circle class="hotspot__badge-circle" cx="17" cy="17" r="15.5" />
+  <image class="hotspot__badge-logo" href="/sendspin/images/sendspin-logo.svg" x="7" y="8.83" width="20" height="16.35" />
+</svg>
+</span>
+              <span class="hotspot__label">唱机</span>
+              <span class="hotspot__tip" role="tooltip">
+                <strong>音源输入</strong>
+                把唱机接到 Sendspin 设备上。放一张唱片，全屋音箱便一起播放。
+              </span>
+            </button>
+
+            <button class="hotspot" type="button" aria-expanded="false"
+                    style="--hx:72.8%; --hy:25.4%" data-place="left">
+              <span class="hotspot__dot" aria-hidden="true"><svg class="hotspot__badge" width="34" height="34" viewBox="0 0 34 34" aria-hidden="true" focusable="false">
+  <circle class="hotspot__badge-circle" cx="17" cy="17" r="15.5" />
+  <image class="hotspot__badge-logo" href="/sendspin/images/sendspin-logo.svg" x="7" y="8.83" width="20" height="16.35" />
+</svg>
+</span>
+              <span class="hotspot__label">隔壁房间</span>
+              <span class="hotspot__tip" role="tooltip">
+                <strong>另一个房间，同样同步</strong>
+                在另一个房间放一只 Sendspin 音箱。它与其余音箱同步播放同一首歌，哪怕品牌不同。
+              </span>
+            </button>
+          </div>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    var spots = Array.prototype.slice.call(document.querySelectorAll(".hotspot"));
+    if (!spots.length) return;
+
+    function closeAll(except) {
+      spots.forEach(function (spot) {
+        if (spot === except) return;
+        spot.classList.remove("is-open");
+        spot.setAttribute("aria-expanded", "false");
+      });
+    }
+
+    spots.forEach(function (spot) {
+      spot.addEventListener("click", function (event) {
+        event.stopPropagation();
+        var open = spot.classList.contains("is-open");
+        closeAll(spot);
+        spot.classList.toggle("is-open", !open);
+        spot.setAttribute("aria-expanded", String(!open));
+        if (!open) canCycle = false;
+        syncCycle();
+      });
+    });
+
+    document.addEventListener("click", function () { closeAll(null); syncCycle(); });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") { closeAll(null); syncCycle(); }
+    });
+
+    // With nobody on the illustration, the hotspots take turns showing their
+    // tip so the labels are found without hunting for them. A pointer or a focus
+    // hands control straight back to the visitor; opening a tooltip ends the
+    // cycle for good, since by then the dots have introduced themselves.
+    var hotspots = document.querySelector(".hotspots");
+    var canCycle = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var timer = null;
+    var cursor = -1;
+    var engaged = false;
+    var onScreen = true;
+
+    function clearAuto() {
+      spots.forEach(function (spot) { spot.classList.remove("is-auto"); });
+    }
+
+    function step() {
+      clearAuto();
+      cursor = (cursor + 1) % spots.length;
+      spots[cursor].classList.add("is-auto");
+      timer = setTimeout(function () {
+        clearAuto();
+        // Let the card fade out before the next one starts to fade in.
+        timer = setTimeout(step, 600);
+      }, 8000);
+    }
+
+    function syncCycle() {
+      var run = canCycle && onScreen && !engaged;
+      if (run === (timer !== null)) return;
+      if (run) {
+        hotspots.classList.add("is-cycling");
+        timer = setTimeout(step, 600);
+      } else {
+        clearTimeout(timer);
+        timer = null;
+        clearAuto();
+        hotspots.classList.remove("is-cycling");
+      }
+    }
+
+    // On narrow screens the tooltip is a viewport-pinned sheet, so it would hang
+    // around after the illustration has scrolled away. Dismiss it the moment the
+    // figure leaves the viewport; by then it has already passed behind the header.
+    var figure = document.querySelector(".hero__room");
+    if (figure && "IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        onScreen = entries[0].isIntersecting;
+        if (!onScreen) {
+          closeAll(null);
+          var active = document.activeElement;
+          if (active && active.classList && active.classList.contains("hotspot")) {
+            active.blur();
+          }
+        }
+        syncCycle();
+      }).observe(figure);
+    }
+
+    if (figure) {
+      figure.addEventListener("pointerenter", function () { engaged = true; syncCycle(); });
+      figure.addEventListener("pointerleave", function () { engaged = false; syncCycle(); });
+    }
+    hotspots.addEventListener("focusin", function () { engaged = true; syncCycle(); });
+    hotspots.addEventListener("focusout", function () { engaged = false; syncCycle(); });
+
+    syncCycle();
+  })();
+</script>
+
+<section class="ground-cream section-pad" id="whole-room">
+  <div class="container">
+    <div class="pillars__head">
+      <h2 class="pillars__title">
+        大多数系统止步于声音。
+      </h2>
+      <p class="pillars__lede">
+        Sendspin 让封面、控制与节拍随音频同行。音箱、平板、灯，如同一个房间的整体。它是一个开放标准，任何设备都能加入——包括你已经拥有的。
+      </p>
+    </div>
+
+    <div class="pillars__grid">
+      <article class="pillar pillar--sound">
+        <div class="pillar__icon"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <rect x="6" y="3" width="12" height="18" rx="2"/>
+  <circle cx="12" cy="14" r="3.5"/>
+  <circle cx="12" cy="6.5" r="0.6" fill="currentColor"/>
+</svg>
+</div>
+        <h3 class="pillar__h">声音</h3>
+        <p class="pillar__p">
+          高质量音频，全屋音箱同步播放。到高保真音响是无损，到厨房智能音箱是高能效编码，全部锁定在同一个节拍。
+        </p>
+      </article>
+
+      <article class="pillar pillar--screens">
+        <div class="pillar__icon"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <rect x="2" y="4" width="20" height="14" rx="2"/>
+  <path d="M8 21h8"/>
+  <path d="M12 18v3"/>
+</svg>
+</div>
+        <h3 class="pillar__h">屏幕</h3>
+        <p class="pillar__p">
+          每台平板与显示屏展示封面与播放信息。走廊的壁挂面板变成“正在播放”屏，再也不必摸出手机。
+        </p>
+      </article>
+
+      <article class="pillar pillar--controls">
+        <div class="pillar__icon"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <rect x="6" y="3" width="12" height="18" rx="3"/>
+  <circle cx="12" cy="9" r="0.6" fill="currentColor"/>
+  <path d="M9 14h6"/>
+  <path d="M9 17.5h6"/>
+</svg>
+</div>
+        <h3 class="pillar__h">控制</h3>
+        <p class="pillar__p">
+          任何屏幕都可以是遥控器。在家的任何位置切歌、暂停、调音量。手机在兜里还是平板在墙上，同一套控制。
+        </p>
+      </article>
+
+      <article class="pillar pillar--lights">
+        <div class="pillar__icon"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M9 18h6"/>
+  <path d="M10 21h4"/>
+  <path d="M12 3a6 6 0 0 0-4 10.5c.7.6 1 1.4 1 2.3V17h6v-1.2c0-.9.3-1.7 1-2.3A6 6 0 0 0 12 3z"/>
+</svg>
+</div>
+        <h3 class="pillar__h">灯光</h3>
+        <p class="pillar__p">
+          LED 灯带与智能灯泡取色自专辑封面，随音乐律动。低音给落地灯，中音给电视后面那条灯带。
+        </p>
+      </article>
+
+      <article class="pillar pillar--inputs">
+        <div class="pillar__icon"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <circle cx="10.5" cy="13.5" r="6.5"/>
+  <circle cx="10.5" cy="13.5" r="1.1" fill="currentColor" stroke="none"/>
+  <path d="M20 4.5v4l-5.5 5"/>
+</svg>
+</div>
+        <h3 class="pillar__h">音源输入</h3>
+        <p class="pillar__p">
+          声音既能输出也能采集。把唱机、CD 机或任何线路输出接进 Sendspin 设备，它听到的声音就会在全屋每只音箱上响起。
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="ground-espresso section-pad demo-showcase" id="live-demo">
+  <div class="container">
+    <div class="demo__grid">
+      <div>
+        <h2 class="demo__title">在浏览器里试试 Sendspin。</h2>
+        <p class="demo__copy">
+          无需安装。在多台设备上打开本页，每台按下“开始收听”，就能听到它们锁在一起。
+        </p>
+        <div class="demo__steps">
+          <div class="demo__step">
+            <span class="demo__step-num">1</span>
+            <span>在笔记本、手机和平板上打开本页。任何有浏览器的设备都行。</span>
+          </div>
+          <div class="demo__step">
+            <span class="demo__step-num">2</span>
+            <span>在每台设备上按下<strong>开始收听</strong>。</span>
+          </div>
+          <div class="demo__step">
+            <span class="demo__step-num">3</span>
+            <span>在设备间走动。同一首歌，没有回声。</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo__panel">
+      <div
+        id="sendspin-demo"
+        class="demo-card"
+        data-server-url="wss://sendspin-demo.openhomefoundation.org/sendspin"
+        data-share-url="https://www.sendspin-audio.com/#live-demo"
+      >
+        <div id="sendspin-demo-surface" class="demo-card__top">
+          <div class="demo-card__now" aria-live="polite">
+            <span class="demo-card__now-label">正在播放</span>
+            <span class="demo-card__now-track">
+              <a href="https://soundcloud.com/teetow/" target="_blank" rel="noreferrer">
+                <strong>Pizza Hat</strong> <span class="by">· Johan Althoff</span>
+              </a>
+            </span>
+          </div>
+          <button
+            id="sendspin-demo-listen-toggle-btn"
+            class="demo-card__listen"
+            aria-pressed="false"
+            type="button"
+          >
+            <span class="demo-card__listen-ico" aria-hidden="true"></span>
+            <span id="sendspin-demo-listen-toggle-label">开始收听</span>
+          </button>
+        </div>
+
+        <div
+          id="sendspin-demo-sync-panel"
+          class="demo-card__sync"
+          aria-hidden="true"
+        >
+          <div class="demo-card__sync-inner">
+          <div class="demo-card__sync-head">
+            <span class="demo-card__sync-title">同步状态</span>
+            <span
+              id="sendspin-demo-sync-status"
+              class="demo-card__sync-readout sync-idle"
+              >--.- ms</span
+            >
+          </div>
+          <div
+            id="sendspin-demo-sync-graph-shell"
+            class="demo-card__sync-graph-shell sync-idle"
+          >
+            <canvas
+              id="sendspin-demo-sync-graph"
+              class="demo-card__sync-graph"
+              aria-label="同步图"
+            ></canvas>
+          </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="demo-card__share-grid">
+        <div class="demo-card__qr-code">
+          <img
+            src="/sendspin/images/sendspin-audio-qr.svg?v=20260326-3"
+            alt="QR code for the Sendspin live demo"
+          />
+        </div>
+        <p class="demo-card__share-text">
+          扫码在另一台手机上打开
+          <a href="https://www.sendspin-audio.com/#live-demo" target="_blank" rel="noreferrer">在线演示</a>。
+        </p>
+        <button
+          id="sendspin-demo-share-btn"
+          class="demo-card__share-btn"
+          type="button"
+          aria-label="分享 Sendspin 在线演示"
+        >
+          <svg
+            class="demo-card__share-btn-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M12 4v9" />
+            <path d="M8.5 7.5 12 4l3.5 3.5" />
+            <path d="M6 12.5v5.5A2 2 0 0 0 8 20h8a2 2 0 0 0 2-2v-5.5" />
+          </svg>
+          <span class="demo-card__share-btn-label">分享</span>
+        </button>
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ground-paper section-pad" id="start">
+  <div class="container">
+    <div class="start__head">
+      <h2 class="start__title" id="speakers">Anything can be a speaker.</h2>
+      <p class="start__lede">
+        Sendspin 是一个标准，任何厂商都能为它造音箱——你也可以。无论用哪个设备，播放的都是同一时刻的同一首歌。<strong>你需要两样东西：一只音箱，和一个音乐源。</strong>
+      </p>
+    </div>
+
+    <div class="start__grid">
+      <article class="path-card path-card--ready">
+        <div class="path-card__num">Buy ready-made</div>
+        <h3 class="path-card__h">Connect AUX-2</h3>
+        <div class="path-card__price">$69<small>/ room</small></div>
+        <p class="path-card__p">The <a href="https://www.home-assistant.io/connect/aux-2/" target="_blank" rel="noreferrer">Home Assistant Connect AUX-2</a> ships with Sendspin out of the box. Its 3.5mm output (analog or optical) plugs into the receiver or powered speakers you already own.</p>
+      </article>
+
+      <article class="path-card path-card--stream">
+        <div class="path-card__num">串流你的音乐</div>
+        <h3 class="path-card__h">Music Assistant</h3>
+        <div class="path-card__price">免费<small>/ 全屋</small></div>
+        <p class="path-card__p">在树莓派或家用电脑上运行 <a href="https://www.music-assistant.io" target="_blank" rel="noreferrer">Music Assistant</a>。它负责找音乐，发送到你网络里的每台 Sendspin 设备。</p>
+      </article>
+
+      <article class="path-card path-card--receiver">
+        <div class="path-card__num">Reuse what you own</div>
+        <h3 class="path-card__h">Your computer</h3>
+        <div class="path-card__price">Free<small>/ room</small></div>
+        <p class="path-card__p">Turn your computer into the ultimate Sendspin player on <a href="https://github.com/Sendspin/sendspin-cpp-cli#readme" target="_blank" rel="noreferrer">Linux</a>, <a href="https://github.com/Sendspin/sendspin-windows#readme" target="_blank" rel="noreferrer">Windows</a> or <a href="https://github.com/Sendspin/sendspin-mac#readme" target="_blank" rel="noreferrer">Mac</a>.</p>
+      </article>
+
+      <article class="path-card path-card--diy">
+        <div class="path-card__num">自己动手做</div>
+        <h3 class="path-card__h">ESP32-S3 + DAC</h3>
+        <div class="path-card__price">&lt;$10<small>/ 房间</small></div>
+        <p class="path-card__p">动手能力强？<a href="https://github.com/RealDeco/SendspinZero#minimalistic-sendspin-media-player-for-home-assistant" target="_blank" rel="noreferrer">SendspinZero</a> 用不到 10 美金就能做出一只由 <a href="https://esphome.io" target="_blank" rel="noreferrer">ESPHome</a> 驱动的 Sendspin 音箱。</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="ground-espresso section-pad">
+  <div class="container">
+    <div class="open__head">
+      <h2 class="open__title">
+        <em>你的</em>音乐，<br />在<em>你的</em>家里，<br />按<em>你的</em>方式。
+      </h2>
+      <p class="open__lede">
+        Sendspin 不把你锁进某个品牌或云。它是开放标准，跑在你自己的网络上，由非营利组织管理。你的音乐数据从不离开家门。
+      </p>
+    </div>
+
+    <div class="open__grid">
+      <article class="open-card">
+        <div class="open-card__icon"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <circle cx="6" cy="5" r="2"/>
+  <circle cx="6" cy="19" r="2"/>
+  <circle cx="18" cy="12" r="2"/>
+  <path d="M6 7v10"/>
+  <path d="M8 19c4 0 6-2 8-7"/>
+  <path d="M8 5c4 0 6 2 8 7"/>
+</svg>
+</div>
+        <h3 class="open-card__h">没人替你做决定。</h3>
+        <p class="open-card__p">下一台添加什么音箱、用什么应用、硬件能用多久，都由你说了算。规范是公开的，没有哪家公司能替你做这些选择。</p>
+      </article>
+
+      <article class="open-card">
+        <div class="open-card__icon"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <rect x="2" y="6" width="9" height="12" rx="2"/>
+  <rect x="13" y="6" width="9" height="12" rx="2"/>
+  <path d="M11 12h2" stroke-dasharray="1 2"/>
+</svg>
+</div>
+        <h3 class="open-card__h">留下你的旧设备。</h3>
+        <p class="open-card__p">用了多年的功放、架上的音箱、阁楼里的高保真设备。一部旧手机或一块十美金开发板，就能把它们都接进来。配合 <a href="https://www.music-assistant.io" target="_blank" rel="noreferrer">Music Assistant</a>，已有的 AirPlay 音箱也能加入群组。</p>
+      </article>
+
+      <article class="open-card">
+        <div class="open-card__icon"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <rect x="4" y="11" width="16" height="10" rx="2"/>
+  <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+</svg>
+</div>
+        <h3 class="open-card__h">没有云账号。</h3>
+        <p class="open-card__p">一切都在家庭网络里。你从不注册账号，一次授权即可让设备间的音频保持加密。你听什么只留在家里，不会流向大公司。</p>
+      </article>
+
+      <article class="open-card">
+        <div class="open-card__icon"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M12 21V11"/>
+  <path d="M12 11c0-4 3-7 7-7-1 4-3 7-7 7z"/>
+  <path d="M12 14c0-3-2-5-5-5 1 3 2 5 5 5z"/>
+</svg>
+</div>
+        <h3 class="open-card__h">为长久而生。</h3>
+        <p class="open-card__p">由位于瑞士的非营利组织 Open Home Foundation 担保。Sendspin 不会被买断、加墙，也不会因企业一时兴起而关停。</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="ground-cream section-pad">
+  <div class="container">
+    <div class="partners__head">
+      <div class="partners__badge-strip">
+        <span class="works-with-badge">
+          <span class="works-with-badge__check"><svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="m5 12 5 5L19 7"/>
+</svg>
+</span>
+          支持 Sendspin
+        </span>
+      </div>
+      <h2 class="partners__title">同伴共建。<br />向所有人开放。</h2>
+      <p class="partners__lede">
+        四家软硬件合作伙伴今天已经支持 Sendspin。协议开放，因此目标是让你按音质挑选，而不是看商标。
+      </p>
+    </div>
+
+    <div class="partners__grid">
+      <a class="partner-card" href="https://www.music-assistant.io" target="_blank" rel="noreferrer">
+        <div class="partner-card__logo"><img src="/sendspin/images/logo/music-assistant.svg" alt="Music Assistant logo" /></div>
+        <div class="partner-card__name">Music Assistant</div>
+      </a>
+      <a class="partner-card" href="https://esphome.io" target="_blank" rel="noreferrer">
+        <div class="partner-card__logo"><img src="/sendspin/images/logo/esphome.svg" alt="ESPHome logo" /></div>
+        <div class="partner-card__name">ESPHome</div>
+      </a>
+      <a class="partner-card" href="https://docs.ledfx.app/" target="_blank" rel="noreferrer">
+        <div class="partner-card__logo"><img src="/sendspin/images/logo/ledfx.png" alt="LedFx logo" /></div>
+        <div class="partner-card__name">LedFx</div>
+      </a>
+      <a class="partner-card" href="https://www.home-assistant.io/connect/aux-2/" target="_blank" rel="noreferrer">
+        <div class="partner-card__logo"><img src="/sendspin/images/logo/connect-aux-2.png" alt="Home Assistant Connect AUX-2" /></div>
+        <div class="partner-card__name">Home Assistant<br />Connect AUX-2</div>
+      </a>
+      <a class="partner-card" href="https://www.home-assistant.io/voice-pe/" target="_blank" rel="noreferrer">
+        <div class="partner-card__logo"><img src="/sendspin/images/logo/voice-pe.png" alt="Home Assistant Voice PE logo" /></div>
+        <div class="partner-card__name">Home Assistant<br />Voice PE</div>
+      </a>
+      <div class="partner-card partner-card--coming">
+        <div class="partner-card__logo">+</div>
+        <div class="partner-card__name">更多即将加入</div>
+      </div>
+    </div>
+
+    <p class="partners__cta">
+      正在用 Sendspin 做东西？
+      <a href="https://discord.gg/kaVm8hGpne" target="_blank" rel="noreferrer">
+        来 #sendspin-beta-testing 打个招呼，
+      </a>
+      在 Music Assistant 的 Discord 上。
+    </p>
+  </div>
+</section>
+
+<section class="ground-espresso section-pad" id="build">
+  <div class="container">
+    <div class="build__head">
+      <h2 class="build__title">规范公开，任何人皆可实现。</h2>
+      <p class="build__lede">
+        无论硬件还是软件，人人都能用。认证一次，听众终身受益。
+      </p>
+    </div>
+
+    <div class="build__grid">
+      <article class="build-card build-card--dark">
+        <span class="build-card__eyebrow">面向硬件厂商</span>
+        <h3 class="build-card__h">让你的音箱加入这首歌。</h3>
+        <p class="build-card__p">
+          同步、发现、配对与元数据都在协议里，全屋联动无需自己再造。带上“支持 Sendspin”标识，共建一个可自由组合的音箱、屏幕与灯光生态。
+        </p>
+        <div class="build-card__ctas">
+          <a class="btn btn--on-coral" href="/sendspin/build/manufacturers/">
+            成为合作伙伴
+            <svg class="svg-icon arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M5 12h14"/>
+  <path d="m13 6 6 6-6 6"/>
+</svg>
+
+          </a>
+        </div>
+      </article>
+
+      <article class="build-card">
+        <span class="build-card__eyebrow">面向软件开发者</span>
+        <h3 class="build-card__h">给应用、服务端或驱动加上 Sendspin。</h3>
+        <p class="build-card__p">
+          Open spec, plus official SDKs for C++, JavaScript and Python. The
+          reference client and server are Apache 2.0 licensed.
+        </p>
+        <div class="build-card__sdks">
+          <span class="sdk-chip">C++</span>
+          <span class="sdk-chip">JavaScript</span>
+          <span class="sdk-chip">Python</span>
+        </div>
+        <div class="build-card__ctas" style="margin-top: var(--sp-3);">
+          <a class="btn btn--ghost" href="/sendspin/build/spec/">阅读规范</a>
+          <a class="btn btn--ghost" href="/sendspin/build/sdks/">浏览 SDK</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+    
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="site-footer__inner">
+          <div class="site-footer__brand">
+            <a href="/sendspin/" class="nav__logo" aria-label="Sendspin home">
+  <img class="nav__logo-image" src="/sendspin/images/sendspin-lockup.svg" width="148" height="35" alt="" />
+</a>
+
+            <p class="site-footer__tagline">
+              The open standard for music in every room — from the Open Home&nbsp;Foundation.
+            </p>
+            <p class="site-footer__tagline site-footer__tagline--analytics">
+              本站使用 <a
+                href="https://www.openhomefoundation.org/blog/making-our-web-analytics-open-source-with-plausible/"
+                rel="noopener">privacy-first analytics</a> 帮助我们改进网站。你可以在我们的 <a
+                href="https://plausible.openhomefoundation.org/sendspin-audio.com" rel="noopener">公开面板查看全部数据</a>.
+            </p>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>听音乐</h5>
+            <ul>
+              
+              <li><a href="/sendspin/#whole-room">体验</a></li>
+              
+              <li><a href="/sendspin/#live-demo">在线演示</a></li>
+              
+              <li><a href="/sendspin/#start">快速开始</a></li>
+              
+              <li><a href="https://www.home-assistant.io/connect/aux-2/">Connect AUX-2</a></li>
+              
+            </ul>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>构建</h5>
+            <ul>
+              
+              <li><a href="/sendspin/build/">用 Sendspin 构建</a></li>
+              
+              <li><a href="/sendspin/build/manufacturers/">面向硬件厂商</a></li>
+              
+              <li><a href="/sendspin/build/guide/">实施指南</a></li>
+              
+              <li><a href="/sendspin/build/sdks/">SDK 与库</a></li>
+              
+              <li><a href="/sendspin/build/spec/">规范</a></li>
+              
+              <li><a href="https://www.github.com/Sendspin">GitHub</a></li>
+              
+            </ul>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>社区</h5>
+            <ul>
+              
+              <li><a href="https://discord.gg/kaVm8hGpne">Discord</a></li>
+              
+              <li><a href="https://www.openhomefoundation.org">Open Home Foundation</a></li>
+              
+              <li><a href="mailto:sendspin@openhomefoundation.org">联系我们</a></li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="site-footer__legal">
+          <span>© Sendspin · Open Home Foundation. Sendspin 现为 Release Candidate 1，规范正在最终定稿。 <a href="/sendspin/licensing/">许可与商标</a></span>
+          <span>产自温暖的瑞士。</span>
+        </div>
+      </div>
+    </footer>
+    
+    
+    
+    
+    <script type="module" src="/sendspin/js/sendspin-demo-card.js?v=20261112-1"></script>
+    
+    
+  </body>
+</html>

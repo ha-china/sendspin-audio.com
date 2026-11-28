@@ -1,0 +1,1305 @@
+
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <link href="/sendspin/style.css" rel="stylesheet" />
+    
+    
+    <link href="/sendspin/guide.css?v=20261002" rel="stylesheet" />
+    
+    <link href="/sendspin/guide.css?v=20261002" rel="stylesheet" />
+    
+    
+    <title>Sendspin implementation guide – Sendspin</title>
+    <link rel="icon" href="/sendspin/images/sendspin-favicon.svg?v=20260916" type="image/svg+xml" />
+    <link rel="icon" href="/sendspin/images/sendspin-favicon.png?v=20260916" type="image/png" sizes="192x192" />
+    <meta name="description" content="The complete Sendspin implementation guide on one page, to read in one go or save as a PDF." />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:title" content="Sendspin implementation guide – Sendspin" />
+    <meta property="og:site_name" content="Sendspin" />
+    <meta
+      property="og:url"
+      content="https://www.sendspin-audio.com/build/guide/all/"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="The complete Sendspin implementation guide on one page, to read in one go or save as a PDF." />
+    <meta
+      property="og:image"
+      content="https://www.sendspin-audio.com/images/social2.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Sendspin logo — Whole-home audio, without the lock-in." />
+    <meta name="twitter:image:alt" content="Sendspin logo — Whole-home audio, without the lock-in." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sendspin implementation guide – Sendspin" />
+    <meta name="twitter:description" content="The complete Sendspin implementation guide on one page, to read in one go or save as a PDF." />
+    <meta
+      name="twitter:image"
+      content="https://www.sendspin-audio.com/images/social2.png"
+    />
+    <script async src="https://plausible.openhomefoundation.org/js/pa-obCWzmtDxu9-S0vPtBpJu.js"></script>
+    <script charset="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js?id=3MhQABjxy4RZQ6Ig&ck=3MhQABjxy4RZQ6Ig"></script>
+    <script>
+      (function () {
+        // Fetched once per build by script/fetch-allowed-referrers.js. Visitors arriving
+        // from their own Home Assistant or ESPHome instance send that private URL as the
+        // referrer, so anything not on this list is replaced before Plausible sees it.
+        var allowedReferrers = [];
+
+        window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments) };
+        window.plausible.init = window.plausible.init || function (i) { window.plausible.o = i || {} };
+
+        window.plausible.init({
+          transformRequest: function (payload) {
+            var ref = payload.r;
+            if (!ref) return payload;
+
+            var host = "";
+            try {
+              host = new URL(ref).hostname.replace(/\.$/, "");
+            } catch (e) {
+              // Unparseable referrer: falls through and gets replaced.
+            }
+
+            for (var i = 0; i < allowedReferrers.length; i++) {
+              var d = allowedReferrers[i];
+              if (host === d || (host.length > d.length && host.slice(-(d.length + 1)) === "." + d)) {
+                return payload;
+              }
+            }
+
+            // One aggregate bucket so we can see how much we filter without learning
+            // anything about individual visitors. .invalid is reserved by RFC 2606 and
+            // can never collide with a real domain.
+            payload.r = "https://unlisted.invalid/";
+            return payload;
+          },
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <aside class="banner" aria-label="Announcement">
+      <div class="container banner__inner">
+        <span>Meet the Sendspin team at CES</span>
+        <a class="banner__cta" href="mailto:sendspin@openhomefoundation.org">Set up a meeting</a>
+      </div>
+    </aside>
+    <nav class="nav nav--build">
+      <div class="container nav__inner">
+        <div class="nav__brand">
+          <a href="/sendspin/" class="nav__logo" aria-label="Sendspin home">
+  <img class="nav__logo-image" src="/sendspin/images/sendspin-lockup.svg" width="148" height="35" alt="" />
+</a>
+
+          
+          <span class="nav__crumb-sep" aria-hidden="true">/</span>
+          <a class="nav__crumb" href="/sendspin/build/">构建</a>
+          
+        </div>
+        <button
+          class="nav__toggle"
+          type="button"
+          aria-label="切换菜单"
+          aria-expanded="false"
+          aria-controls="nav-menu"
+        >
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+          <span class="nav__toggle-bar"></span>
+        </button>
+        <div class="nav__links" id="nav-menu">
+          
+          <a class="nav__link " href="/sendspin/build/manufacturers/">为什么选择 Sendspin</a>
+          <a class="nav__link is-active" href="/sendspin/build/guide/">如何构建</a>
+          <a class="nav__link " href="/sendspin/build/sdks/">SDKs</a>
+          <a class="nav__link " href="/sendspin/build/spec/">规范</a>
+          
+          
+        </div>
+      </div>
+    </nav>
+    <script>
+      (function () {
+        var nav = document.querySelector(".nav");
+        if (!nav) return;
+        var toggle = nav.querySelector(".nav__toggle");
+        var links = nav.querySelector(".nav__links");
+        function close() {
+          nav.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+        }
+        toggle.addEventListener("click", function () {
+          var open = nav.classList.toggle("is-open");
+          toggle.setAttribute("aria-expanded", String(open));
+        });
+        links.addEventListener("click", function (e) {
+          if (e.target.tagName === "A") close();
+        });
+        document.addEventListener("click", function (e) {
+          if (!nav.contains(e.target) && nav.classList.contains("is-open")) close();
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && nav.classList.contains("is-open")) close();
+        });
+      })();
+    </script>
+
+    
+    <main class="page-content">
+      <div class="container">
+        <h1>Sendspin implementation guide</h1>
+        <div class="guide-print">
+  <p class="guide-print__actions">
+    <button type="button" class="btn btn--primary" data-print>Download as PDF</button>
+    <a href="/sendspin/build/guide/">Back to the chapter view</a>
+  </p>
+  <p class="page-lede">Every chapter of the guide, in reading order. Your browser's print dialog saves it as a PDF.</p>
+  <ol class="guide-print__toc">
+    
+    <li><a href="#welcome">Sendspin 实现指南</a></li>
+    
+    <li><a href="#concepts">Sendspin 的工作原理</a></li>
+    
+    <li><a href="#roles">角色及其构成的产品</a></li>
+    
+    <li><a href="#use-cases">典型使用案例</a></li>
+    
+    <li><a href="#client">逐步构建客户端</a></li>
+    
+    <li><a href="#client-pairing">设备上的配对</a></li>
+    
+    <li><a href="#esphome">使用 ESPHome 构建</a></li>
+    
+    <li><a href="#server">逐步构建服务器</a></li>
+    
+    <li><a href="#server-ux">用户对服务器的期望</a></li>
+    
+    <li><a href="#pairing-and-encryption">配对与加密详解</a></li>
+    
+    <li><a href="#testing">测试与认证</a></li>
+    
+    <li><a href="#contributing">贡献与治理</a></li>
+    
+  </ol>
+  
+  <section class="guide-print__chapter" id="welcome">
+    <h2>Sendspin 实现指南</h2>
+    <p>Sendspin 是一种开放协议，用于在家庭中的各个设备之间同步播放音乐：扬声器、功放、屏幕、灯光以及控制它们的各类应用。<a href="/sendspin/build/spec/">协议规范</a>精确定义了网络上传输的内容。本指南涵盖您需要的组件、用户体验，以及协议留给您自行决定的实现选择。</p>
+<p>本指南不是规范性文件。当它重述某条规则时，规范才是权威，正文中会链接到相应规范。当它给出建议时，那些建议来自编写规范并交付了首批实现的人们。</p>
+<h3 id="" tabindex="-1"><a class="heading-anchor" href="#" aria-hidden="true">#</a>定义</h3>
+<div class="callout callout--note">
+<p>**客户端（client）**是从现有的 Sendspin 服务器接收音频的端点。以源（source）角色运行时，它还可以将自己的音频交给该服务器，由服务器分发给其他客户端。扬声器、功放、流媒体播放器（streamer）、显示屏和灯具都属于客户端。</p>
+<p>**服务器（server）**向客户端发送音频并使它们保持同步。它还可以将源客户端的音频重新路由到其他客户端。服务器可以是手机或桌面上的应用，也可以是诸如 <a href="https://www.music-assistant.io">Music Assistant</a> 这样的音乐服务器的一部分。</p>
+</div>
+<p>一台设备可以同时兼具两种角色。机顶盒既可作为客户端播放音乐，同时也可以作为服务器，将电视音频发送到房间里的扬声器。<a href="#concepts">概念章节</a>解释了各组成部分是如何协同工作的。</p>
+<h3 id="welcome---1" tabindex="-1"><a class="heading-anchor" href="#welcome---1" aria-hidden="true">#</a>选择您的实现路径</h3>
+<div class="hub-cards">
+  <div class="hub-card">
+    <h4>您制造设备</h4>
+    <p>对于扬声器、功放、流媒体播放器、显示屏和照明设备，请使用 C++ SDK 或 ESPHome 实现客户端部分。</p>
+    <ul>
+      <li><a href="#use-cases">在使用场景中找到您的产品</a></li>
+      <li><a href="#client">逐步构建客户端</a></li>
+      <li><a href="#esphome">使用 ESPHome 进行构建</a></li>
+    </ul>
+  </div>
+  <div class="hub-card">
+    <h4>您开发软件</h4>
+    <p>音乐播放器、桌面或移动应用、流媒体桥接器，都可以作为客户端、服务器，或根据用户的操作在两者之间切换。</p>
+    <ul>
+      <li><a href="#use-cases">应用和软件播放器的使用场景</a></li>
+      <li><a href="#client">客户端</a>和<a href="#server">服务器</a>的逐步构建指南</li>
+      <li><a href="/sendspin/build/sdks/">适用于 C++、Python 和 JavaScript 的 SDK</a></li>
+    </ul>
+  </div>
+  <div class="hub-card">
+    <h4>您运营平台</h4>
+    <p>对于音乐服务器、家庭自动化中枢或多房间系统，请实现服务器部分以及用于配对和分组的接口。</p>
+    <ul>
+      <li><a href="#server">逐步构建服务器</a></li>
+      <li><a href="#server-ux">用户对服务器的期望</a></li>
+      <li><a href="#pairing-and-encryption">信任模型</a></li>
+    </ul>
+  </div>
+</div>
+<h3 id="welcome---2" tabindex="-1"><a class="heading-anchor" href="#welcome---2" aria-hidden="true">#</a>协议的现状</h3>
+<p>Sendspin 1.0 目前处于候选发布版 1（Release Candidate 1）阶段。该协议已冻结：从现在到正式发布之前，只会合入澄清说明和修正，任何行为上的变更都会开启一个新的候选发布版。您今天基于 RC1 构建的内容将与 1.0 兼容。<a href="#contributing">贡献章节</a>介绍了发布流程，规范自身的<a href="https://github.com/Sendspin/spec/blob/main/GOVERNANCE.md">治理文档</a>则是权威参考。</p>
+<p>实现该协议是免费的。无需支付任何许可使用费，且规范附带了来自每位贡献者的专利许可。Sendspin 的名称和徽标是商标，在产品上使用它们需要经过合作伙伴计划。<a href="/sendspin/licensing/">许可与商标</a>页面包含详细信息。</p>
+<h3 id="welcome---3" tabindex="-1"><a class="heading-anchor" href="#welcome---3" aria-hidden="true">#</a>如何阅读本指南</h3>
+<ul>
+<li>前几章介绍术语和常见的产品设计。</li>
+<li><strong>构建客户端</strong>和<strong>构建服务器</strong>按顺序逐步讲解各项工作，过程中会指出相关的规范和 SDK 钩子（hook）。请阅读与您要构建内容对应的部分，并浏览另一部分以了解对端。</li>
+<li><strong>安全</strong>用通俗易懂的语言解释配对和加密，供需要对此进行审批的人员阅读。</li>
+<li><strong>发布上线</strong>涵盖测试、认证以及如何参与该项目。</li>
+</ul>
+<p><a href="/sendspin/build/guide/all/">在单页上阅读完整指南</a>，或从该页面将其保存为 PDF。</p>
+<h3 id="welcome---4" tabindex="-1"><a class="heading-anchor" href="#welcome---4" aria-hidden="true">#</a>获取帮助</h3>
+<p>实现方面的问题请到 <a href="https://discord.gg/kaVm8hGpne">Music Assistant Discord</a> 的 <code>#sendspin-protocol</code> 频道提问。合作伙伴计划和认证相关的问题，请发送电子邮件至 <a href="mailto:sendspin@openhomefoundation.org">sendspin@openhomefoundation.org</a>。规范本身的问题请提交到<a href="https://github.com/Sendspin/spec/issues">规范仓库</a>。</p>
+
+  </section>
+  
+  <section class="guide-print__chapter" id="concepts">
+    <h2>Sendspin 的工作原理</h2>
+    <p>本章介绍客户端、服务器以及它们之间的连接。每一节的末尾都有一个链接，指向<a href="/sendspin/build/spec/">规范</a>中定义相关内容的部分。</p>
+<h3 id="" tabindex="-1"><a class="heading-anchor" href="#" aria-hidden="true">#</a>客户端与服务器</h3>
+<p>**客户端（client）**是网络上的一个端点。它从服务器接收音频；如果具备源（source）角色，则采集音频并交给服务器。客户端可以是一个扬声器、功放、流媒体播放器、壁挂显示屏、灯具、浏览器标签页，也可以是树莓派（Raspberry Pi）上的 CLI 播放器。</p>
+<p>**服务器（server）**决定在哪里播放什么内容，为每个客户端编码一条流，让所有客户端保持同一时间线，并管理组、音量和元数据。服务器是唯一进行音频混音、重采样或转码的地方。Music Assistant 就是一个服务器。把正在播放的音乐串流到房间内音箱的手机应用也是服务器。</p>
+<p>**角色（role）**是客户端选择加入的一种能力：<code>player</code> 接收音频，<code>controller</code> 发送播放控制命令，<code>metadata</code> 显示正在播放的内容，等等。客户端宣告自己支持的角色；服务器激活自己想要使用的角色。每个服务器都会实现所有角色。<a href="#roles">角色章节</a>会逐一介绍它们。</p>
+<p>一台设备可以既是客户端又是服务器，并同时支持多个角色。机顶盒在播放音乐时是播放器，在把电视音频送入系统时是源，还可以内嵌一个服务器来驱动房间里的其他音箱。</p>
+<div class="callout callout--tip">
+<p class="callout__title">让客户端保持简单</p>
+<p>Sendspin 的大多数设计决策都把复杂性推给服务器。客户端只需宣告自己能做什么，服务器来适应：它为每个客户端挑选编解码器，为无法自行重采样的客户端代为重采样，并允许同一组中的每个客户端使用不同的格式。这使得微控制器和桌面电脑可以一起播放。</p>
+</div>
+<p>规范：<a href="/sendspin/build/spec/#definitions">定义</a>、<a href="/sendspin/build/spec/#role-versioning">角色版本管理</a>。</p>
+<h3 id="concepts---1" tabindex="-1"><a class="heading-anchor" href="#concepts---1" aria-hidden="true">#</a>一次会话的全过程</h3>
+<pre class="mermaid">
+sequenceDiagram
+    participant C as Client
+    participant S as Server
+    Note over C,S: mDNS discovery, WebSocket connect
+    Note over C,S: Noise handshake (always encrypted)
+    S->>C: server/hello
+    C->>S: client/hello (roles, capabilities)
+    S->>C: server/activate (which roles, playback or pairing)
+    loop every few seconds
+        C->>S: client/time
+        S->>C: server/time
+    end
+    C->>S: client/state (available: true)
+    S->>C: stream/start (format for this client)
+    S->>C: audio chunks with server timestamps
+    S->>C: server/state (metadata, colors, controller state)
+    C->>S: client/command (play, pause, next...)
+    S->>C: stream/end
+    C->>S: client/goodbye (reason)
+</pre>
+<p>握手之后的一切都是用于控制的 JSON 文本消息，以及用于音频、封面和可视化数据的小型二进制消息，全部通过同一个 WebSocket 连接传输。</p>
+<p>规范：<a href="/sendspin/build/spec/#protocol-overview">协议概览</a>、<a href="/sendspin/build/spec/#communication">通信</a>。</p>
+<h3 id="concepts---2" tabindex="-1"><a class="heading-anchor" href="#concepts---2" aria-hidden="true">#</a>发现与连接</h3>
+<p>双方都通过 mDNS 宣告自己。在推荐的方案中，<strong>由服务器连接客户端</strong>：客户端通过一个小型 WebSocket 服务器宣告 <code>_sendspin._tcp</code>，网络上的每个服务器都能发现它并连接上来。客户端也可以反过来，连接到宣告 <code>_sendspin-server._tcp</code> 的服务器。两种方式服务器都支持，由客户端选择其一。</p>
+<p>当网络上有多个服务器时，服务器发起的连接是唯一具有明确行为定义的模式。一个客户端可以同时连接多个服务器，但同一时刻只从其中一个获取播放。正在播放的服务器优先于只是想保持连接的服务器，配对尝试绝不会被中断，客户端也会记住上次为它播放的服务器。因此，同一个家里有两个服务器（例如 Music Assistant 和一个手机应用）时，无需任何配置即可协同工作。</p>
+<p>WebSocket 本身就是普通的 <code>ws://</code>，所有机密性都来自其内部的那一层。</p>
+<p>规范：<a href="/sendspin/build/spec/#establishing-a-connection">建立连接</a>、<a href="/sendspin/build/spec/#multiple-servers-server-initiated">多个服务器</a>。</p>
+<h3 id="concepts---3" tabindex="-1"><a class="heading-anchor" href="#concepts---3" aria-hidden="true">#</a>加密与身份</h3>
+<p>每个 Sendspin 连接都使用 Noise 协议框架加密（模式为 <code>KKpsk2</code>，X25519 密钥，ChaCha20-Poly1305 或 AES-GCM）。不存在不加密的模式。</p>
+<p>每个客户端和每个服务器都有一对长期使用的密钥。以文本编码的公钥就是 <code>client_id</code> 或 <code>server_id</code>。它是设备的身份标识，因此只创建一次，并在设备的整个生命周期内持久保存。更换密钥就意味着，在其他人眼中它变成了另一台设备。</p>
+<p>握手过程会混入一个预共享密钥（pre-shared key，PSK）。使用哪个密钥，就告诉了双方它们彼此有多信任：</p>
+<ul>
+<li>来自之前配对的<strong>长期 PSK</strong>：双方都确切知道对方是谁。这是<em>已配对</em>会话。</li>
+<li>设备的<strong>配对 PSK</strong>：服务器通过带外途径获得了设备的密钥，通常经由自动化流程（例如 Home Assistant 把它传给 Music Assistant），这样两者无需任何人输入配对码即可完成配对。</li>
+<li>公开的 <strong>Sentinel PSK</strong>：尚未有人证明任何身份。这是<em>未配对</em>会话，如果制造商允许，用它就足以在音箱上播放音乐，而且它是基于配对码进行配对的起点。</li>
+</ul>
+<p>规范：<a href="/sendspin/build/spec/#encryption">加密</a>、<a href="/sendspin/build/spec/#pre-shared-key">预共享密钥</a>。</p>
+<h3 id="concepts---4" tabindex="-1"><a class="heading-anchor" href="#concepts---4" aria-hidden="true">#</a>配对与未配对访问</h3>
+<p>配对是把未配对会话转变为已配对会话的一次性步骤。用户会遇到两种方法：一种是<strong>动态配对码</strong>，在配对尝试期间由设备显示、语音播报或在厂商应用中展示；另一种是<strong>静态配对码</strong>，印在没有办法自行显示配对码的设备上。第三种方法，即<strong>配对 PSK</strong>，用于系统之间的自动化交接，例如 Home Assistant 把 ESPHome 设备的密钥传给 Music Assistant，或者一个服务器为另一个服务器进行预置。服务器要实现全部三种；客户端实现配对 PSK，并加上适合其硬件的那一种配对码方法。</p>
+<p>播放音乐并不需要配对。客户端可以允许<strong>未配对访问</strong>，也就是用户熟知的访客模式：任何获得所有者批准的服务器都可以在其上播放，就像如今家中的投屏目标一样。设备出厂时是否默认开启未配对访问由制造商决定。带有麦克风或其他涉及隐私的输入的设备，出厂时应将其关闭；而源（source）角色在任何数据离开设备之前，始终需要获得所有者的明确批准。</p>
+<p><a href="#pairing-and-encryption">信任模型章节</a>解释了其中的安全特性。<a href="#client-pairing">客户端配对</a>和<a href="#server-ux">服务器 UX</a>章节介绍了需要构建的内容。</p>
+<p>规范：<a href="/sendspin/build/spec/#pairing">配对</a>、<a href="/sendspin/build/spec/#unpaired-access">未配对访问</a>。</p>
+<h3 id="concepts---5" tabindex="-1"><a class="heading-anchor" href="#concepts---5" aria-hidden="true">#</a>时间</h3>
+<p>每个音频块（chunk）都带有它必须从扬声器输出的服务器时钟时间。客户端通过交换小的时间消息，并把结果输入<strong>时间过滤器（time filter）</strong>——一个跟踪偏移和漂移的二维卡尔曼滤波器——来持续估算服务器时钟。该过滤器是强制要求的，并且有一个可以直接拿来用的<a href="https://github.com/Sendspin/time-filter">参考实现</a>。</p>
+<p>由于每个客户端都把相同的服务器时间戳换算到自己的时钟上，十几个不同品牌的音箱都能在亚毫秒级的误差范围内播放同一个采样。播放器只有在过滤器收敛之后才会把自己报告为可用。随后它会在输出端测量误差，以人耳不可察觉的方式进行校正，并丢弃到达得太晚的音频。</p>
+<p>规范：<a href="/sendspin/build/spec/#clock-synchronization">时钟同步</a>、<a href="/sendspin/build/spec/#playback-synchronization">播放同步</a>。</p>
+<h3 id="concepts---6" tabindex="-1"><a class="heading-anchor" href="#concepts---6" aria-hidden="true">#</a>流、数据块与缓冲区</h3>
+<p>对于每个激活了播放器（player）角色的客户端，服务器会开启一条<strong>流（stream）</strong>：先是从该客户端所支持选项中选定的格式（编解码器、采样率、声道、位深），随后是 15 至 150 毫秒的编码音频<strong>数据块（chunk）</strong>，每个数据块都带有时间戳。客户端会告诉服务器自己能缓冲多少数据，以及需要提前多长时间收到音频，才能干净地开始播放并挺过网络抖动。对于来自媒体库的音乐，服务器会在缓冲区允许的范围内尽量提前发送；对于黑胶唱机或电视等实时输入，则会尽量少地提前发送。</p>
+<p>队列是一条连续的流。曲目切换不会使它重启，这正是无缝播放和交叉淡入淡出（crossfade）能够实现的原因。拖动进度（seek）或跳转到另一曲目会清空缓冲区，然后流从新的位置继续。</p>
+<p>规范：<a href="/sendspin/build/spec/#server--client-streamstart"><code>stream/start</code></a>、<a href="/sendspin/build/spec/#server-audio-send-constraints">服务器音频发送约束</a>。</p>
+<h3 id="concepts---7" tabindex="-1"><a class="heading-anchor" href="#concepts---7" aria-hidden="true">#</a>组</h3>
+<p>每个客户端在任何时刻都恰好属于一个<strong>组（group）</strong>，即使组里只有它自己。组拥有播放状态、音量和静音状态，其成员播放相同的音频。分组是服务器端的概念：客户端只会看到 <code>group/update</code> 消息，告知它们自己处于哪个组、这个组在做什么。控制器（controller）客户端把命令发送给自己所在的组；<code>switch</code> 命令会把它移动到下一个正在播放的组。</p>
+<p>当其他东西接管了设备（比如用户把电视切换到 HDMI）时，客户端要么离开组（如果 Sendspin 之后仍可随时把它收回来），要么把自己报告为不可用（如果它不会让出）。服务器会把它停放到自己的已停止组中，并记住它原来来自哪里，但绝不会自行把它拉回来。</p>
+<p>规范：<a href="/sendspin/build/spec/#server--client-groupupdate"><code>group/update</code></a>、<a href="/sendspin/build/spec/#external-source-handling">外部源处理</a>、<a href="/sendspin/build/spec/#switch-command-cycle">Switch 命令循环</a>。</p>
+<h3 id="concepts---8" tabindex="-1"><a class="heading-anchor" href="#concepts---8" aria-hidden="true">#</a>版本管理与演进</h3>
+<p>角色是分版本的（<code>player@v1</code>），并且独立于整个协议进行演进。客户端列出自己支持的版本，最优先的排在最前面，服务器选择自己已实现的最新版本。各方都会忽略自己不认识的字段和消息，协议正是以这种方式在不破坏已发布实现的情况下获得新特性。只有当双方通过角色激活或声明的能力显式达成一致时，行为才会改变。</p>
+<p>你可以使用 <code>_vendorname_</code> 前缀添加自己的角色，以实现产品特有的功能；本项目也使用同样的机制，在草案角色进入规范之前进行试用。</p>
+<p>规范：<a href="/sendspin/build/spec/#role-versioning">角色版本管理</a>、<a href="/sendspin/build/spec/#protocol-evolution">协议演进</a>、<a href="/sendspin/build/spec/#application-specific-roles">应用专属角色</a>。</p>
+<h3 id="concepts---9" tabindex="-1"><a class="heading-anchor" href="#concepts---9" aria-hidden="true">#</a>术语表</h3>
+<div class="table-scroll" tabindex="0">
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>client_id</code>、<code>server_id</code></td>
+<td>设备身份密钥对中以文本形式存在的公钥部分。在设备的整个生命周期内保持不变。</td>
+</tr>
+<tr>
+<td>配对记录</td>
+<td>配对成功后与对端 id 一起存储的长期 PSK。客户端至少保存五个。</td>
+</tr>
+<tr>
+<td>配对 PSK</td>
+<td>设备出厂时内置（或在首次启动时生成）的密钥，与其 <code>client_id</code> 一起作为配对令牌分发。供自动化配对流程使用，而不是供人使用。</td>
+</tr>
+<tr>
+<td>配对令牌</td>
+<td>配对 PSK 的文本或二维码形式，以 <code>SP:</code> 开头，用于一个系统把它交给另一个系统。</td>
+</tr>
+<tr>
+<td>Sentinel PSK</td>
+<td>在尚无信任关系时使用的公开常量。将会话标记为未配对。</td>
+</tr>
+<tr>
+<td>输出通道（Out-channel）</td>
+<td>设备向站在旁边的人展示动态配对码的方式：显示屏或扬声器。</td>
+</tr>
+<tr>
+<td>活动（Activity）</td>
+<td>服务器声明它想通过连接实现的目标：<code>playback</code>、<code>pairing</code>，或者暂无。决定服务器之间的优先级。</td>
+</tr>
+<tr>
+<td>未配对访问</td>
+<td>客户端允许获得批准的服务器在不配对的情况下在其上播放的意愿。</td>
+</tr>
+<tr>
+<td>组</td>
+<td>播放相同内容的一组客户端。每个客户端始终恰好属于一个组。</td>
+</tr>
+<tr>
+<td>提前发送量</td>
+<td>服务器在其时间戳之前多早发送数据块。由客户端的缓冲需求推导得出。</td>
+</tr>
+<tr>
+<td>输出延迟</td>
+<td>客户端为其音频端口之后的一切环节（例如外部功放）所增加的固定延迟。</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+  </section>
+  
+  <section class="guide-print__chapter" id="roles">
+    <h2>角色及其构成的产品</h2>
+    <p>角色（role）是客户端（client）提供的一种能力。客户端在其 hello 消息中列出所支持的角色，服务器（server）激活它需要的角色，此后每种角色都有各自的消息，并在需要时拥有各自的二进制流。服务器会实现所有角色，因此只需选择你的产品所需的角色。</p>
+<h3 id="" tabindex="-1"><a class="heading-anchor" href="#" aria-hidden="true">#</a>七种角色</h3>
+<div class="table-scroll" tabindex="0">
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>功能</th>
+<th>设备需求</th>
+<th>典型产品</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>player</code></td>
+<td>接收带时间戳的音频并同步播放。拥有自己的音量、静音和输出延迟。</td>
+<td>一个音频输出、一个 FLAC 或 PCM 解码器（Opus 可选）、一个时钟、几百 KB 的缓冲区。</td>
+<td>扬声器、功放、流媒体播放器、条形音箱、机顶盒、桌面和移动应用。</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>采集本地输入并将其流式传输到服务器，由服务器进行分发。</td>
+<td>一个音频输入。重采样和混音由服务器完成。</td>
+<td>黑胶唱片机和 AUX 桥接器、蓝牙接收器、转发自身音频的电视和机顶盒、麦克风。</td>
+</tr>
+<tr>
+<td><code>controller</code></td>
+<td>为其所在分组（group）发送播放、暂停、下一曲、音量、静音、重复、随机播放、进度跳转和切换等指令，并接收该分组的状态。</td>
+<td>一种供用户操作的方式：按钮、旋钮、触摸屏、语音助手。</td>
+<td>遥控器、壁挂面板、旋钮、任何带按键的播放器。</td>
+</tr>
+<tr>
+<td><code>metadata</code></td>
+<td>接收标题、艺术家、专辑、进度等信息，包括为下一首曲目安排的更新。</td>
+<td>一种能显示文本的东西。</td>
+<td>壁挂平板、扬声器上的显示屏、车载主机、配套应用。</td>
+</tr>
+<tr>
+<td><code>artwork</code></td>
+<td>以其请求的精确尺寸和格式接收图片，最多支持四个通道。</td>
+<td>一个屏幕和一个 JPEG 或 PNG 解码器。</td>
+<td>显示屏、带屏幕的扬声器、电子墨水屏相框。</td>
+</tr>
+<tr>
+<td><code>visualizer</code></td>
+<td>接收与音频同步的响度、节拍、频谱和峰值事件。</td>
+<td>灯光或屏幕，以及时间滤波器（time filter）。</td>
+<td>灯带、LED 点阵、灯具、可视化屏幕。</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>接收从专辑封面或音乐中提取的小型调色板，并保证对比度。</td>
+<td>任何能显示颜色的东西。</td>
+<td>氛围灯、显示屏上的 UI 主题配色。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>规范：<a href="/sendspin/build/spec/#role-versioning">角色版本控制</a>，以及从<a href="/sendspin/build/spec/#player-messages">播放器消息</a>开始的每个角色各自的章节。</p>
+<h3 id="roles---1" tabindex="-1"><a class="heading-anchor" href="#roles---1" aria-hidden="true">#</a>角色如何组合</h3>
+<p>大多数产品会使用不止一种角色。</p>
+<ul>
+<li><strong>扬声器或功放：</strong> <code>player</code> 加上 <code>controller</code>，这样设备上的按键就能作用于其所在的分组。如果有线路输入，再加上 <code>source</code>。</li>
+<li><strong>流媒体播放器（仅输出）：</strong> 仅使用 <code>player</code>，或者当它配有遥控器或应用时，使用 <code>player</code> 加上 <code>controller</code>。</li>
+<li><strong>显示屏：</strong> <code>metadata</code> 加上 <code>artwork</code> 加上 <code>controller</code>。再加上 <code>color</code>，可以让界面主题跟随专辑封面变化；如果显示屏带有扬声器，再加上 <code>player</code>。</li>
+<li><strong>灯光：</strong> <code>visualizer</code> 用于随音乐变化的效果，<code>color</code> 用于氛围色彩，或者两者兼用。</li>
+<li><strong>专用控制器：</strong> 仅使用 <code>controller</code>。例如一个旋钮、一个按键面板，或一个只需控制所在房间的语音卫星设备。</li>
+<li><strong>输入桥接器：</strong> 仅使用 <code>source</code>，适用于黑胶唱片机、调音台或向系统输入音频的蓝牙接收器。</li>
+</ul>
+<div class="callout callout--note">
+<p class="callout__title">每个音频输出对应一个客户端</p>
+<p>拥有多个独立输出的设备（例如双分区功放），应当为每个输出呈现为一个客户端。每个客户端都有自己的身份标识、分组、音量和时序参数。两个时间滤波器都由同一个主机时钟驱动，因此该设备也可以将两路流叠加到一个物理输出上。</p>
+</div>
+<h3 id="roles---2" tabindex="-1"><a class="heading-anchor" href="#roles---2" aria-hidden="true">#</a>所有角色共有的内容</h3>
+<p>无论选择哪些角色，客户端都需要相同的基础：稳定的身份标识、Noise 握手、时间滤波器、hello 与 activate 交互流程，以及报告自身是否可用的能力。<a href="#client">客户端章节</a>介绍了这些共享组件。</p>
+<p>在连接的生命周期中，服务器会激活和停用角色。客户端仅在角色处于激活状态时保留该角色的状态，当角色再次被激活时会从干净的状态开始。</p>
+<h3 id="roles---3" tabindex="-1"><a class="heading-anchor" href="#roles---3" aria-hidden="true">#</a>尚不存在的角色</h3>
+<p>规范有意省略了那些更适合由服务器完成、或者尚未准备就绪的功能。公告和提示音、歌词、播放列表以及原生音源选择都已被讨论过，可能会作为新角色到来。新角色绝不会破坏现有客户端，因为客户端只会看到自己请求的角色。如果你现在就需要某个功能，可以将其作为 <code>_vendorname_</code> 角色制作原型，并将你的实践经验反馈到<a href="https://github.com/Sendspin/spec/issues">规范仓库</a>；参见<a href="#contributing">参与贡献</a>。</p>
+
+  </section>
+  
+  <section class="guide-print__chapter" id="use-cases">
+    <h2>典型使用案例</h2>
+    <p>每个案例都会说明其中涉及的角色、设备的连接方式、适合的配对方法，以及通常容易出问题的地方。请找到与你的产品最接近的案例，并在阅读分步章节之前先把它读完。</p>
+<div class="hub-cards">
+  <div class="hub-card">
+    <h4>智能音箱或功放</h4>
+    <p><strong>角色：</strong>播放器（player）、控制器（controller）；如有线路输入，还可作为音源（source）。</p>
+    <ul>
+      <li>由服务器（server）发起连接；设备自行广播自己，家中的任何服务器都可以使用它。</li>
+      <li>配对：没有显示屏时，通过音箱播报动态码；否则在显示屏上显示动态码。</li>
+      <li>决定未配对访问（unpaired access）是否默认开启。对于普通音箱来说通常是开启的：用户期望能在应用中选中它并听到音乐。</li>
+      <li>为端口之后的任何设备（例如外部功放）设置输出延迟，并让用户可以自行调整。</li>
+      <li>ESP32 设计可从 <a href="#esphome">ESPHome</a> 入手，其他情况则使用 <a href="https://github.com/Sendspin/sendspin-cpp">sendspin-cpp</a>。</li>
+    </ul>
+  </div>
+  <div class="hub-card">
+    <h4>流媒体播放器（仅输出）</h4>
+    <p><strong>角色：</strong>播放器；如果有遥控器或应用，还兼作控制器。</p>
+    <ul>
+      <li>网络流媒体播放器或 DIY 板子：自身不带音箱，向 DAC、功放或光纤输入供音。</li>
+      <li>端口之后的 DAC、DSP 和功放会带来设备无法感知的延迟。测量一次，把它作为默认输出延迟出厂设置；并在设置中开放调整。</li>
+      <li>配对：如果你有自己的应用，则在应用中显示动态码；否则使用印在设备上的静态码，在按下按键打开配对窗口的同时输入。大多数用户会使用访客模式（guest mode）。</li>
+      <li>当硬件音量旋钮无法远程设置时，将其报告为只读。</li>
+      <li>Sendspin 可以与 AirPlay 和 Cast 共存在同一台设备上运行。当其他协议正在播放时，退出 Sendspin 组（group）但保持可用，这样用户随时可以用 Sendspin 把设备拿回来。只有当它不会让出时，才将其报告为不可用。</li>
+    </ul>
+  </div>
+  <div class="hub-card">
+    <h4>壁挂平板或显示屏</h4>
+    <p><strong>角色：</strong>元数据、封面图（artwork）、控制器；用于主题配色的颜色（color）；带音箱时还可作为播放器。</p>
+    <ul>
+      <li>按你实际渲染的像素尺寸请求封面图；服务器会替你完成缩放。用第二个通道获取模糊背景。</li>
+      <li>定时元数据让你能在曲目切换之前就显示“接下来播放”。</li>
+      <li>配对：在显示屏上显示动态码或二维码。</li>
+      <li>控制器作用于显示屏所在的组。要为用户提供切换组的方式。</li>
+      <li>基于 Web 的面板可从 <a href="https://github.com/Sendspin/sendspin-js">sendspin-js</a> 入手，嵌入式显示屏则使用 sendspin-cpp。</li>
+    </ul>
+  </div>
+  <div class="hub-card">
+    <h4>专用控制器</h4>
+    <p><strong>角色：</strong>仅作控制器。</p>
+    <ul>
+      <li>旋钮、按键面板、遥控器或语音卫星，控制所在房间，但自身不播放任何内容。</li>
+      <li>它会接收所在组的状态，因此一圈 LED 可以显示音量和播放状态。</li>
+      <li>在这类设备上，配对带来的麻烦通常得不偿失；经操作者（operator）批准的未配对访问才是常见选择。</li>
+      <li>在队列为空时播放，会恢复该组上次播放的内容，因此单个按钮就足够了。</li>
+    </ul>
+  </div>
+  <div class="hub-card">
+    <h4>灯光与可视化设备</h4>
+    <p><strong>角色：</strong>可视化（visualizer）、颜色，或两者兼有。</p>
+    <ul>
+      <li>可视化帧与音频一样带有时间戳。运行时间滤波器，并在每帧对应的时间点渲染，而不是在到达时立即渲染。</li>
+      <li>只请求你用得到的数据类型，并且以你能渲染的频率请求。不具备节拍检测能力的服务器可能没有节拍事件；峰值（peaks）则始终可用。</li>
+      <li>颜色自带对比度保证，因此同一套调色板既可以驱动灯具，也可以驱动任何文字叠加层。</li>
+    </ul>
+  </div>
+  <div class="hub-card">
+    <h4>机顶盒或电视</h4>
+    <p><strong>角色：</strong>播放器、音源，可选内嵌服务器。</p>
+    <ul>
+      <li>作为播放器，它与音箱一起播放音乐。作为音源，它把电视音频送入系统，让房间的音箱来播放电影。</li>
+      <li>在把电视音频发送给系统的同时，千万不要把它直接输出到本地音箱：本地输出会超前于网络。身兼音源和播放器的设备只播放服务器回传的内容。</li>
+      <li>当用户切换到游戏主机或其他输入时，如果允许 Sendspin 被打断，则退出 Sendspin 组但保持可用；如果不允许被打断，则将播放器报告为不可用。无论哪种情况，服务器都会将其搁置一旁，绝不会自行把它拉回来。</li>
+      <li>内嵌服务器让这台设备在没有家庭音乐服务器的情况下也能独立驱动整个房间。客户端与服务器模式如何共存，参见应用案例。</li>
+    </ul>
+  </div>
+  <div class="hub-card">
+    <h4>黑胶唱机、AUX 或蓝牙桥接器</h4>
+    <p><strong>角色：</strong>音源。</p>
+    <ul>
+      <li>设备负责采集音频、加上时间戳并发送。服务器负责重采样和混音。</li>
+      <li>能检测到信号时就报告线路感应（line sense）；这样服务器可以在唱针落下时启动房间，在唱片结束时停止。</li>
+      <li>使用来自时间滤波器的时间戳并包含漂移，而不只是偏移量，否则音频流会在一晚上逐渐跑偏。</li>
+      <li>网络卡顿之后，丢弃积压的数据，从实时采集处恢复播放，而不是把旧音频一次性突发发送出来。</li>
+      <li>音源始终需要在服务器上获得操作者的明确批准，而带麦克风的设备出厂时应默认关闭未配对访问。</li>
+    </ul>
+  </div>
+  <div class="hub-card">
+    <h4>桌面或移动应用</h4>
+    <p><strong>角色：</strong>作为客户端时是播放器和控制器；当应用自己播放时，则是完整的服务器。</p>
+    <ul>
+      <li>空闲时，应用是一个客户端：它会显示为 Music Assistant 或家中任何其他服务器的目标设备。</li>
+      <li>当用户在应用中开始播放时，应用会变成服务器并向其他音箱发送音频。用原因 <code>another_server</code> 向你之前作为客户端所连接的服务器告别，并同时广播 <code>_sendspin-server._tcp</code>，让以客户端方式发起连接的设备也能找到你。</li>
+      <li>按照惯例，客户端监听 8928 端口，服务器监听 8927 端口，因此两者可以运行在同一台机器上。</li>
+    </ul>
+  </div>
+  <div class="hub-card">
+    <h4>软件播放器或音乐服务器</h4>
+    <p><strong>角色：</strong>服务器、客户端，或两者兼有。</p>
+    <ul>
+      <li>软件音乐播放器、Linux 音频盒子、家庭自动化中枢：添加服务器端以把它的输出发送到 Sendspin 设备，添加客户端侧以作为其他服务器的目标设备，或者两者都做。</li>
+      <li>如果你使用 Python，可复用 <a href="https://github.com/Sendspin/aiosendspin">aiosendspin</a>；它就是 Music Assistant 内部的服务器。</li>
+      <li>你的服务器身份密钥必须在备份和迁移之后保持不变，否则每台设备都会把恢复出来的服务器当作陌生人。</li>
+      <li><a href="#server-ux">服务器 UX 章节</a>涵盖了发现、批准和配对。</li>
+    </ul>
+  </div>
+  <div class="hub-card">
+    <h4>一个家中有多台服务器</h4>
+    <p><strong>角色：</strong>任意；这里讲的是共存问题。</p>
+    <ul>
+      <li>Music Assistant、手机应用和机顶盒可以同时作为服务器。服务器发起的连接让这一切无需配置即可实现。</li>
+      <li>一个客户端只持有一条播放连接。开始播放的服务器会接管这条连接；失去连接的服务器会收到 <code>another_server</code>，继续把设备显示为可用，并且不会陷入循环重连。</li>
+      <li>每台服务器分别进行配对。客户端至少要存储五条配对记录。</li>
+      <li>在你的服务器界面中，把这种交接显示为“正在从别处播放”。</li>
+    </ul>
+  </div>
+</div>
+<h3 id="" tabindex="-1"><a class="heading-anchor" href="#" aria-hidden="true">#</a>选择连接模式</h3>
+<p>除非你有不这样做的理由，否则应使用服务器发起的连接。客户端自行广播自己，服务器能够发现它，并且上文的 多服务器规则已经对此做出了定义。客户端发起的连接是为脚本、测试工具以及自带服务器选择器的软件而存在的；当出现两台服务器时会发生什么，就由你自己决定了。</p>
+<h3 id="use-cases---1" tabindex="-1"><a class="heading-anchor" href="#use-cases---1" aria-hidden="true">#</a>选择配对方法</h3>
+<div class="table-scroll" tabindex="0">
+<table>
+<thead>
+<tr>
+<th>你的设备具备</th>
+<th>应提供</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>有显示屏</td>
+<td>动态配对码，同时以数字和二维码两种形式呈现</td>
+</tr>
+<tr>
+<td>有音箱但没有显示屏</td>
+<td>动态配对码，通过语音播报</td>
+</tr>
+<tr>
+<td>有专属应用</td>
+<td>在应用中显示的动态配对码，应用充当设备的显示屏</td>
+</tr>
+<tr>
+<td>以上都不具备</td>
+<td>印在设备上的静态配对码，在通过按键、针孔或特定断电重启方式打开配对窗口时输入</td>
+</tr>
+<tr>
+<td>所在平台已经认识该设备</td>
+<td>由平台把设备的配对 PSK 交给服务器，就像 Home Assistant 对 ESPHome 设备所做的那样</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>只提供一种基于码的方式，而不是两种都提供，这样用户就不必在两者之间做选择。每个客户端也会实现配对 PSK 方法，用于系统之间的自动交接。开启了访客模式的音箱可以为操作者批准的任何服务器播放，因此许多用户根本无需配对。详情请参阅<a href="#client-pairing">客户端配对章节</a>。</p>
+
+  </section>
+  
+  <section class="guide-print__chapter" id="client">
+    <h2>逐步构建客户端</h2>
+    <p>按照以下顺序构建客户端。每个步骤都链接到相关的<a href="/sendspin/build/spec/">规范</a>规则和 SDK 钩子。详情请参阅<a href="#client-pairing">配对章节</a>和<a href="#roles">角色章节</a>。</p>
+<h3 id="client--1--sdk" tabindex="-1"><a class="heading-anchor" href="#client--1--sdk" aria-hidden="true">#</a>1. 选择 SDK</h3>
+<p>为您的平台选择一个 SDK：</p>
+<ul>
+<li><strong><a href="https://github.com/Sendspin/sendspin-cpp">sendspin-cpp</a></strong> 是面向设备的 C++ 库。它通过 ESP-IDF 组件注册表（<code>sendspin/sendspin-cpp</code>）在 ESP32 上运行，并支持 Linux、macOS 和 Windows 主机。您在设置客户端时添加所需的角色，从未使用的角色可以排除在构建之外以节省闪存。您需要提供一个 <code>on_audio_write</code> 回调、一个网络就绪的提供程序和一个持久化提供程序；该库托管 WebSocket 服务器，并自行完成 Noise、解码和时间同步。</li>
+<li><strong><a href="https://github.com/Sendspin/aiosendspin">aiosendspin</a></strong> 是 Python 实现。它是 Music Assistant 内部的服务器；其客户端侧主要是测试和参考客户端。</li>
+<li><strong><a href="https://github.com/Sendspin/sendspin-js">sendspin-js</a></strong> 是面向浏览器的 TypeScript 实现。</li>
+</ul>
+<p>无论您选择什么，请先在 Raspberry Pi、Mac 或 Windows PC 上安装 <a href="https://github.com/Sendspin/sendspin-cpp-cli">sendspin-cpp-cli</a>。将其用作参考播放器与您的实现进行对比。<a href="/sendspin/build/sdks/">SDK 页面</a>列出了所有内容。如果您使用 ESP32，请在编写任何代码之前阅读 <a href="#esphome">ESPHome 章节</a>。</p>
+<h3 id="client--2-" tabindex="-1"><a class="heading-anchor" href="#client--2-" aria-hidden="true">#</a>2. 组件</h3>
+<p><img src="/sendspin/images/client-implementation-guide.jpg" alt="Sendspin 客户端的组件及连接流程" /></p>
+<p>客户端由四个部分组成：mDNS 广播（<code>_sendspin._tcp</code> 以及 <code>path</code> TXT 记录）、一个供服务器连接的小型 WebSocket 服务器、Sendspin 核心（握手、消息、时间过滤器），以及您的输出端（sink）：音频输出，以及显示屏或灯光（如果有的话）。SDK 承担核心部分，在 sendspin-cpp 中还包括 WebSocket 服务器；广播和输出端则由您自己负责。</p>
+<p>规范：<a href="/sendspin/build/spec/#server-initiated-connections">服务器发起的连接</a>、<a href="/sendspin/build/spec/#encryption">加密</a>。</p>
+<h3 id="client--3-" tabindex="-1"><a class="heading-anchor" href="#client--3-" aria-hidden="true">#</a>3. 身份与需要持久化的内容</h3>
+<p>在进行其他工作之前，先确定持久化存储，因为有几项内容必须能在重启后保留：</p>
+<ul>
+<li><strong>X25519 密钥对</strong>。<code>client_id</code> 由它派生而来，因此重新生成密钥会让每个认识该设备的服务器都把它当成陌生设备。</li>
+<li><strong>配对记录</strong>，至少五个。当所有槽位都满时，逐出最久未使用的一条；配对绝不会因空间不足而失败。</li>
+<li><strong>音量和静音。</strong></li>
+<li><strong>输出延迟</strong>，如果输出可能变化，则每个输出各保存一个。</li>
+<li><strong>配对失败计数器</strong>（参见<a href="#client-pairing--rounds-cooldown-and-the-operator-action">轮次</a>）。</li>
+<li><strong>最后播放的 server_id</strong>，用于在两个空闲服务器之间做出选择。</li>
+</ul>
+<p>在 sendspin-cpp 中，所有这些都要通过您的 <code>SendspinPersistenceProvider</code> 来实现。</p>
+<p>规范：<a href="/sendspin/build/spec/#identities">身份</a>、<a href="/sendspin/build/spec/#pairing-records">配对记录</a>、<a href="/sendspin/build/spec/#multiple-servers-server-initiated">多服务器</a>。</p>
+<h3 id="client--4-" tabindex="-1"><a class="heading-anchor" href="#client--4-" aria-hidden="true">#</a>4. 声明您能做什么</h3>
+<p><code>client/hello</code> 是服务器了解自己在与什么对话的地方。请按优先顺序列出您的角色。所列格式中必须包含 <code>flac</code> 或 <code>pcm</code>，这样任何服务器都能为您提供服务；Opus 是可选的，并且在商用硬件上涉及第三方专利授权。无法无间隙切换采样率的播放器应当只列出一种采样率，让服务器进行重采样。在 <code>device_info</code> 中填写制造商、型号和固件版本。只有在有明确理由时才发送 MAC 地址：它是一个稳定的标识符。添加名称、您当前的 <code>unpaired_access</code> 设置以及您支持的配对方法。</p>
+<p>规范：<a href="/sendspin/build/spec/#client--server-clienthello"><code>client/hello</code></a>、<a href="/sendspin/build/spec/#client--server-clienthello-playerv1-support-object">player@v1 支持对象</a>。</p>
+<h3 id="client--5-" tabindex="-1"><a class="heading-anchor" href="#client--5-" aria-hidden="true">#</a>5. 在报告可用之前先让时钟收敛</h3>
+<p>从连接建立的那一刻起就运行时间过滤器。<a href="https://github.com/Sendspin/time-filter">参考实现</a>是一个可以拿来即用的卡尔曼滤波器，每十秒进行约八次时间交换的突发是经过验证的基准做法。在过滤器收敛之前不要报告 <code>available: true</code>；过早开始的播放器会不同步地播放，然后再进行可以听出来的校正。sendspin-cpp 会为您运行该过滤器。</p>
+<p>规范：<a href="/sendspin/build/spec/#clock-synchronization">时钟同步</a>。</p>
+<h3 id="client--6-" tabindex="-1"><a class="heading-anchor" href="#client--6-" aria-hidden="true">#</a>6. 如实报告时序参数</h3>
+<p>播放器状态中的两个数字会告诉服务器应该提前多久发送音频。<code>required_lead_time_ms</code> 是从启动触发到您能完整播放的第一个数据块之间的测量值；在流水线已预热的情况下，<code>stream/clear</code> 的该值通常低于冷启动的 <code>stream/start</code>，并且在流播放期间您可以将其调低。<code>min_buffer_ms</code> 取自到达延迟分布的上尾部（约第 95 百分位数），测量窗口要足够长以涵盖干扰情况，并经过防抖处理，使其不会因每次短暂波动而跳变。请报告能够可靠避免欠载（underrun）的最低值。虚报这些数字会给每位听众增加延迟，对于黑胶唱片机或电视这类实时音源尤其明显。</p>
+<p>规范：<a href="/sendspin/build/spec/#client--server-clientstate-player-object"><code>client/state</code> 播放器对象</a>、<a href="/sendspin/build/spec/#server-audio-send-constraints">服务器音频发送约束</a>。</p>
+<h3 id="client--7-" tabindex="-1"><a class="heading-anchor" href="#client--7-" aria-hidden="true">#</a>7. 设置静态输出延迟</h3>
+<p>在您测量播放的位置之后、您所知道的所有环节（DSP、功放、DAC 链路、外接扬声器）都应作为默认的 <code>output_delay_ms</code> 填入。让用户可以在 0 到 5000 毫秒之间进行调整，将其持久化保存；如果输出可能变化，则保存各自独立的值。端口之前的延迟（例如您自己的音频缓冲区）由您在内部自行补偿。降低延迟可能会使缓冲中的音频暂时多于您所报告的数量；请保持正常工作，必要时悄悄丢弃即可。</p>
+<p>规范：<a href="/sendspin/build/spec/#client--server-clientstate-player-object"><code>client/state</code> 播放器对象</a>。</p>
+<h3 id="client--8-" tabindex="-1"><a class="heading-anchor" href="#client--8-" aria-hidden="true">#</a>8. 保持同步</h3>
+<p>在输出端对照时间过滤器的预测来测量误差，而不是对照到达时间。校正必须不可闻，播放速度必须保持在 ±0.5% 以内，误差必须保持在 ±1 毫秒以内，并应力求达到 ±0.5 毫秒。丢弃已经迟到的数据块。在启动时和欠载之后一步到位地对齐到播放位置，而不是缓缓滑入。规范描述了一种无需插值的采样点丢弃与插入策略，适合小型 CPU；当您有足够的算力时，ASRC 是质量更高的替代方案。</p>
+<div class="callout callout--tip">
+<p class="callout__title">部分迟到的数据块</p>
+<p>当某个数据块的开始时刻已经过去、但其尾部仍可播放时，将其解码并只丢弃迟到的前缀部分可以保持编解码器状态的连续性。丢弃整个数据块更简单，但会损失更多音频。</p>
+</div>
+<p>在 sendspin-cpp 中，您的 <code>on_audio_write</code> 回调接收的是校正后的 PCM；测量和校正由该库完成。</p>
+<p>规范：<a href="/sendspin/build/spec/#sync-accuracy">同步精度</a>、<a href="/sendspin/build/spec/#correction-quality">校正质量</a>、<a href="/sendspin/build/spec/#suggested-correction-strategy">建议的校正策略</a>。</p>
+<h3 id="client--9-" tabindex="-1"><a class="heading-anchor" href="#client--9-" aria-hidden="true">#</a>9. 音量</h3>
+<p>音量对应的是感知响度。使用 <code>(volume / 100)^1.5</code> 将其转换为振幅，并在一段短暂的渐变中应用变化。静音独立于音量：音量命令绝不会解除静音。无法远程驱动的硬件旋钮会在状态中上报，但不列入 <code>supported_commands</code>，因此服务器会将其显示为只读。</p>
+<p>规范：<a href="/sendspin/build/spec/#player-messages">播放器消息</a>、<a href="/sendspin/build/spec/#client--server-clientstate-player-object"><code>client/state</code> 播放器对象</a>。</p>
+<h3 id="client--10-" tabindex="-1"><a class="heading-anchor" href="#client--10-" aria-hidden="true">#</a>10. 让位于其他音源并重新收回</h3>
+<p>只有在您不会让位的情况下才报告 <code>available: false</code>：例如 HDMI 正在使用中、存在蓝牙会话，或输出被另一个协议占用。如果 Sendspin 随时都能收回设备，请保持可用状态，并改为发送 <code>client/leave</code>，从而停止参与该群组。在不可用期间仍要继续处理 <code>stream/start</code>、<code>stream/clear</code> 和 <code>stream/end</code>；这些消息可能已在网络上与您的状态更新交错到达。本身也是音源的设备（例如电视）从不在本地播放自己的输入；它只播放服务器传回的内容。</p>
+<p>规范：<a href="/sendspin/build/spec/#external-source-handling">外部音源处理</a>、<a href="/sendspin/build/spec/#source-messages">音源消息</a>。</p>
+<h3 id="client--11-" tabindex="-1"><a class="heading-anchor" href="#client--11-" aria-hidden="true">#</a>11. 礼貌地断开连接，合理地重连</h3>
+<p>发送 <code>client/goodbye</code> 时附上符合情况的原因：切换服务器时用 <code>another_server</code>，关机时用 <code>shutdown</code>，稍后会回来时用 <code>restart</code>，被用户断开时用 <code>user_request</code>。在服务器发起的设置中，由服务器进行重连。在客户端发起的设置中，连接丢失后按指数退避进行重连，从一秒开始、每次翻倍，上限为 30 秒，重试次数不设上限。在 Noise 失败后同样要进行退避。</p>
+<p>规范：<a href="/sendspin/build/spec/#client--server-clientgoodbye"><code>client/goodbye</code></a>。</p>
+<h3 id="client--12-" tabindex="-1"><a class="heading-anchor" href="#client--12-" aria-hidden="true">#</a>12. 根据播放状态为外接功放供电</h3>
+<p><code>group/update</code> 会告诉您所在的群组是否正在播放。正在播放时打开功放，并在厂商选定的空闲时间之后将其关闭。</p>
+<p>规范：<a href="/sendspin/build/spec/#server--client-groupupdate"><code>group/update</code></a>。</p>
+<h3 id="client--13-" tabindex="-1"><a class="heading-anchor" href="#client--13-" aria-hidden="true">#</a>13. 恢复出厂设置</h3>
+<p>恢复出厂设置会将设备恢复到出厂时的内容（身份密钥对、配对 PSK、静态配对码、校准后的输出延迟），并清除此后累积的所有内容，包括配对记录。</p>
+<p>规范：<a href="/sendspin/build/spec/#definitions">定义</a>。</p>
+<h3 id="client--14-" tabindex="-1"><a class="heading-anchor" href="#client--14-" aria-hidden="true">#</a>14. 发布之前</h3>
+<ul>
+<li>身份信息能在重启和断电后保留。</li>
+<li>配对记录能在重启后保留。</li>
+<li>播放器在报告可用之前已完成收敛。</li>
+<li>启动时或跳转（seek）之后没有可闻的颤音。</li>
+<li>一小时内与参考播放器（sendspin-cpp-cli）的偏差保持在 ±1 毫秒以内。</li>
+<li>能挺过服务器重启和网络中断，并无需人工干预即可自行恢复。</li>
+<li>输出延迟已持久化且可调整。</li>
+<li>音量曲线遵循公式；静音与音量相互独立。</li>
+<li>通过<a href="#testing">一致性测试套件</a>。</li>
+<li>商标使用已对照<a href="/sendspin/licensing/">许可与商标</a>进行核查。</li>
+</ul>
+
+  </section>
+  
+  <section class="guide-print__chapter" id="client-pairing">
+    <h2>设备上的配对</h2>
+    <p>配对是一次性的步骤，它把未配对的连接转变为双方都确切知道对方身份的连接。对播放而言，配对是可选的：音箱可以允许<a href="#client-pairing--unpaired-access-is-your-default-to-choose">未配对访问（unpaired access）</a>——也就是用户熟知的访客模式（guest mode）——为操作者（operator）批准的任何服务器播放音乐。服务器要在未经身份验证的设备上激活音源（source）角色，必须先完成配对；也正是因为有了配对，服务器才能在设置阶段之后信任你的设备。本章介绍客户端一侧；<a href="#pairing-and-encryption">信任模型</a>解释了这样设计的原因，<a href="#server-ux">服务器 UX 章节</a>则介绍操作者会看到什么。</p>
+<p>从用户的角度看，设备加入服务器的方式有三种：访客模式、设备显示或播报（或在你的应用中展示）的动态 PIN，以及印在设备上的静态 PIN。请勿将自动化配对列入这份清单。</p>
+<h3 id="" tabindex="-1"><a class="heading-anchor" href="#" aria-hidden="true">#</a>为你的硬件选择代码方法</h3>
+<p>你只提供一种基于代码的方法，具体选择取决于设备能在何处显示或说出代码。</p>
+<div class="table-scroll" tabindex="0">
+<table>
+<thead>
+<tr>
+<th>你的设备具备</th>
+<th>应提供</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>显示屏</td>
+<td>动态配对代码，以数字和二维码两种形式呈现</td>
+</tr>
+<tr>
+<td>有扬声器但无显示屏</td>
+<td>动态配对代码，以语音播报</td>
+</tr>
+<tr>
+<td>自带应用</td>
+<td>动态配对代码，在应用中显示；应用充当设备的显示屏</td>
+</tr>
+<tr>
+<td>以上皆无</td>
+<td>印在设备上的静态配对代码，需先通过按钮、针孔（pinhole）或断电重启模式（power-cycle pattern）开启配对窗口</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>绝不要同时列出两种代码方法，否则服务器将不得不询问操作者该使用哪一种，而操作者无从知晓。厂商应用可以算作显示屏：设备照常生成代码，由应用展示出来；这也涵盖了通过固件更新获得 Sendspin、标签上并未印有代码的设备。</p>
+<p>规范：<a href="/sendspin/build/spec/#methods">方法（Methods）</a>、<a href="/sendspin/build/spec/#client--server-clienthello-pair-method-descriptor">配对方法描述符（pair-method descriptor）</a>。</p>
+<h3 id="client-pairing---psk-" tabindex="-1"><a class="heading-anchor" href="#client-pairing---psk-" aria-hidden="true">#</a>配对 PSK 用于自动化场景</h3>
+<p>每个客户端还实现了配对 PSK（pre-shared key，预共享密钥）方法，用于系统之间的自动配对：例如 Home Assistant 将 ESPHome 设备的密钥交给 Music Assistant，使设备直接以已配对状态出现；厂商的云服务或应用为其管理的服务器做预配置；一台服务器代表另一台服务器注册设备。设备把该密钥以配对令牌（pairing token，文本或二维码，以 <code>SP:</code> 开头）的形式暴露给获准读取它的系统；用户永远不需要手动输入。请像对待 Wi-Fi 密码一样对待该令牌：仅供所有者自己的平台使用，绝不能印在访客可以拍摄到的地方。</p>
+<p>规范：<a href="/sendspin/build/spec/#pairing-psk-flow">PSK 配对流程（Pairing PSK Flow）</a>、<a href="/sendspin/build/spec/#pairing-token">配对令牌（Pairing Token）</a>。</p>
+<h3 id="client-pairing---1" tabindex="-1"><a class="heading-anchor" href="#client-pairing---1" aria-hidden="true">#</a>显示和播报代码</h3>
+<p>动态代码为六位数字，以 <code>123-456</code> 的形式呈现；静态代码为八位数字，以 <code>1234-5678</code> 的形式呈现。连字符仅用于展示。二维码以纯文本形式承载配对令牌，不包含 URI scheme，因此无论是扫码还是粘贴，提供给服务器的输入完全相同。</p>
+<p>具备语音功能的设备自带数字音频。本项目目前既不提供也不托管语音包，但如果确有需求，将来可能会托管。请按照 RFC 4647 查找规则，从 <code>server/hello</code> 中的 <code>languages</code> 提示里选择语言；若没有任何匹配项，则回退到你自己的默认语言。数字之间保留较短的间隔，两组三位数字之间保留较长的间隔。代码在各轮之间保持不变，所以每轮开始时都要重新播报一遍；操作者可能第一次没有听到。</p>
+<p>规范：<a href="/sendspin/build/spec/#pairing-code-presentation">配对代码呈现（Pairing Code Presentation）</a>、<a href="/sendspin/build/spec/#pairing-token">配对令牌（Pairing Token）</a>、<a href="/sendspin/build/spec/#dynamic-pairing-code-flow">动态配对代码流程（Dynamic Pairing Code Flow）</a>。</p>
+<h3 id="client-pairing---2" tabindex="-1"><a class="heading-anchor" href="#client-pairing---2" aria-hidden="true">#</a>未配对访问的默认值由你决定</h3>
+<p>设备出厂时是否默认开启未配对访问由制造商决定。音箱通常出厂即开启，因为用户期望能在应用里选中这台设备就开始播放音乐。麦克风和其他涉及隐私的输入设备则出厂即关闭。无论你如何设置，音源角色始终需要服务器端的明确批准。更改该设置是在设备上或你的应用中进行的本地操作，服务器永远无法代为执行。用户启用该功能后，请在现有的所有未配对连接上发送带 <code>restart</code> 原因的 <code>client/goodbye</code>，这样下一个 <code>client/hello</code> 就能通告新值。</p>
+<p>规范：<a href="/sendspin/build/spec/#unpaired-access">未配对访问（Unpaired Access）</a>。</p>
+<h3 id="client-pairing---3" tabindex="-1"><a class="heading-anchor" href="#client-pairing---3" aria-hidden="true">#</a>配对记录</h3>
+<p>至少存储五条记录，每条记录包含一个长期 PSK 和该服务器的 <code>server_id</code>。当第六次配对到来时，逐出最近最少使用、且未支撑任何已打开连接的记录。你无需通知被逐出的服务器：它的下一次握手会引用一个你已不再持有的 PSK，并回退到 Sentinel 密钥，因此该服务器可以再次提议配对。</p>
+<p>规范：<a href="/sendspin/build/spec/#pairing-records">配对记录（Pairing Records）</a>、<a href="/sendspin/build/spec/#sentinel-fallback">Sentinel 回退（Sentinel Fallback）</a>。</p>
+<h3 id="client-pairing---4" tabindex="-1"><a class="heading-anchor" href="#client-pairing---4" aria-hidden="true">#</a>配对与播放并行运行</h3>
+<p>用于配对的 <code>server/activate</code> 不会影响你的角色、流或分组。只需暂停出通道（out-channel）：播报代码时将扬声器静音，显示代码时接管显示屏。流仍在继续运行，其时间轴不受影响，因此应丢弃尝试期间已调度的音频，并在尝试结束后同步恢复播放。为每次尝试设定约两分钟的超时（从其第一条消息算起），超时后使用 <code>attempt_timeout</code> 中止。</p>
+<p>规范：<a href="/sendspin/build/spec/#entering-and-leaving-pairing">进入与退出配对（Entering and leaving pairing）</a>。</p>
+<h3 id="client-pairing---5" tabindex="-1"><a class="heading-anchor" href="#client-pairing---5" aria-hidden="true">#</a>轮次、冷却与操作者操作</h3>
+<p>在动态流程中，一次尝试会针对同一个代码反复进行轮次（round），直到服务器的密钥确认验证通过。连续 20 轮失败后，你必须停止重试并暂缓后续尝试，直到设备上发生一次刻意的操作者操作；该操作同时也会重置计数。在达到该上限之前就应加入冷却（cooldown）时间。</p>
+<div class="callout callout--warn">
+<p class="callout__title">从一开始就加入冷却时间</p>
+<p>设备最初可能允许来自任何已批准服务器的播放，之后在固件更新中又获得了涉及隐私的角色，例如麦克风。在更新之前就暴力破解过代码的攻击者，此时已持有一份与合法记录无从区分的配对记录。如果攻击者能够触发重置计数的那个操作，就不要只依赖 20 轮的上限。请加入一个随反复失败而递增的冷却时间，即便对于你今天发布的功能而言配对是可选的。</p>
+</div>
+<p>对于这类产品，操作者的操作必须是刻意的。对于硬接线、固定安装、不会有人意外拔掉电源的设备，断电重启可以算作有效操作。而对于接在带开关插座上的设备或便携式电池供电设备，断电重启则不算数，因为这类设备经常被断电重启，而且智能插座还能远程做到这一点。请改用断电重启模式、长按或设备 UI。当尝试被暂缓时，请通过 <code>client/pair-pending</code> 说明情况，附上一条简短的人性化消息，并使用服务器提示中的语言，以便服务器告知操作者该怎么做。</p>
+<p>规范：<a href="/sendspin/build/spec/#rounds">轮次（Rounds）</a>、<a href="/sendspin/build/spec/#client--server-clientpair-pending"><code>client/pair-pending</code></a>。</p>
+<h3 id="client-pairing---6" tabindex="-1"><a class="heading-anchor" href="#client-pairing---6" aria-hidden="true">#</a>静态代码与配对窗口</h3>
+<p>静态代码是每台设备专属的随机八位数字，绝不使用共享的默认值，并印在标签上。每次尝试都要等待配对窗口开启，而窗口由一个刻意的动作开启：按下按钮、按下针孔、组合按键或断电重启模式。窗口持续约五分钟，并在五次失败尝试或一次完成的配对后提前关闭。等待该动作期间发送 <code>client/pair-pending</code>，窗口开启后发送 <code>client/pair-init</code>。</p>
+<p>当窗口因失败而关闭时，不要点亮常亮的“锁定”LED。让锁定状态安静且可恢复：下一次动作即可开启新窗口。</p>
+<p>规范：<a href="/sendspin/build/spec/#static-pairing-code-flow">静态配对代码流程（Static Pairing Code Flow）</a>、<a href="/sendspin/build/spec/#pairing-window">配对窗口（Pairing Window）</a>。</p>
+<h3 id="client-pairing---7" tabindex="-1"><a class="heading-anchor" href="#client-pairing---7" aria-hidden="true">#</a>配对尝试结束时</h3>
+<p>服务器在离开配对之前的任何时刻，都可能以 <code>user_cancelled</code> 原因通过 <code>pair/abort</code> 中止。向用户展示尝试结束的原因——是他们在服务器端取消了操作、代码有误还是超时——并将出通道恢复为正常使用。被取消的尝试不会消耗配对窗口，且仅当代码已经开始播报或显示时才计入轮次上限。</p>
+<p>规范：<a href="/sendspin/build/spec/#client--server-pairabort"><code>pair/abort</code></a>。</p>
+<h3 id="client-pairing---8" tabindex="-1"><a class="heading-anchor" href="#client-pairing---8" aria-hidden="true">#</a>安全与法规说明</h3>
+<p>未配对会话和静态代码会话仅在设置阶段暴露于中间人（man in the middle）攻击之下。配对完成后，之后的每个连接都由长期 PSK 和 Noise 握手完成身份验证。轮次上限和动作门控为测试实验室提供了可援引的规范章节，用于对应 ETSI EN 303 645 第 5.1-5 条以及 EN 18031-1 AUM-6；请在你的合规文件中引用<a href="/sendspin/build/spec/#rounds">轮次（Rounds）</a>和<a href="/sendspin/build/spec/#pairing-window">配对窗口（Pairing Window）</a>。</p>
+<p>规范：<a href="/sendspin/build/spec/#unpaired-access">未配对访问（Unpaired Access）</a>、<a href="/sendspin/build/spec/#encryption">加密（Encryption）</a>。</p>
+<div class="callout callout--example">
+<p class="callout__title">sendspin-cpp 是这样做的</p>
+<p>你声明 <code>pairing_code_out_channels</code> 和 <code>pairing_code_formats</code>，并实现 <code>on_display_pairing_code</code> 和 <code>on_clear_pairing_code</code> 来驱动你的显示屏或扬声器。对于静态流程，你设置 <code>static_pairing_code</code> 和 <code>pairing_window_supported</code>，在服务器请求时接收 <code>on_open_pairing_window</code>，并在用户做出动作时调用 <code>confirm_pairing_window</code>。出厂预置的 PSK 填入 <code>pairing_psk</code>，库会为代用户执行配对的平台生成 <code>SP:</code> 配对令牌。轮次计数器和冷却状态则通过你的持久化提供程序（persistence provider）保存。</p>
+</div>
+
+  </section>
+  
+  <section class="guide-print__chapter" id="esphome">
+    <h2>使用 ESPHome 构建</h2>
+    <p>使用 ESPHome 为 ESP32 构建 Sendspin 播放器，无需编写 C++。<a href="https://esphome.io">ESPHome</a> 提供了一个 <code>sendspin</code> 组件，它封装了 <a href="https://github.com/Sendspin/sendspin-cpp">sendspin-cpp</a>，并将其接入 ESPHome 音频栈的其余部分。你用 YAML 描述硬件，ESPHome 构建固件，Home Assistant 则负责引导设置、更新和配对。</p>
+<h3 id="" tabindex="-1"><a class="heading-anchor" href="#" aria-hidden="true">#</a>组件包含的内容</h3>
+<p>该组件是一个 hub 加上一组平台：</p>
+<ul>
+<li><code>sendspin:</code> 是 hub（中心组件）。它接受可选的 <code>manufacturer</code>、<code>model</code> 和 <code>firmware_version</code>，用于 <code>client/hello</code> 中的 <code>device_info</code>；还接受 <code>task_stack_in_psram</code>，适用于内部 RAM 紧张的板卡。它会自动启用 ESPHome 的高性能网络功能。</li>
+<li>一个 <code>media_source</code> 平台 <code>sendspin</code>，它就是播放器角色。它向 <code>speaker_source</code> 媒体播放器提供数据，后者可驱动任何 ESPHome 扬声器管线：I2S DAC、内部 DAC、带独立重采样器和混音器的扬声器。其 <code>initial_static_delay</code> 和 <code>static_delay_adjustable</code> 选项分别对应<a href="#client--7-set-the-static-output-delay">输出延迟</a>，以及用户是否可以更改它。</li>
+<li>一个 <code>media_player</code> 平台 <code>sendspin</code>，它就是控制器角色：它将设备所在的组以 Home Assistant 媒体播放器的形式暴露出来，具备播放、暂停、下一曲和音量功能。</li>
+<li>一个 <code>text_sensor</code> 平台，其 <code>type</code> 为 <code>title</code>、<code>artist</code>、<code>album</code> 或 <code>album_artist</code>；以及一个 <code>sensor</code> 平台，对应 <code>track_progress</code>、<code>track_duration</code>、<code>year</code> 或 <code>track</code>。</li>
+<li>一个用于专辑封面的 <code>image</code> 平台，可按你的显示屏所需的 <code>format</code> 和 <code>resize</code> 尺寸，从专辑或艺术家通道获取图像。</li>
+<li>用于启动和停止 Sendspin 客户端、以及允许访客访问的 <code>switch</code> 实体（entity）——后者是 Home Assistant 对<a href="#client-pairing--unpaired-access-is-your-default-to-choose">未配对访问</a>的称呼。</li>
+</ul>
+<p>其底层是未经修改的 sendspin-cpp。该库的设计目标是被 ESPHome 使用，但本身不依赖 ESPHome 的任何内容，因此你在这里学到的知识在你将来脱离 ESPHome 时依然适用。ESPHome 的最低版本要求为 2026.3。带 PSRAM 的 ESP32-S3 是比较从容的目标。普通 ESP32 也能胜任播放器角色，但需要小心管理 RAM——<code>task_stack_in_psram</code> 选项以及在扬声器管线中只选择单一采样率正是为此而设。</p>
+<p><a href="https://esphome.io/components/sendspin/">ESPHome 文档</a>中有每个平台的完整选项列表。</p>
+<h3 id="esphome---home-assistant-" tabindex="-1"><a class="heading-anchor" href="#esphome---home-assistant-" aria-hidden="true">#</a>通过 Home Assistant 引导设置</h3>
+<p>用户获得的体验与正常的 ESPHome 体验一致。他们给设备上电，通过 Improv 或在 ESPHome 仪表盘（dashboard）中采纳设备的方式将其添加到 Home Assistant；从那时起，他们就能获得 OTA 更新，以及一个包含其全部实体的设备页面。</p>
+<p>Home Assistant 会将设备的配对 PSK 交给 Music Assistant，因此该设备在 Music Assistant 中显示时就已经处于配对状态，无需输入任何代码，也无需扫描二维码。手动配对方法对家中的其他服务器仍然可用：手机应用或第二台音乐服务器仍会按照<a href="#client-pairing">配对章节</a>中描述的方式进行配对。</p>
+<p>访客模式开关从 Home Assistant 这一侧控制未配对访问，因此用户可以在仪表盘上决定未配对的服务器是否可以在该设备上播放。对于需要符合 EN 18031 默认合规要求的产品，可以使用一个动作（action）让固件在设置好每台设备专属的密钥之后才启用 Sendspin，从而确保设备绝不会以共享密钥或空密钥进行监听。</p>
+<div class="callout callout--example">
+<p class="callout__title">Music Assistant 就是这么做的</p>
+<p>Music Assistant 从 Home Assistant 获取设备的配对 PSK，并在首次连接时完成配对 PSK 流程。双方各自存储一条普通的配对记录，与基于代码的配对之后所做的一样。其他服务器则通过设备所通告的方法与其配对。</p>
+</div>
+<h3 id="esphome---1" tabindex="-1"><a class="heading-anchor" href="#esphome---1" aria-hidden="true">#</a>示例配置</h3>
+<p>请根据你的硬件调整引脚、板卡型号、采样率和名称。实体名称就是用户在 Home Assistant 中看到的名称。</p>
+<pre><code class="language-yaml"># Example: an ESP32-S3 driving an external I2S DAC. Adapt to your board.
+esphome:
+  name: shelf-speaker
+  friendly_name: Shelf Speaker
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+api:
+ota:
+  - platform: esphome
+improv_serial:
+
+i2s_audio:
+  - id: i2s_out
+    i2s_lrclk_pin: GPIO45
+    i2s_bclk_pin: GPIO46
+
+speaker:
+  - platform: i2s_audio
+    id: dac_speaker
+    i2s_audio_id: i2s_out
+    i2s_dout_pin: GPIO47
+    dac_type: external
+    sample_rate: 48000
+    bits_per_sample: 32bit
+    channel: stereo
+
+sendspin:
+  manufacturer: Example Audio
+  model: Shelf Speaker
+  firmware_version: &quot;1.0.0&quot;
+
+# The player role: Sendspin audio into the speaker pipeline.
+media_source:
+  - platform: sendspin
+    id: sendspin_source
+    initial_static_delay: 0ms      # delay of the DAC and amplifier behind the port
+    static_delay_adjustable: true  # let the user fine-tune it from Home Assistant
+
+media_player:
+  - platform: speaker_source
+    id: speaker_player
+    name: Speaker
+    media_pipeline:
+      speaker: dac_speaker
+      sources:
+        - sendspin_source
+  # The controller role: the group this device is in, as a media player entity.
+  - platform: sendspin
+    name: Sendspin group
+
+text_sensor:
+  - platform: sendspin
+    type: title
+    name: Title
+  - platform: sendspin
+    type: artist
+    name: Artist
+
+switch:
+  # Starts and stops the Sendspin client. The guest access switch is
+  # configured the same way; see the ESPHome documentation.
+  - platform: sendspin
+    name: Sendspin
+</code></pre>
+<p>刷写固件，在 Home Assistant 中采纳该设备，它就会作为播放器出现在 Music Assistant 中。测量端口之后 DAC 和功放的延迟并填入 <code>initial_static_delay</code>，然后将该设备与树莓派上的 <a href="https://github.com/Sendspin/sendspin-cpp-cli">sendspin-cpp-cli</a> 进行对比，以检查同步情况。</p>
+<p><span id="esphome--why-this-is-the-fast-lane"></span></p>
+<h3 id="esphome--esphome-" tabindex="-1"><a class="heading-anchor" href="#esphome--esphome-" aria-hidden="true">#</a>ESPHome 替你处理的事项</h3>
+<ul>
+<li><strong>OTA 与配置。</strong> ESPHome 的更新机制和 YAML 配置取代了你原本不得不自己编写的构建系统、更新程序和设置存储。</li>
+<li><strong>Home Assistant 集成（integration）。</strong> 实体、设备页面、自动化（automation）以及向 Music Assistant 交接配对信息，这些都由 ESPHome 原生 API 提供。</li>
+<li><strong>通往认证的路径。</strong> 以这种方式构建的设备可以满足 <a href="https://esphome.io/guides/made_for_esphome">Made for ESPHome</a> 的条件，并使用一致性测试套件所针对的 SDK 通过 <a href="#testing">Sendspin 测试与认证</a>。</li>
+<li><strong>协议实现。</strong> sendspin-cpp 负责 Noise、时间滤波器、解码和同步校正，并且由项目方维护。</li>
+</ul>
+<h3 id="esphome---sendspin-cpp" tabindex="-1"><a class="heading-anchor" href="#esphome---sendspin-cpp" aria-hidden="true">#</a>何时直接使用 sendspin-cpp</h3>
+<p>在以下情况下，请抛开 ESPHome 直接使用 sendspin-cpp：</p>
+<ul>
+<li>你的芯片不是 ESP32，或者你运行自定义的 RTOS 或 Linux 构建；</li>
+<li>你已经拥有更新系统和配置存储，不想再引入第二套；</li>
+<li>你需要对线程、内存布局或音频路径的控制，而组件并未暴露这些能力。</li>
+</ul>
+<p>你使用的仍是相同的库、相同的钩子，线上的行为也完全一致。<a href="#client">客户端分步指南</a>一章正是为这条路径而写的。</p>
+<h3 id="esphome---2" tabindex="-1"><a class="heading-anchor" href="#esphome---2" aria-hidden="true">#</a>已经运行它的硬件</h3>
+<p><a href="https://www.home-assistant.io/voice-pe/">Home Assistant Voice Preview Edition</a> 就是通过该组件提供 Sendspin 的，因此有一款量产设备可供对比；在你设计自己的电路板之前，其公开的配置是有关引脚映射、PSRAM 配置和扬声器管线的实用参考。</p>
+
+  </section>
+  
+  <section class="guide-print__chapter" id="server">
+    <h2>逐步构建服务器</h2>
+    <p>服务器负责发现客户端（client）、为每个客户端编码一路流、让它们保持同一条时间线，并管理配对、分组和音量。下面的每个步骤都链接到相关的规范规则。用户界面相关内容见<a href="#server-ux">用户对服务器的期望</a>；配对背后的原理见<a href="#pairing-and-encryption">信任模型</a>。</p>
+<h3 id="server--1-" tabindex="-1"><a class="heading-anchor" href="#server--1-" aria-hidden="true">#</a>1. 选择你的基础</h3>
+<p>如果你使用 Python 开发，可以从 <a href="https://github.com/Sendspin/aiosendspin">aiosendspin</a> 开始，这是一个在 Music Assistant 内部运行的 Apache 2.0 服务器。它负责处理握手、每个客户端的编码器、预发送和配对。你需要实现队列、用户界面和分组策略。在 C++ 方面，<a href="https://github.com/Sendspin/sendspin-server-cpp">sendspin-server-cpp</a> 还处于早期开发阶段；如果你基于它构建，请固定一个提交版本。如果使用其他语言，请根据<a href="/sendspin/build/spec/">规范</a>实现，并从第一天起运行<a href="#testing">一致性测试套件</a>。无论你构建什么，都要在旁边保留一个 Music Assistant 实例作为参考，以便比较行为。</p>
+<h3 id="server--2-" tabindex="-1"><a class="heading-anchor" href="#server--2-" aria-hidden="true">#</a>2. 发现</h3>
+<p>浏览查找 <code>_sendspin._tcp</code>，并连接到找到的每一个客户端。这是服务器发起（server-initiated）模式，也是存在多台服务器时有明确行为定义的模式。同时也要自己广播 <code>_sendspin-server._tcp</code>，端口 8927，并带有 <code>path</code> TXT 记录，这样客户端发起的设备、脚本和测试工具才能找到你。服务器两种都支持；由客户端来选择其一。</p>
+<p>TXT 中的 <code>name</code> 是发现阶段的提示，因此仅读取名称并不需要建立连接。不过直接连接也没问题：hello 交换会在客户端决定是否接纳你之前完成，而且一个活动为空的连接不会打扰正在从另一台服务器播放的客户端。</p>
+<p>规范：<a href="/sendspin/build/spec/#server-initiated-connections">服务器发起的连接</a>、<a href="/sendspin/build/spec/#client-initiated-connections">客户端发起的连接</a>。</p>
+<h3 id="server--3-" tabindex="-1"><a class="heading-anchor" href="#server--3-" aria-hidden="true">#</a>3. 身份</h3>
+<p>使用 CSPRNG 一次性生成服务器密钥对。公钥就是你的 <code>server_id</code>：每个客户端都靠它识别你，配对记录也是以它为名归档的。新密钥就是新服务器。没有任何已配对的设备会认得它，操作者必须重新配对所有设备。把私钥放入备份和恢复集，并在服务器迁移到新硬件时一并带走。</p>
+<p>规范：<a href="/sendspin/build/spec/#identities">身份</a>。</p>
+<h3 id="server--4-hello-" tabindex="-1"><a class="heading-anchor" href="#server--4-hello-" aria-hidden="true">#</a>4. Hello 与激活</h3>
+<p>握手完成后，发送带有你的名称和操作者 <code>languages</code> 的 <code>server/hello</code>。设备会使用这份列表来选择播报或显示配对码所用的语言，因此要发送操作者已配置的语言。读取 <code>client/hello</code>：其中包含角色、格式、<code>device_info</code>、设备是否允许未配对访问，以及它提供的配对方式。当客户端列出了你没有实现的角色或版本时，要把它当回事。这说明客户端使用的修订版本比你的新，你的服务器需要更新。</p>
+<p>然后用 <code>server/activate</code> 声明你的目的：只有当你将在这台客户端上播放时才使用 <code>playback</code>，配对尝试进行期间使用 <code>pairing</code>，其他情况下什么都不声明。活动的目的一结束就立即撤销它。客户端会根据声明的最高级别活动在多台服务器之间仲裁，因此音乐停止后仍滞留不去的 <code>playback</code> 会阻止下一台服务器使用该设备。</p>
+<p>规范：<a href="/sendspin/build/spec/#server--client-serverhello"><code>server/hello</code></a>、<a href="/sendspin/build/spec/#client--server-clienthello"><code>client/hello</code></a>、<a href="/sendspin/build/spec/#server--client-serveractivate"><code>server/activate</code></a>、<a href="/sendspin/build/spec/#detecting-outdated-servers">检测过期的服务器</a>。</p>
+<h3 id="server--5-" tabindex="-1"><a class="heading-anchor" href="#server--5-" aria-hidden="true">#</a>5. 格式与编码</h3>
+<p>你必须能够提供 FLAC 和 PCM。Opus 是可选的，且受第三方专利保护；随设备出货的商业产品需要向专利池支付每台设备的费用，这一点请与你的授权团队商定。为每个客户端分别编码；一个分组里可能同时混有需要 44.1 kHz 16-bit FLAC 的微控制器和接受 96 kHz 24-bit 的桌面设备。只列出单一采样率的客户端无法无间断地切换；要为它重采样。当客户端在流活跃期间更改其 <code>format</code> 偏好时，要重新推导该流，若有变化则发送新的 <code>stream/start</code>。</p>
+<p>把整个队列当作每个客户端的一条连续流。曲目变更不会结束流，这正是实现无缝播放和交叉淡入淡出的关键。跳转或切换到另一曲目是 <code>stream/clear</code>，绝不要用 <code>stream/end</code>。</p>
+<p>规范：<a href="/sendspin/build/spec/#client--server-clienthello-playerv1-support-object">播放器支持对象</a>、<a href="/sendspin/build/spec/#server--client-streamstart"><code>stream/start</code></a>、<a href="/sendspin/build/spec/#server--client-streamclear"><code>stream/clear</code></a>、<a href="/sendspin/build/spec/#server--client-streamend"><code>stream/end</code></a>。</p>
+<h3 id="server--6-" tabindex="-1"><a class="heading-anchor" href="#server--6-" aria-hidden="true">#</a>6. 时序与缓冲</h3>
+<p>每个数据块都带有它播放时的服务器时间。在从空状态 <code>stream/start</code> 或 <code>stream/clear</code> 之后，将第一个数据块安排在至少 <code>min_buffer_ms + output_delay_ms</code> 之后播放，并且只有在不增加延迟的前提下才把提前量向 <code>required_lead_time_ms</code> 扩展：对于媒体库曲目，可以；对于唱盘机，不行。数据块为 15 到 150 ms。在一个分组中，预发送量取各成员中的最大值；每次有成员加入、离开或时序更新时都要重新计算，当它下降时，在更低延迟（缩减）和不出现毛刺（保持）之间做出抉择。</p>
+<p>对于有缓冲的内容，将每个播放器填充至其 <code>buffer_capacity</code>；统计时会计入每个数据块的头部加载荷，直到其完成时间过去为止。对客户端发送的时序更新进行去抖动处理，避免某个吵闹的设备每隔几秒就重新调度整个分组。后加入者只会收到未来的时间戳，因此它会先缓冲，然后踩着节拍加入。<code>server_transmitted</code> 和 <code>send_ahead</code> 要尽可能晚地取值，就在加密之前；在数据块入队时取的时间戳会扭曲客户端的延迟测量。</p>
+<p>规范：<a href="/sendspin/build/spec/#server-audio-send-constraints">服务器音频发送约束</a>、<a href="/sendspin/build/spec/#player-buffer-accounting">播放器缓冲统计</a>、<a href="/sendspin/build/spec/#transmit-timestamps">发送时间戳</a>。</p>
+<h3 id="server--7-" tabindex="-1"><a class="heading-anchor" href="#server--7-" aria-hidden="true">#</a>7. 元数据、封面与颜色</h3>
+<p>激活 <code>metadata</code>、<code>controller</code> 或 <code>color</code> 时，发送当前状态。封面（artwork）流开始时，在每个通道上都发送当前图像；曲目中途加入的显示屏不能一直空白到下一首歌。针对下一曲的更新带有未来的时间戳，并且最多提前 20 秒发出。</p>
+<p>封面以最多 65519 字节的分段传输。要控制节奏：在同一连接上背靠背发送的大图像会排到音频数据块前面，播放器会把它听成抖动。调色板附带对比度规则：每个背景与其上的文字之间要达到 4.5:1，发送前请先检查。</p>
+<div class="callout callout--example">
+<p class="callout__title">Music Assistant 是这样做的</p>
+<p>Music Assistant 在把下一曲排入流时就发送该曲目的元数据、封面和颜色，比可听到的变化提前几秒。这样既符合 20 秒规则，又让显示屏有时间在需要之前接收封面。</p>
+</div>
+<p>规范：<a href="/sendspin/build/spec/#server--client-serverstate"><code>server/state</code></a>、<a href="/sendspin/build/spec/#scheduled-metadata-updates">计划元数据更新</a>、<a href="/sendspin/build/spec/#server-rules-for-scheduled-artwork">计划封面的服务器规则</a>、<a href="/sendspin/build/spec/#scheduled-color-updates">计划颜色更新</a>。</p>
+<h3 id="server--8-" tabindex="-1"><a class="heading-anchor" href="#server--8-" aria-hidden="true">#</a>8. 控制器语义</h3>
+<p>在队列为空时执行 <code>play</code> 会恢复分组上次播放的内容，而且这份历史记录要在服务器重启后依然保留；墙壁面板上的单个按钮依赖于此。对于分组音量：从当前平均值计算出增量，将其应用到每个支持音量的播放器，进行钳制，把钳制损失的量重新分配给其余播放器，然后向每个播放器各发送一条命令。报告了音量但没有列出 <code>volume</code> 命令的播放器带有物理旋钮；以只读方式显示其音量级别。<code>switch</code> 会让客户端依次循环：先是在播放的多客户端分组，然后是单独播放的播放器，再是它自己的独奏分组；如果它的上一个分组还停在那里，则该分组优先。</p>
+<p>规范：<a href="/sendspin/build/spec/#command-behaviour">命令行为</a>、<a href="/sendspin/build/spec/#switch-command-cycle">Switch 命令循环</a>、<a href="/sendspin/build/spec/#server--client-serverstate-controller-object">控制器状态对象</a>。</p>
+<h3 id="server--9-" tabindex="-1"><a class="heading-anchor" href="#server--9-" aria-hidden="true">#</a>9. 音源</h3>
+<p>音源（source）会将其时间过滤器反向使用，在你的时间域内为每次采集打上时间戳。不要在这些时间戳处对音频进行切割。根据到达的采样估计音源的有效采样率，用这些时间戳来锚定流并检测间隙，并用异步采样率转换来吸收速率偏差。网络停顿后，时间戳可能发生跳变；保持连续的是采样数据。</p>
+<p>在你发送 <code>start</code> 之前不会有任何内容传输，而只有在操作者明确批准该设备作为音源之后，你才能发送 <code>start</code>。在音箱上按下播放算是对播放的默许；但它绝不等同于对某个输入的批准。然后制定自动切换策略：带线路感应的音源会报告 <code>signal</code>，当唱针落下时你就可以启动房间。</p>
+<div class="callout callout--example">
+<p class="callout__title">Music Assistant 是这样做的</p>
+<p>Music Assistant 会在已获批准的输入报告信号时启动房间播放，并在信号消失时停止，同时允许用户按音源关闭该行为。这个关闭开关很重要：一个带有嗡嗡声的输入会整天报告信号，而一台同时充当音源和播放器的设备，可能在每次电视开机时都启动自己的房间。</p>
+</div>
+<p>规范：<a href="/sendspin/build/spec/#source-messages">音源消息</a>、<a href="/sendspin/build/spec/#client--server-source-audio-chunks-binary">音源音频数据块</a>。</p>
+<h3 id="server--10-" tabindex="-1"><a class="heading-anchor" href="#server--10-" aria-hidden="true">#</a>10. 可用性与分组</h3>
+<p>当客户端报告 <code>available: false</code> 或发送 <code>client/leave</code> 时，把它所在的分组记为上一个分组，将它移到属于它自己的已停止独奏分组中，结束它的流，并通过 <code>group/update</code> 告知它。当它回来时，让它留在那里：只有通过明确的 <code>switch</code> 或你界面中的操作，它才会重新加入。消息会在途中交错：客户端在不可用状态下仍会继续处理你的流消息，因此请发送 <code>stream/end</code> 并让状态稳定下来。</p>
+<p>规范：<a href="/sendspin/build/spec/#external-source-handling">外部音源处理</a>。</p>
+<h3 id="server--11-" tabindex="-1"><a class="heading-anchor" href="#server--11-" aria-hidden="true">#</a>11. 重连</h3>
+<p>遵循告别原因。<code>restart</code> 时要重连；连接静默断开时，如果其活动为空或包含 <code>playback</code>，也要重连，因为这很可能同样是一次重启。<code>another_server</code>、<code>user_request</code>、<code>shutdown</code>、<code>unpaired</code> 或 <code>pairing_required</code> 时不要重连；<code>concurrent_attempt</code> 时稍后重试。Noise 握手反复失败时按指数退避。对于前往其他服务器的客户端，将其显示为可用；当操作者请求或下一个播放命令需要时再重新连接。</p>
+<p>规范：<a href="/sendspin/build/spec/#client--server-clientgoodbye"><code>client/goodbye</code></a>、<a href="/sendspin/build/spec/#failure-handling">失败处理</a>。</p>
+<h3 id="server--12-" tabindex="-1"><a class="heading-anchor" href="#server--12-" aria-hidden="true">#</a>12. 多服务器礼仪</h3>
+<p>一个家里有多台服务器是常态。你会失去客户端给别的服务器，也会把它们要回来。绝不要争抢：当客户端说 <code>another_server</code> 时，停下；当它说 <code>concurrent_attempt</code> 时，等待。无事可做时保持你的活动为空，这样真正有事要做的服务器才能赢得该设备。客户端会记住上次在它上面播放的是哪台服务器，并在空闲连接中优先选择那台。</p>
+<p>规范：<a href="/sendspin/build/spec/#multiple-servers-server-initiated">多台服务器</a>。</p>
+<h3 id="server--13-" tabindex="-1"><a class="heading-anchor" href="#server--13-" aria-hidden="true">#</a>13. 发布之前</h3>
+<ul>
+<li>身份密钥已加入备份和恢复集，并且在新硬件上恢复后每一条配对都得以保留。</li>
+<li>两种发现模式都能工作：你会连接到广播中的客户端，客户端发起的设备也能找到你。</li>
+<li><a href="#testing">一致性测试套件</a>全部通过。</li>
+<li><a href="#server-ux">用户对服务器的期望</a>中的各种状态和流程在你的界面中都已存在。</li>
+<li>你已经针对 sendspin-cpp-cli、一台 <a href="#esphome">ESPHome 设备</a>以及浏览器中的 <a href="https://github.com/Sendspin/sendspin-js">sendspin-js</a> 进行过播放、配对和取消配对。</li>
+</ul>
+
+  </section>
+  
+  <section class="guide-print__chapter" id="server-ux">
+    <h2>用户对服务器的期望</h2>
+    <p>你的服务器需要一个设备列表、批准与配对控件，以及帮助用户从错误中恢复的消息。本章介绍这些界面及其背后的协议规则。同一流程中设备侧的内容见<a href="#client-pairing">客户端配对</a>；其背后的设计思路见<a href="#pairing-and-encryption">信任模型</a>。</p>
+<h3 id="" tabindex="-1"><a class="heading-anchor" href="#" aria-hidden="true">#</a>发现：设备列表</h3>
+<p>在每个已发现的客户端下方显示其 <code>client/hello</code> 中的名称，并在旁边附上来自 <code>device_info</code> 的厂商和型号，这样“厨房”就能被一眼认出是那台音箱而不是壁挂平板。规范要求三种在视觉上可区分的状态：已配对、已批准未配对访问（approved for unpaired access）、以及未知（两者皆非）。一个声称使用了熟悉名称的新客户端绝不能被误认为现有设备。如果未知设备中出现第二个“厨房”，操作者应当能看出区别；如果两者看起来完全一样，攻击者只需给笔记本电脑起一个音箱的名字就能得逞。</p>
+<p>对于正在由另一台服务器播放的设备，显示第四种状态。你与它的连接以 <code>another_server</code> 结束，或因 <code>concurrent_attempt</code> 被拒绝；此时应将其显示为可用，如果知道它去了哪里就加以说明，并让下一条播放命令把它夺回来。</p>
+<p>规范：<a href="/sendspin/build/spec/#unpaired-access">未配对访问</a>、<a href="/sendspin/build/spec/#client--server-clientgoodbye"><code>client/goodbye</code></a>。</p>
+<h3 id="server-ux---1" tabindex="-1"><a class="heading-anchor" href="#server-ux---1" aria-hidden="true">#</a>批准或配对</h3>
+<h4 id="server-ux---2" tabindex="-1"><a class="heading-anchor" href="#server-ux---2" aria-hidden="true">#</a>未配对访问的批准</h4>
+<p>支持未配对访问的设备会为它的操作者所批准的任何服务器播放。为批准提供一个专用控件，例如设备所在行上的“允许此设备”或类似按钮。对于播放角色，你也可以把一个明确表示“使用此设备”的操作作为默示批准，比如直接在设备上按下播放；给刚开箱的音箱按下播放键就听到音乐，正是人们从投屏（casting）中熟悉的那种体验。绝不要对源（source）角色默示批准：输入源只能通过明确的控件获得批准。批准在重启后依然有效，操作者可以撤销它，设备配对时它会被丢弃，因为配对取代了它。</p>
+<p>规范：<a href="/sendspin/build/spec/#unpaired-access">未配对访问</a>、<a href="/sendspin/build/spec/#source-messages">源消息</a>。</p>
+<h4 id="server-ux---3" tabindex="-1"><a class="heading-anchor" href="#server-ux---3" aria-hidden="true">#</a>配对作为一种操作</h4>
+<p>为每个未知客户端提供清晰可见的配对操作，并为已批准的客户端保留配对作为升级途径。设备的 <code>client/hello</code> 会告诉你它提供哪种配对码方式，以及它的静态配对码位于何处：印在设备上，或印在包装盒内的说明单上。用户仅凭这一配对码完成配对，别无其他，因此配对操作应启动设备所列出的那一种配对码方式；如果两者都出现，优先使用动态配对码。仅当你的界面能够扫描二维码时才选择 <code>qr_code</code> 格式。没有摄像头的桌面应用则要求输入数字。</p>
+<p>每台设备也都实现了配对 PSK 方式，但不要让它进入面向用户的流程。它是为自动化准备的：Home Assistant 把 ESPHome 设备的令牌交给 Music Assistant，设备随即显示为已配对，全程无人被询问任何问题。通过 API 或高级设置页面将它提供给集成（integration）和管理员。不要把它放进配对码输入界面。无论在哪里接受令牌，都要宽松地解析：去除首尾空白、转为大写、接受带或不带 <code>SP:</code> 前缀的输入，并把 <code>9</code> 读作 <code>2</code>，因为令牌字母表用其中一个替代另一个。在开始之前，检查令牌内的客户端密钥是否是该连接的 <code>client_id</code>。如果令牌属于另一台设备，先解释这种不匹配，然后再开始握手。</p>
+<p>规范：<a href="/sendspin/build/spec/#client--server-clienthello-pair-method-descriptor">配对方式描述符</a>、<a href="/sendspin/build/spec/#pairing-token">配对令牌</a>、<a href="/sendspin/build/spec/#pairing-psk-flow">配对 PSK 流程</a>。</p>
+<h4 id="server-ux---4" tabindex="-1"><a class="heading-anchor" href="#server-ux---4" aria-hidden="true">#</a>输入配对码</h4>
+<p>每位数字显示一个输入格，并按照设备对它们的分组方式来分组：动态配对码为 <code>123-456</code>，静态配对码为 <code>1234-5678</code>。分组能让预期的长度一目了然；无论是键入还是粘贴的内容，都要去掉其中的连字符和空格。对于会朗读配对码的设备，在开始尝试之前增加一个步骤：“按下继续，音箱将读出一个六位数的配对码。”第一轮一开始设备就会朗读配对码，而当时还在看着手机的操作者只好请求再来一轮；设备最多允许二十轮，之后就会坚持要求按一次按钮。</p>
+<p>动态配对码输错后，设备会要求再来一轮，并再次显示或朗读同一个配对码。静态配对码输错后，本次尝试即告失败，你需要开始一次新的尝试，且不能超出设备配对窗口所允许的五次。提示“该配对码不匹配”，并把光标放回第一个输入格。当设备暂时搁置一次尝试时，它会发送 <code>client/pair-pending</code>，有时附带一条 <code>message</code>，例如“请按背面的配对按钮”。请逐字显示这条消息，作为归于设备名下的纯文本，绝不要将其渲染为标记或链接，因为它来自一个你尚未验证身份的对端。等待期间要应用你自己的超时机制；从不回应的设备不能让加载图标永远转下去。取消按钮会发送带 <code>user_cancelled</code> 原因的 <code>pair/abort</code>，随后发送一个离开配对的激活（activation），这样设备就能显示尝试结束的原因。</p>
+<p>规范：<a href="/sendspin/build/spec/#pairing-code-presentation">配对码展示</a>、<a href="/sendspin/build/spec/#rounds">轮次</a>、<a href="/sendspin/build/spec/#pairing-window">配对窗口</a>、<a href="/sendspin/build/spec/#client--server-clientpair-pending"><code>client/pair-pending</code></a>、<a href="/sendspin/build/spec/#client--server-pairabort"><code>pair/abort</code></a>、<a href="/sendspin/build/spec/#entering-and-leaving-pairing">进入和离开配对</a>。</p>
+<div class="callout callout--example">
+<p class="callout__title">Music Assistant 是这样做的</p>
+<p>配对从播放器选择器开始：未知音箱在其名称旁显示配对操作，操作者选择设备提供的方式，随后打开的配对码输入界面为每位数字提供一个输入格。</p>
+<figure>
+<video controls preload="metadata" poster="/sendspin/images/video-poster.svg" src="/sendspin/videos/ma-pairing.mp4"></video>
+<figcaption>Music Assistant：使用配对码为音箱配对。由端到端测试自动录制。</figcaption>
+</figure>
+<p><a href="https://github.com/Sendspin/ma-pairing-e2e">Music Assistant 端到端测试</a>会在每次运行时重新生成这段录像。</p>
+</div>
+<h4 id="server-ux---5" tabindex="-1"><a class="heading-anchor" href="#server-ux---5" aria-hidden="true">#</a>配对之后</h4>
+<p>双方都持久化了记录之后，你用新密钥对现有连接重新握手。什么都不会关闭，正在运行的流继续运行。从那时起将设备显示为已配对。在设备页面上提供取消配对（unpair）：<code>server/unpair</code> 让双方都忘记这条记录，设备以 <code>unpaired</code> 为原因道别，随后它再次成为未知设备，直到有人批准或配对它。</p>
+<p>规范：<a href="/sendspin/build/spec/#re-handshake">重新握手</a>、<a href="/sendspin/build/spec/#server--client-serverunpair"><code>server/unpair</code></a>。</p>
+<h4 id="server-ux---6" tabindex="-1"><a class="heading-anchor" href="#server-ux---6" aria-hidden="true">#</a>凭据不匹配</h4>
+<p>你配对过的设备可能会不再认得你：它被恢复出厂设置，它为给另一台服务器腾出空间而驱逐了你的记录，或者一次配对在两条 finalize 消息之间被中断。此时握手会回退到 Sentinel 密钥，并在已完成身份验证的前提下告诉你：设备无法使用你的凭据。不要悄无声息地以未配对会话继续运行。规范禁止在你的记录仍存在时在该设备上播放，而静默回退正是中间人（man in the middle）求之不得的事情。在设备上显示警告“此设备不再识别此服务器”，列出可能的原因，并提供重新配对，它会替换原来的记录。</p>
+<p>规范：<a href="/sendspin/build/spec/#sentinel-fallback">Sentinel 回退</a>、<a href="/sendspin/build/spec/#pairing-records">配对记录</a>。</p>
+<h3 id="server-ux---7" tabindex="-1"><a class="heading-anchor" href="#server-ux---7" aria-hidden="true">#</a>播放</h3>
+<p>重命名设备、在分组之间移动它以及调整其音量，都绝不能中断播放。设置更改后重新连接会重置设备的时钟滤波器（clock filter），在滤波器收敛所需的几秒钟里，设备回来时会出现延迟且不同步。分组是服务器侧的概念，因此重新分组就是一次 <code>group/update</code> 加一条新的流，而不是一次新的连接。</p>
+<p>在 <code>server/hello</code> 中发送操作者的语言。朗读配对码的音箱或显示待处理消息的显示屏会从该列表中选择自己的语言，设置了加泰罗尼亚语的操作者不应听到英语数字。</p>
+<p>源（source）有自己独立的流程：单独且明确的批准、一种清晰的开始和停止播放输入的方式，以及流式传输期间的可见指示。麦克风设备出厂时未配对访问处于关闭状态。要说明它需要先配对，用户才能批准它。</p>
+<p>规范：<a href="/sendspin/build/spec/#server--client-serverhello"><code>server/hello</code></a>、<a href="/sendspin/build/spec/#source-messages">源消息</a>。</p>
+<div class="callout callout--example">
+<p class="callout__title">Music Assistant 是这样做的</p>
+<p>首次运行时，Music Assistant 列出它发现的 Sendspin 设备，让用户逐一批准或配对，并立即在第一台已批准的音箱上播放。</p>
+<figure>
+<video controls preload="metadata" poster="/sendspin/images/video-poster.svg" src="/sendspin/videos/ma-onboarding.mp4"></video>
+<figcaption>Music Assistant：首次运行引导，从空的设备列表到音乐响起。由端到端测试自动录制。</figcaption>
+</figure>
+<p>与配对录像一样，这段录像也由<a href="https://github.com/Sendspin/ma-pairing-e2e">端到端测试</a>在每次运行时生成。</p>
+</div>
+<h3 id="server-ux---8" tabindex="-1"><a class="heading-anchor" href="#server-ux---8" aria-hidden="true">#</a>维护</h3>
+<p>报告自身不可用的设备——例如电视切换到了 HDMI，或者输出被另一种协议接管——会被停放在它自己的一个已停止的分组中。应将其显示为“在别处使用中”而不是离线，并且当它恢复时不要把它拉回原来的分组；这一步由用户通过切换命令或在你的界面中完成。转到另一台服务器的设备显示为“正在由另一台服务器播放”，同样不是离线。离线只用于你完全无法连接的设备。</p>
+<p>已配对、已批准和未知这几种状态在设置中也要保持可见，并在它们旁边提供取消配对和撤销操作，这样卖掉音箱的操作者就能在一个地方把它忘记。</p>
+<p>规范：<a href="/sendspin/build/spec/#external-source-handling">外部源处理</a>。</p>
+<h3 id="server-ux---9" tabindex="-1"><a class="heading-anchor" href="#server-ux---9" aria-hidden="true">#</a>需要设计的状态</h3>
+<ul>
+<li>未知设备：已发现，既未配对也未批准，带有批准和配对操作。</li>
+<li>已批准设备：以未配对方式为你播放，可将配对作为升级，并提供撤销选项。</li>
+<li>已配对设备：提供取消配对选项。</li>
+<li>配对进行中：输入配对码；等待设备；配对码错误，请重试；设备暂时搁置尝试，并显示其消息。</li>
+<li>凭据不匹配：警告和重新配对操作。</li>
+<li>正在由另一台服务器播放。</li>
+<li>在别处使用中（不可用），停放在它自己的分组中。</li>
+<li>离线。</li>
+</ul>
+
+  </section>
+  
+  <section class="guide-print__chapter" id="pairing-and-encryption">
+    <h2>配对与加密详解</h2>
+    <p>本章面向实现握手的工程师，以及必须为握手签核的人。它解释了协议保证了什么、哪些内容交由运营者处理，以及局限在哪里。这些流程本身位于<a href="#server-ux">服务器 UX</a> 和<a href="#client-pairing">客户端配对</a>章节中。</p>
+<h3 id="" tabindex="-1"><a class="heading-anchor" href="#" aria-hidden="true">#</a>始终加密</h3>
+<p>每个 Sendspin 连接都是加密的。没有明文模式，也没有降级：无法完成握手的对端（peer）根本得不到会话。加密为你提供机密性（网络上没有人能读取音频或元数据）、完整性（被篡改的消息会未通过身份验证并终止连接）以及重放保护（重复或乱序的消息会以同样的方式失败）。每次握手中的临时密钥还带来了前向保密（forward secrecy），因此明天被盗的密钥无法解密今天录制的流量。</p>
+<p>配对则对加密连接另一端的对端进行身份验证。</p>
+<p>规范：<a href="/sendspin/build/spec/#encryption">加密</a>、<a href="/sendspin/build/spec/#pattern">模式</a>。</p>
+<h3 id="pairing-and-encryption---1" tabindex="-1"><a class="heading-anchor" href="#pairing-and-encryption---1" aria-hidden="true">#</a>组成部分</h3>
+<p><strong>Noise <code>KKpsk2</code>。</strong> 来自 Noise 框架的一种固定握手模式。双方在握手开始前就知道彼此的静态公钥，并且一个预共享密钥（pre-shared key）会在第二条消息的末尾被混入。无论哪一方打开了 WebSocket，服务器始终是 Noise 发起方。</p>
+<p><strong>两种密码套件（cipher suite）。</strong> ChaCha20-Poly1305 在软件实现中速度快，是微控制器上的自然选择。AES-GCM 则利用较大芯片的硬件加速。服务器两者都实现；客户端选择其中一种并予以宣告，因此不存在可能出错的协商过程。</p>
+<p><strong>身份（identity）。</strong> X25519 静态公钥就是身份。编码为文本后，它们就是 <code>client_id</code> 和 <code>server_id</code>。更换密钥就意味着变成另一台设备。</p>
+<p><strong>PSK 槽位</strong>承载三种密钥之一，而具体是哪一种则告诉双方彼此的信任程度：</p>
+<ul>
+<li><strong>Sentinel PSK</strong> 是一个公开的常量。它表示尚未建立任何信任；该会话处于未配对状态。</li>
+<li><strong>配对 PSK</strong> 是设备出厂时自带的或在首次启动时生成的密钥，由一个已经认识该设备的系统通过带外方式作为配对令牌交给服务器。它对每台服务器只用一次即可完成配对，无需任何人输入任何代码。</li>
+<li><strong>长期 PSK</strong> 是一次成功配对的产物，作为配对记录存储在双方。它表示双方此前已经证明过自己的身份。</li>
+</ul>
+<p>**前言（prologue）**将明文的起始消息混入握手过程，因此篡改它们会破坏握手。**重新握手（re-handshake）**在一个活跃连接内使用不同的 PSK 重新运行该模式，从而在不中断流的情况下将会话从未配对提升为已配对。</p>
+<p>规范：<a href="/sendspin/build/spec/#cipher-suites">密码套件</a>、<a href="/sendspin/build/spec/#identities">身份</a>、<a href="/sendspin/build/spec/#pre-shared-key">预共享密钥</a>、<a href="/sendspin/build/spec/#prologue">前言</a>、<a href="/sendspin/build/spec/#re-handshake">重新握手</a>。</p>
+<h3 id="pairing-and-encryption---2" tabindex="-1"><a class="heading-anchor" href="#pairing-and-encryption---2" aria-hidden="true">#</a>三种配对方式</h3>
+<p><strong>配对 PSK。</strong> 一个已经认识该设备的系统将其配对令牌交给服务器：比如 Home Assistant 把 ESPHome 设备的密钥交给 Music Assistant，或者一个平台为自己的服务器进行预配置。该令牌同时携带 <code>client_id</code> 和配对 PSK，因此服务器知道自己在与哪台设备通信，并持有一个只有该设备才拥有的密钥。使用该 PSK 的握手从第一个字节起就对双方进行身份验证，且不需要任何人输入任何内容。谁持有令牌，谁就能配对。请把它保留在所有者自己的平台之内，像保护 Wi-Fi 密码那样保护它，并且绝不要把它打印在访客可以拍照的地方。</p>
+<p><strong>动态配对码。</strong> 设备显示或播报一个仅对本次尝试有效的六位数字码。它由握手哈希和两个随机数（nonce）派生，其中之一由设备在看到服务器的随机数之前先行提交，因此任何一方都无法操纵它。该码会输入到一个 PAKE（即 CPace）中，让双方在不发送该码的情况下证明彼此持有相同的码。如果码不对，证明会失败，且不会泄露正确的码。在两次握手之间进行中继的中间人（man in the middle）会拥有两个不同的握手哈希，因而得到两个不同的码，在两条链路上都会失败。新的长期 PSK 在网上传输时被包裹于 PAKE 输出之下，因此只有完成证明的一方才能读取它。</p>
+<p><strong>静态配对码。</strong> 同样使用 PAKE，但八位数字码是固定的并印在设备上，因此任何知道该码的人都可以配对。有两点限制了其暴露面：一次尝试需要操作者在设备上做出一个打开配对窗口的手势操作，并且该窗口在五次失败尝试后关闭。它专为没有显示屏或扬声器的设备而设；有显示屏或扬声器的设备应使用动态码。</p>
+<p>规范：<a href="/sendspin/build/spec/#methods">方法</a>、<a href="/sendspin/build/spec/#pairing-psk-flow">配对 PSK 流程</a>、<a href="/sendspin/build/spec/#dynamic-pairing-code-flow">动态配对码流程</a>、<a href="/sendspin/build/spec/#static-pairing-code-flow">静态配对码流程</a>、<a href="/sendspin/build/spec/#pake">PAKE</a>、<a href="/sendspin/build/spec/#wrapping">包裹</a>。</p>
+<h3 id="pairing-and-encryption---3" tabindex="-1"><a class="heading-anchor" href="#pairing-and-encryption---3" aria-hidden="true">#</a>未配对访问及其风险</h3>
+<p>Sentinel 会话是加密的，但双方都不知道对方是谁。同一网络上的人可以对服务器冒充音箱，或者对音箱冒充服务器，并在两者之间进行中继。对于客厅音箱上播放的音乐来说，这种风险每天都在以投放目标（cast target）的形式被接受，因此设备可以允许未配对访问，而服务器在运营者批准该设备后也可以使用它。</p>
+<p>处于未配对源（source）会话中间的攻击者可以听到采集到的音频。因此，源角色需要运营者的明确批准，绝不能是按下播放键所暗示的批准，而带有麦克风或任何其他隐私敏感输入的设备在出厂时应关闭未配对访问。配对之后，服务器就能对该设备进行身份验证。</p>
+<p>规范：<a href="/sendspin/build/spec/#unpaired-access">未配对访问</a>、<a href="/sendspin/build/spec/#source-messages">源消息</a>。</p>
+<h3 id="pairing-and-encryption---4" tabindex="-1"><a class="heading-anchor" href="#pairing-and-encryption---4" aria-hidden="true">#</a>信任关系的生命周期</h3>
+<pre class="mermaid">
+flowchart TD
+    A["First contact<br/>Sentinel PSK, unpaired"] --> B{Operator decides}
+    B -->|Approve| C["Unpaired playback<br/>on an approved client"]
+    B -->|Pair| D["Pairing attempt<br/>dynamic code or static code,<br/>or an automated PSK hand-off"]
+    C -->|Pair later| D
+    D -->|Record stored on both sides| E["Paired session<br/>re-handshake to the long-term PSK"]
+    E -->|server/unpair| A
+    E -->|"Factory reset, evicted record<br/>or interrupted finalize"| F["Credential mismatch<br/>Sentinel fallback, no playback"]
+    F -->|Re-pair| D
+</pre>
+<p>当服务器引用了一条客户端已不再持有的记录时，客户端会改用 Sentinel 密钥完成握手而不是失败，而服务器则（经客户端静态密钥验证身份后）得知自己的凭据已不可用。双方都不会仅凭该信号删除任何内容。只要那条记录还存在，服务器就不会在该设备上播放；它会把问题呈现出来并提供重新配对。如果服务器悄悄回退到未配对播放，攻击者就能通过让设备遗忘来把已配对的设备降级。</p>
+<p>规范：<a href="/sendspin/build/spec/#sentinel-fallback">Sentinel 回退</a>、<a href="/sendspin/build/spec/#pairing-records">配对记录</a>。</p>
+<h3 id="pairing-and-encryption---5" tabindex="-1"><a class="heading-anchor" href="#pairing-and-encryption---5" aria-hidden="true">#</a>需要保留什么，以及丢失它的代价</h3>
+<p>在<strong>客户端</strong>上：身份密钥对、配对 PSK、静态配对码（如果有的话）、至少五条配对记录、上次播放的服务器、未配对访问设置以及轮次计数器。丢失密钥对，设备对所有服务器来说都是陌生人。丢失记录，每台已配对的服务器都会看到不匹配并要求重新配对。丢失设备自行生成的配对 PSK，则持有其令牌的任何平台都无法再为它配对；恢复出厂设置可以恢复出厂自带的那个。如果在每次启动时都重置轮次计数器，那么一次断电重启就变成了该限制所依赖的手势操作，因此请将其持久化保存。</p>
+<p>在<strong>服务器</strong>上：身份密钥对、配对记录和各项批准。丢失密钥对，你就是一个新服务器；以旧身份归档的记录毫无用处，每台设备都必须重新配对。丢失记录，你已配对的设备仍持有它们自己的记录，但你以陌生人的身份连接，由运营者重新配对。丢失批准，则由运营者重新批准。请将密钥对和记录一起备份，否则就都不要备份。</p>
+<p>规范：<a href="/sendspin/build/spec/#identities">身份</a>、<a href="/sendspin/build/spec/#pairing-records">配对记录</a>、<a href="/sendspin/build/spec/#definitions">定义</a>。</p>
+<h3 id="pairing-and-encryption---6" tabindex="-1"><a class="heading-anchor" href="#pairing-and-encryption---6" aria-hidden="true">#</a>暴力破解与冷却时间</h3>
+<p>动态码有一百万种取值，并且每次尝试都是新的；一次猜测就是一个轮次，在二十个失败的轮次之后，设备会暂缓尝试，直到操作者做出一个刻意的操作。静态码有一亿种取值，每个窗口五次尝试，且每个窗口都需要一次手势操作。</p>
+<p>请在失败的轮次之间加入冷却时间，因为这些限制依赖于操作者刻意的手势操作。如果计数器在重启时被重置，那么控制着音箱智能插座的攻击者就可以反复重置它并继续猜测。以此方式获得的配对记录，即使后来固件更新添加了隐私敏感的角色，也与合法记录无法区分。请添加一个从几秒起步、每失败一个轮次就翻倍的冷却时间，以拖慢反复猜测。</p>
+<p>规范：<a href="/sendspin/build/spec/#rounds">轮次</a>、<a href="/sendspin/build/spec/#pairing-window">配对窗口</a>。</p>
+<h3 id="pairing-and-encryption---7" tabindex="-1"><a class="heading-anchor" href="#pairing-and-encryption---7" aria-hidden="true">#</a>供合规归档使用</h3>
+<p>轮次限制、窗口和尝试次数限制，以及冷却时间，正是测试实验室在询问身份验证如何抵抗暴力破解时可以指向的内容；ETSI EN 303 645 条款 5.1-5 和 EN 18031-1 机制 AUM-6 正是提出这个问题。请记录你的固件所强制执行的各项限制，以及重置这些限制的手势操作。每设备唯一的身份密钥、配对 PSK 以及取自 CSPRNG 的静态码，可以满足关于通用默认凭据的条款要求。</p>
+<p>设备还可以更进一步：在存在每设备凭据之前保持 Sendspin 处于禁用状态，这样它绝不会在没有身份的情况下在网络上进行应答。ESPHome 为此提供了一个动作，让你无需更改协议即可构建 EN 18031 风格的默认设置。开启访客模式时，来自未经身份验证的对端的音频会到达你的解码器。请把解码路径视为面向网络的输入，并对其进行模糊测试（fuzzing）。</p>
+<h3 id="pairing-and-encryption---8" tabindex="-1"><a class="heading-anchor" href="#pairing-and-encryption---8" aria-hidden="true">#</a>接下来去哪里查阅</h3>
+<p>已记录的配对和入门流程位于<a href="#server-ux">用户对服务器的期望</a>中。设备侧的选择，即提供哪些方式以及如何展示配对码，位于<a href="#client-pairing">客户端配对</a>中。上述所有内容的规范性文本从规范中的<a href="/sendspin/build/spec/#pairing">配对</a>开始。</p>
+
+  </section>
+  
+  <section class="guide-print__chapter" id="testing">
+    <h2>测试与认证</h2>
+    <p>先对真实对端进行测试，然后运行自动化一致性测试套件（conformance suite）并测量同步性能。</p>
+<h3 id="" tabindex="-1"><a class="heading-anchor" href="#" aria-hidden="true">#</a>对真实对端进行测试</h3>
+<p>让你的实现与一个参考实现同时播放音乐。使用以下对端来测试每一个角色。</p>
+<ul>
+<li><strong><a href="https://github.com/Sendspin/sendspin-cpp-cli">sendspin-cpp-cli</a></strong> 是参考播放器。它在 Linux、Raspberry Pi、Apple 芯片 Mac 或 Windows 上无头运行，带有引导式安装程序，并以 <code>sendspin-cli -n living-room</code> 启动。在整个项目期间，让一个实例在你的设备旁边持续运行；如果两者发生漂移，比较它们的时间戳以找出原因。</li>
+<li><strong><a href="https://github.com/Sendspin/sendspin-python-cli">sendspin-python-cli</a></strong> 是第二个独立的播放器（<code>pip install sendspin</code> 或 <code>uv tool install sendspin</code>）。用两个播放器复现故障有助于缩小原因范围。</li>
+<li><strong><a href="https://www.music-assistant.io">Music Assistant</a></strong> 是参考服务器。如果你正在构建客户端，请首先针对它进行测试，并将其行为视为预期行为。</li>
+<li><strong>一个 ESPHome 设备</strong>，例如 Home Assistant Voice Preview Edition，是现场中的参考客户端，也是服务器在大多数家庭中会遇到的对象。</li>
+<li><strong>一个带有 <a href="https://github.com/Sendspin/sendspin-js">sendspin-js</a> 的浏览器标签页</strong>，它是 Music Assistant Web UI 和本站<a href="/sendspin/#live-demo">实时演示</a>背后的客户端，具有粗略的时钟和用户手势要求，这会锻炼到原生播放器永远不会触及的路径。</li>
+<li><strong><a href="https://github.com/Sendspin/aiosendspin">aiosendspin</a> 中的客户端</strong>是一个可脚本化的测试客户端。如果你正在构建服务器，请从 Python 脚本驱动它，以循环方式连接、配对、加入组和断开连接，并显示每条消息。</li>
+</ul>
+<div class="callout callout--tip">
+<p class="callout__title">提示</p>
+<p>从一开始就在网络中放置不止一台服务器进行测试。Music Assistant 加上第二台服务器可以演练多服务器规则，而单服务器环境永远不会涉及这些规则：通过 <code>another_server</code> 进行的交接、绝不能被打断的配对，以及客户端记住上次从哪里播放。</p>
+</div>
+<h3 id="testing---1" tabindex="-1"><a class="heading-anchor" href="#testing---1" aria-hidden="true">#</a>运行一致性测试套件</h3>
+<p><a href="https://github.com/Sendspin/conformance">conformance</a> 仓库会让每个已知的实现与其他所有实现相互测试，并将结果以矩阵形式发布在 <a href="https://sendspin.github.io/conformance/">sendspin.github.io/conformance</a> 上。每个单元格代表一个客户端针对一台服务器在一组场景下的表现：双向发起连接、各种流格式（PCM、FLAC、Opus 和 24-bit）、元数据、封面图片、控制器角色以及协议基线。</p>
+<p>要添加你的实现，请按照 <a href="https://github.com/Sendspin/conformance/blob/main/adapters/README.md"><code>adapters/README.md</code></a> 编写一个适配器，它会告诉测试框架（harness）如何启动、停止和观察你的实现。然后设置一个工作区并运行全部测试：</p>
+<pre><code class="language-sh">python scripts/setup_workspace.py --clone
+. .venv/bin/activate
+python scripts/run_all.py
+</code></pre>
+<p>在迭代过程中，你通常只需要测试一对实现：</p>
+<pre><code class="language-sh">conformance run --from your-impl --to target-impl
+</code></pre>
+<p>按行和按列阅读矩阵。如果你的实现对所有对端都失败，先调查你自己的实现。如果它只对一个对端失败，就将两个实现与规范进行对比，并针对失败的场景提交一个 issue。</p>
+<p>在你自己的 CI 中运行该套件；针对 sendspin-cpp-cli 或 aiosendspin 执行一次 <code>conformance run</code> 只需要一两分钟。然后用你的适配器提交一个 pull request，让公开矩阵中包含你的实现，这样任何实现的每次更改也都会针对你的实现进行测试。</p>
+<h3 id="testing---2" tabindex="-1"><a class="heading-anchor" href="#testing---2" aria-hidden="true">#</a>测量同步</h3>
+<p>规范设定了稳态下 ±1 ms 的<a href="/sendspin/build/spec/#sync-accuracy">精度下限</a>和 ±0.5 ms 的目标值。两者都在音频输出处测量，以你自己的时间滤波器（time filter）所预测的本地时间应为多少为基准，并减去所配置的输出延迟。下限是测试套件和认证计划对你的硬性要求；而目标值则是让同一房间里的两个音箱听起来不发糊的保障。</p>
+<p><a href="https://github.com/Sendspin/sync-test">sync-test</a> 测量两个客户端之间的实际偏移量：它通过两个客户端播放测试信号，用 USB 声卡的两个声道分别录制，并报告随时间变化的差异。将 sendspin-cpp-cli 放在一个声道，你的实现放在另一个声道，然后运行：</p>
+<ul>
+<li>**一小时的播放。**漂移和滤波器的稳定性只有随时间推移才会显现。记录一小时的偏移量，观察趋势，而不仅仅是平均值。</li>
+<li>**Wi-Fi 和以太网。**Wi-Fi 的往返时间更大且更不稳定，这正是时间滤波器的突发（burst）策略发挥作用的地方。<a href="https://github.com/Sendspin/time-filter">time-filter</a> 参考实现每十秒背靠背进行约八次交换，并选用 <code>max_error</code> 最低的那个样本；如果你在同一网络下的指标比 sendspin-cpp-cli 更差，请先对照它的策略进行比较。</li>
+<li>**迟加入者。**先启动参考播放器并让它运行，然后让你的实现加入。你的实现应该在其滤波器收敛之后才变为可用，并以听不到跳变的方式进入同步。</li>
+<li>**跳转和切换曲目。**两者都会清空缓冲区并继续流。跳转之后的偏移量必须等于跳转之前的偏移量。</li>
+</ul>
+<h3 id="testing---3" tabindex="-1"><a class="heading-anchor" href="#testing---3" aria-hidden="true">#</a>配对与恢复演练</h3>
+<p>用你的设备与一台服务器逐项进行这些演练。既要检查协议的行为，也要检查用户看到的内容。</p>
+<ul>
+<li>**配对状态下恢复出厂设置。**服务器的下一次连接会落入 <a href="/sendspin/build/spec/#sentinel-fallback">Sentinel 回退</a>。服务器不得播放，应告知其操作者并提供重新配对；客户端则以全新未配对设备的状态回归，其出厂身份和配对 PSK 保持完好。</li>
+<li>**通过与六台服务器配对来逐出记录。**客户端至少存储<a href="/sendspin/build/spec/#pairing-records">五条配对记录</a>，并且绝不因空间不足而让配对失败。确认第六次配对成功，并且被逐出的服务器收到的是清晰的凭据不匹配信号，而不是挂起。</li>
+<li>**在配对过程中断开网络。**在 <code>client/pair-init</code> 和最终确认步骤之间将接入点断电重启。双方都应超时、干净地中止并允许新的尝试，且任何一方都不会留下写了一半的记录。</li>
+<li>**连续五次输入错误代码。**静态配对窗口会在<a href="/sendspin/build/spec/#pairing-window">第五次失败尝试</a>后关闭；动态代码尝试在轮次上限处停止。检查设备是否通过你在文档中记载的操作者操作来恢复，以及服务器是否说明其停止的原因。</li>
+<li>**从备份恢复服务器。**服务器身份密钥必须保留，否则每台已配对的设备都会把恢复后的服务器当作陌生人。执行备份、擦除、恢复，并确认已配对的设备无需重新配对即可重新连接。</li>
+<li>**两台服务器相争。**先从一台服务器开始播放，再从另一台开始。落败的服务器收到 <code>another_server</code>，继续将设备显示为可用，并且不会陷入循环重连。然后从一台发起配对尝试、从另一台开始播放：配对尝试绝不能被中断。</li>
+</ul>
+<h3 id="testing---4" tabindex="-1"><a class="heading-anchor" href="#testing---4" aria-hidden="true">#</a>各角色的互操作性检查清单</h3>
+<p>在你宣布某个角色完成之前，至少要对照两个对端进行验证。</p>
+<div class="table-scroll" tabindex="0">
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>对端检查项</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>player</code></td>
+<td>能播放来自 Music Assistant 的 PCM 和 FLAC；如果声明了则支持 Opus。仅在滤波器收敛后才可用。在 sendspin-cpp-cli 旁边保持 ±1 ms。音量、静音和输出延迟通过 <code>client/state</code> 完成往返同步。迟到的数据块被丢弃。</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td>Music Assistant 将捕获的音频同步分发给第二台播放器。时间戳包含漂移。在发送任何内容之前需要操作者批准。</td>
+</tr>
+<tr>
+<td><code>controller</code></td>
+<td>每条命令都作用于客户端自己的组。<code>switch</code> 在正在播放的组之间循环。组状态在加入后以及每次更改后到达。</td>
+</tr>
+<tr>
+<td><code>metadata</code></td>
+<td>计划中的更新出现在曲目边界处，而不是在到达时立即显示。容忍缺失的字段。</td>
+</tr>
+<tr>
+<td><code>artwork</code></td>
+<td>图像在每个通道上以所请求的大小和格式到达。没有封面的曲目会清除显示。</td>
+</tr>
+<tr>
+<td><code>visualizer</code></td>
+<td>帧在其时间戳处渲染。峰值始终存在；节拍事件可能缺席。</td>
+</tr>
+<tr>
+<td><code>color</code></td>
+<td>调色板随封面变化，并且对比度保证在你的显示屏上依然成立。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>对于服务器，此表反向适用：将每个角色对照 sendspin-cpp-cli、ESPHome 设备和浏览器客户端运行，并且对于只能通过脚本才能触达的路径，对照 aiosendspin 的客户端运行。</p>
+<h3 id="testing---5" tabindex="-1"><a class="heading-anchor" href="#testing---5" aria-hidden="true">#</a>认证</h3>
+<p>Sendspin 认证计划正在筹备中。认证将包含测试和象征性的费用，获认证后有权在产品及其营销中使用认证标志和徽标（logo），并会在本网站上获得列出。测试计划正在基于上述的一致性测试套件、同步测量和配对演练来构建，因此为之做准备就意味着完成本章所描述的工作并保留结果。</p>
+<p>在该计划开放之前，商标规则以<a href="/sendspin/licensing/">许可页面</a>上的为准：你可以如实陈述你的产品实现了 Sendspin 或与其兼容，但在出售的产品上使用该名称或徽标需要获得许可。如果你想成为首批获得认证的产品之一，或者你的发布日期取决于认证，请发送电子邮件至 <a href="mailto:sendspin@openhomefoundation.org">sendspin@openhomefoundation.org</a>。</p>
+
+  </section>
+  
+  <section class="guide-print__chapter" id="contributing">
+    <h2>贡献与治理</h2>
+    <p>Sendspin 在开放环境下开发，并接受实现者（implementor）的贡献。本章介绍如何提出变更，以及发布流程对您发布的代码意味着什么。权威文档位于<a href="https://github.com/Sendspin/spec">规范仓库</a>。</p>
+<h3 id="" tabindex="-1"><a class="heading-anchor" href="#" aria-hidden="true">#</a>治理与发布</h3>
+<p>Sendspin 是 <a href="https://www.openhomefoundation.org">Open Home Foundation</a> 的一个项目。<a href="https://github.com/Sendspin/spec/blob/main/GOVERNANCE.md">GOVERNANCE.md</a> 描述了谁来维护规范、变更如何获得批准以及发布如何进行；<a href="https://github.com/Sendspin/spec/blob/main/SCOPE.md">SCOPE.md</a> 和<a href="https://github.com/Sendspin/spec/blob/main/LICENSE.md">许可证</a>补全了全貌。</p>
+<p><code>main</code> 分支和候选发布版本（release candidate）属于草案（Draft）规范，而像 <code>1.0.0</code> 这样的正式版本则是携带完整专利承诺的已批准（Approved）规范。正式版本会至少提前 45 天公告，并且在最后一个候选发布版本与正式版本之间只会合并澄清性修改。</p>
+<div class="callout callout--note">
+<p class="callout__title">RC1 对您意味着什么</p>
+<p>候选发布版本 1（Release Candidate 1）是一个冻结的协议。您今天基于它构建的内容将与 1.0 兼容，因为此时只允许进行澄清性修改。请关注仓库以获取最终标签（tag）；它为您和合作伙伴项目提供了一个固定的版本，可在文档和测试报告中引用。</p>
+</div>
+<h3 id="contributing---1" tabindex="-1"><a class="heading-anchor" href="#contributing---1" aria-hidden="true">#</a>规范仓库如何运作</h3>
+<p>已发布的 <code>README.md</code> 是自动生成的。其源文件为 <code>template.md</code>（文档头部、角色版本控制规则和组装顺序）、<code>connection.md</code>、<code>messaging.md</code>、<code>pairing.md</code>，以及 <code>roles/&lt;role&gt;/v1.md</code> 下每个角色版本对应的文件。编辑这些文件后使用 <code>python3 tools/build-readme.py</code> 重新构建；<code>--check</code> 用于验证生成的页面是否保持同步，这也是 CI 在每个 pull request（拉取请求）上运行的检查。每个克隆只需启用一次 pre-commit 钩子，这样您就永远不会提交过期的 <code>README.md</code>：</p>
+<pre><code class="language-sh">git config core.hooksPath .githooks
+</code></pre>
+<p>Pull request 模板中只有一个复选框：为该贡献接受<a href="https://github.com/Sendspin/spec/blob/main/CONTRIBUTOR-LICENSE-AGREEMENT.md">贡献者许可协议</a>（Contributor License Agreement）。没有勾选的 pull request 不会被合并。该协议涵盖规范许可证、治理和贡献流程，并要求您确认您的雇主（如适用）也已同意。</p>
+<p><a href="https://github.com/Sendspin/spec/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> 列出了审阅者所适用的编辑规则。其中最常需要返工的几条是：</p>
+<ul>
+<li><strong>每个角色文件都是自包含的。</strong> 适用于多个角色的文本会分别出现在每个文件中；这种重复是有意为之，这样实现某个客户端角色的人永远无需阅读其他角色文件。</li>
+<li><strong>常量字段放在 <code>client/hello</code> 中，可变字段放在 <code>client/state</code> 中。</strong> hello 消息在每个连接中只发送一次，因此放在其中的任何内容只能通过重新连接来更新。</li>
+<li><strong>每个标题都需要一个唯一的锚点（anchor）</strong>，如果链接指向不存在的锚点，构建将会失败。</li>
+<li><strong>每个术语只有一个规范名称</strong>，取自定义（Definitions）部分，在正文中使用并与它所描述的传输标识符保持一致。</li>
+<li><strong><code>**Note:**</code> 块是非规范性的。</strong> 要求应写入正文；注释必须写成读者可以跳过的内容。</li>
+</ul>
+<h3 id="contributing---2" tabindex="-1"><a class="heading-anchor" href="#contributing---2" aria-hidden="true">#</a>提出变更或新角色</h3>
+<p>本项目接受经过实践检验的变更。如果您想要新的消息、字段或角色，请先制作原型，通常是在 Music Assistant 和一个客户端中实现，并带着您的经验而来：您构建了什么、哪些可行、以及规范需要说明什么。没有实现支撑的提案会被讨论，但很少会被合并。</p>
+<p>请使用<a href="/sendspin/build/spec/#application-specific-roles">应用特定角色</a>（application-specific roles），它们以下划线开头并带有明确的版本。将 <code>_wip_&lt;role&gt;@v1</code> 用于旨在成为规范一部分的草案，将 <code>_vendorname_&lt;role&gt;@v1</code> 用于特定于您产品的内容。服务器会忽略它们未实现的角色，因此草案角色可以随产品发布，并在开放环境中不断完善。</p>
+<p>协议规则应放入规范中，实现建议应放入本指南中。读起来像教程的规范 pull request 会被要求移到这里，而开始定义行为的指南章节则会被要求改为指向规范。</p>
+<p>讨论发生在两个地方。<a href="https://discord.gg/kaVm8hGpne">Music Assistant Discord</a> 上的 <code>#sendspin-protocol</code> 频道面向开发者和实现者：提问、设计讨论以及任何尚未成为具体变更的内容。<a href="https://github.com/Sendspin/spec/issues">规范仓库</a>中的 Issue 和 pull request 用于具体变更，而 pull request 上的讨论线程则保留给开发者讨论该变更。</p>
+<h3 id="contributing---3" tabindex="-1"><a class="heading-anchor" href="#contributing---3" aria-hidden="true">#</a>面向实现者的角色版本控制</h3>
+<p>角色版本是协议在不破坏已发布内容的情况下增加功能的方式。请遵循<a href="/sendspin/build/spec/#role-versioning">角色版本控制</a>和<a href="/sendspin/build/spec/#protocol-evolution">协议演进</a>：</p>
+<ul>
+<li><strong>客户端会列出它支持的每个版本</strong>，按优先级从高到低排列：<code>[&quot;player@v2&quot;, &quot;player@v1&quot;]</code>。服务器激活它实现的第一个版本，绝不会激活客户端未列出的版本。</li>
+<li><strong>服务器会实现其所声明规范中每个角色的每个版本</strong>，并将对未知角色或版本的请求作为需要更新的信号加以跟踪。</li>
+<li><strong>未知字段和消息将被忽略。</strong> 修订版本可以添加可选信息，前提是较旧的接收方可以忽略它而不改变消息的含义。只有当双方通过角色激活或声明的功能（capability）达成一致时，行为才会改变；软件版本匹配或没有返回错误并不算数。</li>
+</ul>
+<p>如果您提出的变更破坏了现有角色的契约，它将成为新的角色版本。如果它改变了整个连接范围的行为，提案必须说明双方如何选择加入（opt in），以及当其中一方未加入时会发生什么。</p>
+<h3 id="contributing---sdk-" tabindex="-1"><a class="heading-anchor" href="#contributing---sdk-" aria-hidden="true">#</a>为 SDK 和本指南做贡献</h3>
+<p>SDK、参考播放器和测试工具位于 <a href="https://github.com/Sendspin">Sendspin GitHub 组织</a>中，每个都有自己的许可证和贡献说明。请在受影响实现的缺陷跟踪器（tracker）中报告 bug。如有可能，请附上<a href="https://github.com/Sendspin/conformance">一致性测试套件</a>（conformance suite）中失败的场景以及清晰的描述。</p>
+<p>本指南是<a href="https://github.com/Sendspin/sendspin-audio.com">网站仓库</a>的一部分，位于 <code>src/build/guide/</code> 目录中，修复同样通过 pull request 的方式提交。如果规范回答了本指南未解答的问题，请在此提交澄清。</p>
+<h3 id="contributing---4" tabindex="-1"><a class="heading-anchor" href="#contributing---4" aria-hidden="true">#</a>行为准则与联系方式</h3>
+<p>本项目遵循 Open Home Foundation 的<a href="https://github.com/Sendspin/spec/blob/main/CODE_OF_CONDUCT.md">行为准则</a>，它适用于各个仓库、Discord 频道以及项目聚会的所有其他场所。如有疑虑请报告至 <a href="mailto:safety@openhomefoundation.org">safety@openhomefoundation.org</a>。</p>
+<p>有关商标、合作伙伴关系和认证的问题，请发送电子邮件至 <a href="mailto:sendspin@openhomefoundation.org">sendspin@openhomefoundation.org</a>；<a href="/sendspin/licensing/">许可页面</a>涵盖了常见情况。对于所有技术问题，Discord 频道和规范仓库是最快的途径。</p>
+
+  </section>
+  
+</div>
+<script>
+  document.querySelector("[data-print]").addEventListener("click", function () {
+    window.print();
+  });
+</script>
+
+      </div>
+    </main>
+    
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="site-footer__inner">
+          <div class="site-footer__brand">
+            <a href="/sendspin/" class="nav__logo" aria-label="Sendspin home">
+  <img class="nav__logo-image" src="/sendspin/images/sendspin-lockup.svg" width="148" height="35" alt="" />
+</a>
+
+            <p class="site-footer__tagline">
+              The open standard for music in every room — from the Open Home&nbsp;Foundation.
+            </p>
+            <p class="site-footer__tagline site-footer__tagline--analytics">
+              本站使用 <a
+                href="https://www.openhomefoundation.org/blog/making-our-web-analytics-open-source-with-plausible/"
+                rel="noopener">privacy-first analytics</a> 帮助我们改进网站。你可以在我们的 <a
+                href="https://plausible.openhomefoundation.org/sendspin-audio.com" rel="noopener">公开面板查看全部数据</a>.
+            </p>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>听音乐</h5>
+            <ul>
+              
+              <li><a href="/sendspin/#whole-room">体验</a></li>
+              
+              <li><a href="/sendspin/#live-demo">在线演示</a></li>
+              
+              <li><a href="/sendspin/#start">快速开始</a></li>
+              
+              <li><a href="https://www.home-assistant.io/connect/aux-2/">Connect AUX-2</a></li>
+              
+            </ul>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>构建</h5>
+            <ul>
+              
+              <li><a href="/sendspin/build/">用 Sendspin 构建</a></li>
+              
+              <li><a href="/sendspin/build/manufacturers/">面向硬件厂商</a></li>
+              
+              <li><a href="/sendspin/build/guide/">实施指南</a></li>
+              
+              <li><a href="/sendspin/build/sdks/">SDK 与库</a></li>
+              
+              <li><a href="/sendspin/build/spec/">规范</a></li>
+              
+              <li><a href="https://www.github.com/Sendspin">GitHub</a></li>
+              
+            </ul>
+          </div>
+
+          <div class="site-footer__col">
+            <h5>社区</h5>
+            <ul>
+              
+              <li><a href="https://discord.gg/kaVm8hGpne">Discord</a></li>
+              
+              <li><a href="https://www.openhomefoundation.org">Open Home Foundation</a></li>
+              
+              <li><a href="mailto:sendspin@openhomefoundation.org">联系我们</a></li>
+              
+            </ul>
+          </div>
+        </div>
+        <div class="site-footer__legal">
+          <span>© Sendspin · Open Home Foundation. Sendspin 现为 Release Candidate 1，规范正在最终定稿。 <a href="/sendspin/licensing/">许可与商标</a></span>
+          <span>产自温暖的瑞士。</span>
+        </div>
+      </div>
+    </footer>
+    
+    <script src="/sendspin/js/mermaid-11.12.2.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true });</script>
+    
+    
+    
+  </body>
+</html>
